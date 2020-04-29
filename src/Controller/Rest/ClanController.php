@@ -419,7 +419,7 @@ class ClanController extends AbstractFOSRestController
         }
 
         if ($clan) {
-            $view = $this->view(null, Response::HTTP_OK);
+            $view = $this->view(null, Response::HTTP_NO_CONTENT);
         } else {
             $view = $this->view(null, Response::HTTP_NOT_FOUND);
         }
