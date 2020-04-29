@@ -2,9 +2,10 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
-use Swagger\Annotations as SWG;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -28,13 +29,14 @@ class User implements UserInterface
         if (null == $this->getModifiedAt()) {
             $this->setModifiedAt(new \DateTime());
         }
+        $this->clans = new ArrayCollection();
     }
 
     use EntityIdTrait;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
-     * @Groups("default")
+     * @Groups({"default", "clanview"})
      */
     private $email;
 
@@ -46,13 +48,13 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups("default")
+     * @Groups({"default", "clanview"})
      */
     private $nickname;
 
     /**
      * @ORM\Column(type="integer")
-     * @Groups("default")
+     * @Groups({"default", "clanview"})
      */
     private $status;
 
@@ -157,6 +159,12 @@ class User implements UserInterface
      * @Groups("default")
      */
     private $statements;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\UserClan", mappedBy="user")
+     * @Groups("default")
+     */
+    private $clans;
 
     public function getEmail(): ?string
     {
@@ -318,7 +326,7 @@ class User implements UserInterface
      * A visual identifier that represents this user.
      *
      * @see UserInterface
-     * @Groups("default")
+     * @Groups({"default", "clanview"})
      */
     public function getUsername(): string
     {
@@ -458,4 +466,13 @@ class User implements UserInterface
         // update the modified time
         $this->setModifiedAt(new \DateTime());
     }
+
+    /**
+     * @return Collection|UserClan[]
+     */
+    public function getClans(): Collection
+    {
+        return $this->clans;
+    }
+
 }

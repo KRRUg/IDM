@@ -2,19 +2,27 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\Clan;
 use App\Entity\User;
 use App\Entity\ApiUser;
+use App\Entity\UserClan;
+use App\Repository\UserRepository;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+
 
 class AppFixtures extends Fixture
 {
     /**
      * @var UserPasswordEncoderInterface
      */
-    private $encoder;
+    private UserPasswordEncoderInterface $encoder;
+    /**
+     * @var UserRepository
+     */
+    private UserRepository $userRepository;
 
     public function __construct(UserPasswordEncoderInterface $encoder)
     {
@@ -37,6 +45,68 @@ class AppFixtures extends Fixture
 
             $manager->persist($user);
         }
+
+        $manager->flush();
+
+        // assign Clans to Users
+
+        $clan = new Clan();
+        $clan->setName('Clan 1');
+        $clan->setClantag('CL1');
+        $clan->setUuid(Uuid::fromInteger(strval(1001)));
+        $clan->setDescription('wubwub');
+        $clan->setWebsite('http://localhost');
+        $clan->setJoinPassword(password_hash('clan1', PASSWORD_ARGON2ID));
+
+        $clanuser1 = $manager->getRepository('App:User')->findOneBy(['uuid' => '00000000-0000-0000-0000-000000000001']);
+
+        $userclan = new UserClan();
+        $userclan->setAdmin(true);
+        $userclan->setUser($clanuser1);
+        $userclan->setClan($clan);
+
+        $manager->persist($userclan);
+
+        $clanuser2 = $manager->getRepository('App:User')->findOneBy(['uuid' => '00000000-0000-0000-0000-000000000002']);
+
+        $userclan = new UserClan();
+        $userclan->setUser($clanuser2);
+        $userclan->setClan($clan);
+
+        $manager->persist($userclan);
+
+        $manager->persist($clan);
+
+        $clan = new Clan();
+        $clan->setName('Clan 2');
+        $clan->setClantag('CL2');
+        $clan->setUuid(Uuid::fromInteger(strval(1002)));
+        $clan->setDescription('wubwub');
+        $clan->setWebsite('http://localhost2');
+        $clan->setJoinPassword(password_hash('clan2', PASSWORD_ARGON2ID));
+
+        $clanuser3 = $manager->getRepository('App:User')->findOneBy(['uuid' => '00000000-0000-0000-0000-000000000003']);
+        $userclan = new UserClan();
+        $userclan->setAdmin(true);
+        $userclan->setUser($clanuser3);
+        $userclan->setClan($clan);
+
+        $manager->persist($userclan);
+
+        $userclan = new UserClan();
+        $userclan->setUser($clanuser2);
+        $userclan->setClan($clan);
+
+        $manager->persist($userclan);
+
+        $clanuser4 = $manager->getRepository('App:User')->findOneBy(['uuid' => '00000000-0000-0000-0000-000000000004']);
+        $userclan = new UserClan();
+        $userclan->setUser($clanuser4);
+        $userclan->setClan($clan);
+
+        $manager->persist($userclan);
+
+        $manager->persist($clan);
 
         // create admin user
         $admin = new User();
