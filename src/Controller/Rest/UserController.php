@@ -9,6 +9,7 @@ use App\Repository\UserRepository;
 use App\Service\LoginService;
 use App\Transfer\Error;
 use App\Transfer\Login;
+use App\Transfer\PaginationCollection;
 use App\Transfer\Search;
 use App\Transfer\UserAvailability;
 use Doctrine\Common\Collections\Criteria;
@@ -17,6 +18,9 @@ use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\Annotations\NamePrefix;
 use FOS\RestBundle\Controller\Annotations\Prefix;
+use FOS\RestBundle\Request\ParamFetcher;
+use Pagerfanta\Adapter\DoctrineORMAdapter;
+use Pagerfanta\Pagerfanta;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\Request;
@@ -282,22 +286,37 @@ class UserController extends AbstractFOSRestController
      * Returns all Userobjects.
      *
      * @Rest\Get("")
+     * @Rest\QueryParam(name="page", requirements="\d+", default="1")
+     * @Rest\QueryParam(name="limit", requirements="\d+", default="10")
+     * @Rest\QueryParam(name="q", default="")
+     *
      */
-    public function getUsersAction()
+    public function getUsersAction(Request $request, ParamFetcher $fetcher)
     {
+        $page = intval($fetcher->get('page'));
+        $limit = intval($fetcher->get('limit'));
+        $filter = $fetcher->get('q');
+
         // Select all Users where the Status is greater then 0 (e.g. not disabled/locked/deactivated)
-        $criteria = new Criteria();
-        $criteria->where($criteria->expr()->gt('status', 0));
+        $qb = $this->userRepository->findAllActiveQueryBuilder();
+        $pager = new Pagerfanta(new DoctrineORMAdapter($qb));
+        $pager->setMaxPerPage($limit);
+        $pager->setCurrentPage($page);
 
-        $user = $this->userRepository->matching($criteria);
-
-        if ($user) {
-            $view = $this->view($user);
-            $view->getContext()->setSerializeNull(true);
-            $view->getContext()->addGroup('default');
-        } else {
-            $view = $this->view(Error::withMessage("User not found"), Response::HTTP_NOT_FOUND);
+        $users = array();
+        foreach ($pager->getCurrentPageResults() as $user) {
+            $users[] = $user;
         }
+
+        $collection = new PaginationCollection(
+            $users,
+            $pager->getNbResults()
+        );
+
+        $view = $this->view($collection);
+        $view->getContext()->setSerializeNull(true);
+        $view->getContext()->addGroup('dto');
+        $view->getContext()->addGroup('default');
 
         return $this->handleView($view);
     }

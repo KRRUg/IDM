@@ -1,4 +1,7 @@
 {
+    "babdev/pagerfanta-bundle": {
+        "version": "v2.2.1"
+    },
     "brick/math": {
         "version": "0.8.14"
     },
@@ -141,6 +144,9 @@
     },
     "ocramius/proxy-manager": {
         "version": "2.2.3"
+    },
+    "pagerfanta/pagerfanta": {
+        "version": "v2.1.3"
     },
     "php": {
         "version": "7.4"
