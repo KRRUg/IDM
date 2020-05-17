@@ -298,7 +298,7 @@ class UserController extends AbstractFOSRestController
         $filter = $fetcher->get('q');
 
         // Select all Users where the Status is greater then 0 (e.g. not disabled/locked/deactivated)
-        $qb = $this->userRepository->findAllActiveQueryBuilder();
+        $qb = $this->userRepository->findAllActiveQueryBuilder($filter);
         $pager = new Pagerfanta(new DoctrineORMAdapter($qb));
         $pager->setMaxPerPage($limit);
         $pager->setCurrentPage($page);
