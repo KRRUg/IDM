@@ -194,7 +194,7 @@ class UserController extends AbstractFOSRestController
      * Edits a User
      * WARNING: for now it's mandatory to supply a full UserObject
      *
-     * @Rest\Patch("/{uuid}", requirements= {"search"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
+     * @Rest\Patch("/{uuid}", requirements= {"uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
      * @ParamConverter()
      */
     public function editUserAction(User $user, Request $request)
