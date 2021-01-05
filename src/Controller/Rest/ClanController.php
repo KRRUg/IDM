@@ -19,7 +19,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
-use Pagerfanta\Adapter\DoctrineORMAdapter;
+use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Pagerfanta\Pagerfanta;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\HttpFoundation\Request;
@@ -246,7 +246,7 @@ class ClanController extends AbstractFOSRestController
         $qb = $this->clanRepository->findAllWithActiveUsersQueryBuilder($filter);
 
         //set useOutputWalker to false otherwise we cannot Paginate Entities with INNER/LEFT Joins
-        $pager = new Pagerfanta(new DoctrineORMAdapter($qb, true, false));
+        $pager = new Pagerfanta(new QueryAdapter($qb, true, false));
         $pager->setMaxPerPage($limit);
         $pager->setCurrentPage($page);
 
