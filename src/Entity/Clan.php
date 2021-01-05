@@ -72,7 +72,11 @@ class Clan
     private $modifiedAt;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\UserClan", mappedBy="clan")
+     * @ORM\OneToMany(
+     *     targetEntity="App\Entity\UserClan",
+     *     mappedBy="clan",
+     *     cascade={"all"},
+     * )
      * @Groups("clanview")
      */
     private $users;

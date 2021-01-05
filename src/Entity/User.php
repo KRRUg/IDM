@@ -161,7 +161,11 @@ class User implements UserInterface
     private $statements;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\UserClan", mappedBy="user")
+     * @ORM\OneToMany(
+     *     targetEntity="App\Entity\UserClan",
+     *     mappedBy="user",
+     *     cascade={"all"},
+     * )
      * @Groups("default")
      */
     private $clans;

@@ -225,14 +225,6 @@ class ClanController extends AbstractFOSRestController
      */
     public function removeClanAction(Clan $clan)
     {
-        // TODO let ORM handle this
-        $clanusers = $this->userClanRepository->findBy(['clan' => $clan]);
-        if ($clanusers) {
-            foreach ($clanusers as $clanuser) {
-                $this->em->remove($clanuser);
-            }
-        }
-
         $this->em->remove($clan);
         $this->em->flush();
 
