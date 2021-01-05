@@ -7,7 +7,7 @@ namespace App\Tests;
 use Sentry\Util\JSON;
 use Symfony\Component\HttpFoundation\Response;
 
-class AuthControllerTest extends AbstractControllerTest
+class AuthControllerRegisterTest extends AbstractControllerTest
 {
     public function testRegisterSuccessful()
     {
