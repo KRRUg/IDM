@@ -16,9 +16,9 @@ class UserControllerTest extends AbstractControllerTest
         $response = $this->client->getResponse();
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $this->assertEquals("application/json", $response->headers->get('Content-Type'));
+        $this->assertJson($response->getContent(), "No valid JSON returned.");
 
         $result = json_decode($response->getContent(), true);
-        $this->assertIsArray($result, "No valid JSON returned.");
         $this->assertArrayHasKey("uuid", $result);
         $this->assertArrayHasKey("email", $result);
         $this->assertArrayHasKey("nickname", $result);
