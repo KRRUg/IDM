@@ -18,8 +18,6 @@ use App\Transfer\PaginationCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
-use FOS\RestBundle\Controller\Annotations\NamePrefix;
-use FOS\RestBundle\Controller\Annotations\Prefix;
 use FOS\RestBundle\Request\ParamFetcher;
 use Pagerfanta\Adapter\DoctrineORMAdapter;
 use Pagerfanta\Pagerfanta;
@@ -31,8 +29,7 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
 /**
  * Class ClanController.
  *
- * @Prefix("/clans")
- * @NamePrefix("rest_clans_")
+ * @Rest\Route("/clans", name="rest_clans_")
  */
 class ClanController extends AbstractFOSRestController
 {

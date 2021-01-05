@@ -1,6 +1,6 @@
 restcontrollers:
-    resource: ../src/Controller/Rest/
-    type: rest
+    resource: ../../src/Controller/Rest/
+    type: annotation
     prefix: /api
 
 controllers:

@@ -12,8 +12,6 @@ use App\Transfer\UserAvailability;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
-use FOS\RestBundle\Controller\Annotations\NamePrefix;
-use FOS\RestBundle\Controller\Annotations\Prefix;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
@@ -23,8 +21,7 @@ use Swagger\Annotations as SWG;
 /**
  * Class AuthController.
  *
- * @Prefix("/auth")
- * @NamePrefix("auth_")
+ * @Rest\Route("/auth", name="auth_")
  */
 class AuthController extends AbstractFOSRestController
 {
