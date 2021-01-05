@@ -53,10 +53,6 @@ class LoginService
         }
 
         if ($valid) {
-            //Fetch the UserObject from DB
-
-            $user = $this->userRepository->findOneBy(['email' => $email]);
-
             return $user;
         } else {
             // User or Password false

@@ -6,6 +6,8 @@ use App\Entity\User;
 use App\Transfer\Search;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -35,6 +37,20 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $user->setPassword($newEncodedPassword);
         $this->_em->persist($user);
         $this->_em->flush();
+    }
+
+    public function userAvailable(?string $email, ?string $nickname)
+    {
+        $qb = $this->createQueryBuilder('u');
+        $qb->select('count(u)');
+
+        if (!is_null($email)) {
+            $qb->orWhere('LOWER(u.email) = LOWER(:email)')->setParameter('email', $email);
+        }
+        if (!is_null($nickname)) {
+            $qb->orWhere('LOWER(u.nickname) = LOWER(:nick)')->setParameter('nick', $nickname);
+        }
+        return 0 == $qb->getQuery()->getSingleScalarResult();
     }
 
     /**
