@@ -72,7 +72,7 @@ class AuthController extends AbstractFOSRestController
      * @SWG\Tag(name="UserManagement")
      *
      * @Rest\Post("/register")
-     * @ParamConverter("register", converter="fos_rest.request_body")
+     * @ParamConverter("register", converter="fos_rest.request_body", options={"deserializationContext": {"allow_extra_attributes": false}})
      */
     public function postRegisterAction(Register $register, ConstraintViolationListInterface $validationErrors, UserPasswordEncoderInterface $passwordEncoder): Response
     {
@@ -141,7 +141,7 @@ class AuthController extends AbstractFOSRestController
      * @SWG\Tag(name="Authorization")
      *
      * @Rest\Post("/authorize")
-     * @ParamConverter("login", converter="fos_rest.request_body")
+     * @ParamConverter("login", converter="fos_rest.request_body", options={"deserializationContext": {"allow_extra_attributes": false}})
      */
     public function postAuthorizeAction(Login $login, ConstraintViolationListInterface $validationErrors)
     {
@@ -167,7 +167,7 @@ class AuthController extends AbstractFOSRestController
      * TODO: is this required?
      *
      * @Rest\Post("/check")
-     * @ParamConverter("userAvailability", converter="fos_rest.request_body")
+     * @ParamConverter("userAvailability", converter="fos_rest.request_body", options={"deserializationContext": {"allow_extra_attributes": false}})
      */
     public function checkAvailabilityAction(UserAvailability $userAvailability, ConstraintViolationListInterface $validationErrors)
     {

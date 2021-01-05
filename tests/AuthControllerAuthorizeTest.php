@@ -68,4 +68,20 @@ JSON;
         $this->assertEquals("application/json", $response->headers->get('Content-Type'));
         $this->assertJson($response->getContent());
     }
+
+    public function testAuthorizeFailAdditionalFields()
+    {
+        $data = <<<JSON
+{
+    "email": "user1@localhost.local",
+    "password": "user1",
+    "override": "yes"
+}
+JSON;
+        $this->client->request('POST', '/api/auth/authorize', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
+        $response = $this->client->getResponse();
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->assertEquals("application/json", $response->headers->get('Content-Type'));
+        $this->assertJson($response->getContent());
+    }
 }

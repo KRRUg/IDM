@@ -157,6 +157,28 @@ JSON;
         $this->assertJson($response->getContent());
     }
 
+    public function testRegisterFailAdditionalField()
+    {
+        // infoMail type is invalid
+        $data = <<<JSON
+{
+    "email": "b@lup.com",
+    "password": "foofoo",
+    "nickname": "blup",
+    "firstname": "foo",
+    "surname": "baa",
+    "infoMail": true,
+    "invalid": "invalid"
+}
+JSON;
+        $this->client->request('POST', '/api/auth/register', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
+        $response = $this->client->getResponse();
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->assertEquals("application/json", $response->headers->get('Content-Type'));
+        $this->assertJson($response->getContent());
+    }
+
+
     public function testRegisterFailInvalidTypeString()
     {
         // nickname type is invalid

@@ -87,7 +87,7 @@ class UserController extends AbstractFOSRestController
      * Supports searching via UUID
      *
      * @Rest\Post("/search")
-     * @ParamConverter("search", converter="fos_rest.request_body")
+     * @ParamConverter("search", converter="fos_rest.request_body", options={"deserializationContext": {"allow_extra_attributes": false}})
      */
     public function postUsersearchAction(Search $search, ConstraintViolationListInterface $validationErrors)
     {
