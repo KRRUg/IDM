@@ -7,12 +7,12 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
-use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ClanRepository")
+ * @ORM\Table(name="clan")
  * @ORM\HasLifecycleCallbacks
  */
 class Clan
@@ -42,14 +42,12 @@ class Clan
      * @var UuidInterface
      *
      * @ORM\Column(type="uuid", unique=true)
-     * @Groups({"default", "clanview"})
      * @Assert\NotBlank
      */
     protected $uuid;
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
-     * @Groups({"default", "clanview"})
      * @Assert\NotBlank
      */
     private $name;
@@ -61,13 +59,11 @@ class Clan
 
     /**
      * @ORM\Column(type="datetime")
-     * @Groups("clanview")
      */
     private $createdAt;
 
     /**
      * @ORM\Column(type="datetime")
-     * @Groups("clanview")
      */
     private $modifiedAt;
 
@@ -77,27 +73,23 @@ class Clan
      *     mappedBy="clan",
      *     cascade={"all"},
      * )
-     * @Groups("clanview")
      */
     private $users;
 
     /**
      * @ORM\Column(type="string", length=24, unique=true)
-     * @Groups({"default", "clanview"})
      * @Assert\NotBlank
      */
     private $clantag;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"default", "clanview"})
      * @Assert\Url()
      */
     private $website;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"default", "clanview"})
      */
     private $description;
 

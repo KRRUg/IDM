@@ -7,6 +7,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ApiUserRepository")
+ * @ORM\Table(name="api_key")
  */
 class ApiUser implements UserInterface
 {

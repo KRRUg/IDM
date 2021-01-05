@@ -206,9 +206,6 @@ class ClanController extends AbstractFOSRestController
 
             $formclan = $this->clanRepository->findOneBy(['uuid' => $formclan->getUuid()]);
             $view = $this->view($formclan);
-            $view->getContext()->setSerializeNull(true);
-            $view->getContext()->addGroup('clanview');
-
             return $this->handleView($view);
         } else {
             $view = $this->view(Error::withMessageAndDetail('Invalid JSON Body supplied, please check the Documentation', $form->getErrors(true, false)), Response::HTTP_BAD_REQUEST);

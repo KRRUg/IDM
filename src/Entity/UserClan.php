@@ -7,7 +7,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="user_clan")
+ * @ORM\Table(name="gamer_clan")
  */
 class UserClan
 {

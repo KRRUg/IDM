@@ -8,12 +8,10 @@ use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Serializer\Annotation\Groups;
-
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
- * @ORM\Table(name="app_users")
+ * @ORM\Table(name="gamer")
  * @ORM\HasLifecycleCallbacks
  *
  * @UniqueEntity(fields={"email"}, message="There is already an account with this email")
@@ -36,7 +34,6 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
-     * @Groups({"default", "clanview"})
      */
     private $email;
 
@@ -48,115 +45,96 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255, unique=false)
-     * @Groups({"default", "clanview"})
      */
     private $nickname;
 
     /**
      * @ORM\Column(type="integer")
-     * @Groups({"default", "clanview"})
      */
     private $status;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups("default")
      */
     private $firstname;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups("default")
      */
     private $surname;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
-     * @Groups("default")
      */
     private $postcode;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups("default")
      */
     private $city;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups("default")
      */
     private $street;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups("default")
      */
     private $country;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups("default")
      */
     private $phone;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups("default")
      */
     private $gender;
 
     /**
      * @ORM\Column(type="boolean")
-     * @Groups("default")
      */
     private $emailConfirmed;
 
     /**
      * @ORM\Column(type="boolean")
-     * @Groups("default")
      */
     private $isSuperadmin = false;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups("default")
      */
     private $website;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups("default")
      */
     private $steamAccount;
 
     /**
      * @ORM\Column(type="datetime")
-     * @Groups("default")
      */
     private $registeredAt;
 
     /**
      * @ORM\Column(type="datetime")
-     * @Groups("default")
      */
     private $modifiedAt;
 
     /**
      * @ORM\Column(type="string", length=4096, nullable=true)
-     * @Groups("default")
      */
     private $hardware;
 
     /**
      * @ORM\Column(type="boolean")
-     * @Groups("default")
      */
     private $infoMails;
 
     /**
      * @ORM\Column(type="string", length=4096, nullable=true)
-     * @Groups("default")
      */
     private $statements;
 
@@ -166,7 +144,6 @@ class User implements UserInterface
      *     mappedBy="user",
      *     cascade={"all"},
      * )
-     * @Groups("default")
      */
     private $clans;
 
@@ -335,7 +312,6 @@ class User implements UserInterface
      * A visual identifier that represents this user.
      *
      * @see UserInterface
-     * @Groups({"default", "clanview"})
      */
     public function getUsername(): string
     {
