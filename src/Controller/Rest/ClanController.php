@@ -133,27 +133,12 @@ class ClanController extends AbstractFOSRestController
     /**
      * Returns a single Clanobject.
      *
-     * @Rest\Get("/{search}", requirements= {"search"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
-     * @Rest\QueryParam(name="all", requirements="[0-1]", default="0")
-     *
-     * @return Response
+     * @Rest\Get("/{uuid}", requirements= {"uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
+     * @ParamConverter()
      */
-    public function getClanAction(string $search, ParamFetcher $paramFetcher)
+    public function getClanAction(Clan $clan)
     {
-        if (1 === intval($paramFetcher->get('all'))) {
-            $clan = $this->clanRepository->findOneBy(['uuid' => $search]);
-        } else {
-            $clan = $this->clanRepository->findOneWithActiveUsersByUuid($search);
-        }
-
-        if ($clan) {
-            $view = $this->view($clan);
-            $view->getContext()->setSerializeNull(true);
-            $view->getContext()->addGroup('clanview');
-        } else {
-            $view = $this->view(Error::withMessage('Clan not found'), Response::HTTP_NOT_FOUND);
-        }
-
+        $view = $this->view($clan);
         return $this->handleView($view);
     }
 
@@ -240,8 +225,8 @@ class ClanController extends AbstractFOSRestController
      */
     public function removeClanAction(Clan $clan)
     {
+        // TODO let ORM handle this
         $clanusers = $this->userClanRepository->findBy(['clan' => $clan]);
-
         if ($clanusers) {
             foreach ($clanusers as $clanuser) {
                 $this->em->remove($clanuser);
@@ -252,7 +237,6 @@ class ClanController extends AbstractFOSRestController
         $this->em->flush();
 
         $view = $this->view(null, Response::HTTP_NO_CONTENT);
-
         return $this->handleView($view);
     }
 
@@ -267,19 +251,13 @@ class ClanController extends AbstractFOSRestController
      * @param ParamFetcher $fetcher
      * @return Response
      */
-    public function getClansAction(Request $request, ParamFetcher $fetcher)
+    public function getClansAction(ParamFetcher $fetcher)
     {
         $page = intval($fetcher->get('page'));
         $limit = intval($fetcher->get('limit'));
         $filter = $fetcher->get('q');
 
-        if ('list' == $request->query->get('select')) {
-            // Get all Clans but without the User Relations
-            $qb = $this->clanRepository->findAllWithoutUserRelationsQueryBuilder($filter);
-        } else {
-            // Get all Clans
-            $qb = $this->clanRepository->findAllWithActiveUsersQueryBuilder($filter);
-        }
+        $qb = $this->clanRepository->findAllWithActiveUsersQueryBuilder($filter);
 
         //set useOutputWalker to false otherwise we cannot Paginate Entities with INNER/LEFT Joins
         $pager = new Pagerfanta(new DoctrineORMAdapter($qb, true, false));
@@ -297,10 +275,6 @@ class ClanController extends AbstractFOSRestController
         );
 
         $view = $this->view($collection);
-        $view->getContext()->setSerializeNull(true);
-        $view->getContext()->addGroup('dto');
-        $view->getContext()->addGroup('clanview');
-
         return $this->handleView($view);
     }
 

@@ -7,21 +7,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final class Error
 {
-    /**
-     * @Assert\Type(type="int")
-     */
-    public $code;
+    public int $code;
 
-    /**
-     * @Assert\Type(type="string")
-     * @Assert\NotBlank()
-     */
-    public $message;
+    public string $message;
 
-    /**
-     * @Assert\Type(type="string")
-     */
-    public $detail;
+    public string $detail;
 
     static public function withMessage(string $msg)
     {

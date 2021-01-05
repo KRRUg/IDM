@@ -103,21 +103,6 @@ class ClanRepository extends ServiceEntityRepository
         return $query->execute();
     }
 
-    public function findAllWithoutUserRelationsQueryBuilder(string $filter = null)
-    {
-        $qb = $this->createQueryBuilder('c')
-            ->orderBy('c.name');
-
-        $qb->select('c.clantag', 'c.createdAt', 'c.description', 'c.modifiedAt', 'c.name', 'c.uuid', 'c.website');
-
-        if (!empty($filter)) {
-            $qb->andWhere('LOWER(c.name) LIKE LOWER(:q)')
-                ->setParameter('q', "%".$filter."%");
-        }
-
-        return $qb;
-    }
-
     public function findAllWithActiveUsersQueryBuilder(string $filter = null)
     {
         $qb = $this->createQueryBuilder('c');

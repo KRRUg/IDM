@@ -56,6 +56,17 @@ class UserController extends AbstractFOSRestController
     }
 
     /**
+     * @Rest\Get("/{uuid}", requirements= {"uuid"="([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})"})
+     * @ParamConverter()
+     */
+    public function getUserAction(User $user)
+    {
+        // TODO check KLMS as this cannot handle email any more
+        $view = $this->view($user);
+        return $this->handleView($view);
+    }
+
+    /**
      * Registers the User.
      *
      * @SWG\Response(
@@ -158,7 +169,7 @@ class UserController extends AbstractFOSRestController
      *     type="string",
      *     description="EMail"
      * )
-     * * @SWG\Parameter(
+     * @SWG\Parameter(
      *     name="password",
      *     in="formData",
      *     type="string",
@@ -278,10 +289,6 @@ class UserController extends AbstractFOSRestController
         );
 
         $view = $this->view($collection);
-        $view->getContext()->setSerializeNull(true);
-        $view->getContext()->addGroup('dto');
-        $view->getContext()->addGroup('default');
-
         return $this->handleView($view);
     }
 
@@ -309,40 +316,6 @@ class UserController extends AbstractFOSRestController
             $view = $this->view(null, Response::HTTP_NO_CONTENT);
         } else {
             $view = $this->view(null, Response::HTTP_NOT_FOUND);
-        }
-
-        return $this->handleView($view);
-    }
-
-    /**
-     * Returns a Single Userobject.
-     *
-     * Supports searching via UUID and via E-Mail
-     *
-     * @Rest\Get("/{search}", requirements= {"search"="([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})|(.+@.+)"})
-     */
-    public function getUserAction(string $search)
-    {
-        if (preg_match('/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/', $search)) {
-            // UUID based Search
-
-            $user = $this->userRepository->findOneBy(['uuid' => $search]);
-        } elseif (filter_var($search, FILTER_VALIDATE_EMAIL)) {
-            // E-Mail based Search
-
-            $user = $this->userRepository->findOneBy(['email' => $search]);
-        } else {
-            $view = $this->view('', Response::HTTP_BAD_REQUEST);
-
-            return $this->handleView($view);
-        }
-
-        if ($user) {
-            $view = $this->view($user);
-            $view->getContext()->setSerializeNull(true);
-            $view->getContext()->addGroup('default');
-        } else {
-            $view = $this->view(Error::withMessage("User not found"), Response::HTTP_NOT_FOUND);
         }
 
         return $this->handleView($view);

@@ -8,18 +8,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 final class PaginationCollection
 {
-    /**
-     * @Groups({"dto"})
-     */
-    public $total;
-    /**
-     * @Groups({"dto"})
-     */
-    public $count;
-    /**
-     * @Groups({"dto"})
-     */
-    public $items;
+    public int $total;
+
+    public int $count;
+
+    public array $items;
 
     public function __construct($items, $total)
     {
