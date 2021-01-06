@@ -49,53 +49,26 @@ class UserController extends AbstractFOSRestController
     /**
      * Edits a User.
      *
-     * @Rest\Put("/{uuid}", requirements= {"uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
-     * @ParamConverter("user")
+     * @Rest\Patch("/{uuid}", requirements= {"uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
+     * @ParamConverter("user", class="App\Entity\User")
      * @ParamConverter("update", converter="fos_rest.request_body",
      *     options={
      *      "deserializationContext": {"allow_extra_attributes": false},
-     *      "validator": {"groups": {"Transfer"} }
+     *      "validator": {"groups": {"Transfer"} },
+     *      "attribute_to_populate": "user",
      *     })
      */
-    public function editUserAction(User $user, User $update, ConstraintViolationListInterface $validationErrors)
+    public function editUserAction(User $old, User $update, ConstraintViolationListInterface $validationErrors)
     {
         if (count($validationErrors) > 0) {
             $view = $this->view(Error::withMessageAndDetail("Invalid JSON Body supplied, please check the Documentation", $validationErrors[0]), Response::HTTP_BAD_REQUEST);
             return $this->handleView($view);
         }
 
-//        foreach ($update as $key => $value) {
-//            if (!empty())
-//            $user->$key
-//        }
-
-        $this->em->persist($user);
+        $this->em->persist($update);
         $this->em->flush();
 
-        return $this->handleView($this->view($user));
-
-
-
-//        $form = $this->createForm(UserEditType::class, $user);
-//
-//        // Specify clearMissing on false to support partial editing
-//        $form->submit($request->request->all(), false);
-//        if ($form->isSubmitted() && $form->isValid()) {
-//            $user = $form->getData();
-//
-
-//
-//            $user = $this->userRepository->findOneBy(['uuid' => $user->getUuid()]);
-//            $view = $this->view($user);
-//            $view->getContext()->setSerializeNull(true);
-//            $view->getContext()->addGroup('default');
-//
-//            return $this->handleView($view);
-//        } else {
-//            $view = $this->view(Error::withMessage("User not found"), Response::HTTP_NOT_FOUND);
-//
-//            return $this->handleView($view);
-//        }
+        return $this->handleView($this->view($update));
     }
 
     /**

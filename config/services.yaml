@@ -35,3 +35,6 @@ services:
     password_encoder:
         class: Symfony\Component\Security\Core\Encoder\SodiumPasswordEncoder
         public: true
+
+    App\Helper\RequestBodyPopulateParamConverter:
+        decorates: fos_rest.converter.request_body
