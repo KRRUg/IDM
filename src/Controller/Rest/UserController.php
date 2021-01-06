@@ -4,6 +4,7 @@ namespace App\Controller\Rest;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
+use App\Service\UserService;
 use App\Transfer\Error;
 use App\Transfer\PaginationCollection;
 use App\Transfer\Search;
@@ -28,12 +29,14 @@ class UserController extends AbstractFOSRestController
 {
     private EntityManagerInterface $em;
     private UserRepository $userRepository;
+    private UserService $userService;
     private PasswordEncoderInterface $passwordEncoder;
 
-    public function __construct(EntityManagerInterface $entityManager, UserRepository $userRepository, PasswordEncoderInterface $passwordEncoder)
+    public function __construct(EntityManagerInterface $entityManager, UserRepository $userRepository, UserService $userService, PasswordEncoderInterface $passwordEncoder)
     {
         $this->em = $entityManager;
         $this->userRepository = $userRepository;
+        $this->userService = $userService;
         $this->passwordEncoder = $passwordEncoder;
     }
 
@@ -75,6 +78,35 @@ class UserController extends AbstractFOSRestController
         $this->em->flush();
 
         return $this->handleView($this->view($update));
+    }
+
+    /**
+     * Edits a User.
+     *
+     * @Rest\Post("")
+     * @ParamConverter("new", converter="fos_rest.request_body",
+     *     options={
+     *      "deserializationContext": {"allow_extra_attributes": false},
+     *      "validator": {"groups": {"Transfer", "Create"} }
+     *     })
+     */
+    public function createUserAction(User $new, ConstraintViolationListInterface $validationErrors)
+    {
+        if (count($validationErrors) > 0) {
+            $view = $this->view(Error::withMessageAndDetail("Invalid JSON Body supplied, please check the Documentation", $validationErrors[0]), Response::HTTP_BAD_REQUEST);
+            return $this->handleView($view);
+        }
+
+        // TODO move this to UserServicew
+        $new->setStatus(1);
+        $new->setEmailConfirmed(false);
+        $new->setInfoMails($new->getInfoMails() ?? false);
+        $new->setPassword($this->passwordEncoder->encodePassword($new->getPassword(), null));
+
+        $this->em->persist($new);
+        $this->em->flush();
+
+        return $this->handleView($this->view($new, Response::HTTP_CREATED));
     }
 
     /**

@@ -14,8 +14,8 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * @ORM\Table(name="gamer")
  * @ORM\HasLifecycleCallbacks
  *
- * @UniqueEntity(fields={"email"}, message="There is already an account with this email")
- * @UniqueEntity(fields={"nickname"}, message="There is already an account with this nickname")
+ * @UniqueEntity(fields={"email"}, groups={"Default", "Create"}, message="There is already an account with this email")
+ * @UniqueEntity(fields={"nickname"}, groups={"Default", "Create"}, message="There is already an account with this nickname")
  */
 class User
 {
@@ -28,7 +28,8 @@ class User
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
-     * @Assert\Email(groups={"Default", "Transfer"})
+     * @Assert\NotBlank(groups={"Default", "Create"})
+     * @Assert\Email(groups={"Default", "Transfer", "Create"})
      * @Groups({"read", "write"})
      */
     private $email;
@@ -42,14 +43,16 @@ class User
      *      minMessage = "The password must be at least {{ limit }} characters long",
      *      maxMessage = "The password cannot be longer than {{ limit }} characters",
      *      allowEmptyString="false",
-     *      groups = {"Transfer"}
+     *      groups = {"Transfer", "Create"}
      * )
+     * @Assert\NotBlank(groups={"Default", "Create"})
      * @Groups({"write"})
      */
     private $password;
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
+     * @Assert\NotBlank(groups={"Default", "Create"})
      * @Groups({"read", "write"})
      */
     private $nickname;

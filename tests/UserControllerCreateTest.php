@@ -7,9 +7,9 @@ namespace App\Tests;
 use Sentry\Util\JSON;
 use Symfony\Component\HttpFoundation\Response;
 
-class AuthControllerRegisterTest extends AbstractControllerTest
+class UserControllerCreateTest extends AbstractControllerTest
 {
-    public function testRegisterSuccessful()
+    public function testRegisterSuccess()
     {
         $data = <<<JSON
 {
@@ -18,10 +18,10 @@ class AuthControllerRegisterTest extends AbstractControllerTest
     "nickname": "blup",
     "firstname": "foo",
     "surname": "baa",
-    "infoMail": true
+    "infoMails": true
 }
 JSON;
-        $this->client->request('POST', '/api/auth/register', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
+        $this->client->request('POST', '/api/users', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
         $response = $this->client->getResponse();
         $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
         $this->assertEquals("application/json", $response->headers->get('Content-Type'));
@@ -59,6 +59,24 @@ JSON;
         $this->assertTrue($result['infoMails']);
     }
 
+    public function testRegisterSuccess2()
+    {
+        $data = <<<JSON
+{
+    "email": "newby@localhost.local",
+    "password": "new_secure_password",
+    "firstname": "Newby",
+    "surname": "New",
+    "nickname": "newby"
+}
+JSON;
+        $this->client->request('POST', '/api/users', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
+        $response = $this->client->getResponse();
+        $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
+        $this->assertEquals("application/json", $response->headers->get('Content-Type'));
+        $this->assertJson($response->getContent(), "No valid JSON returned.");
+    }
+
     public function testRegisterFailInvalidEmail()
     {
         $data = <<<JSON
@@ -68,10 +86,10 @@ JSON;
     "nickname": "blup",
     "firstname": "foo",
     "surname": "baa",
-    "infoMail": true
+    "infoMails": true
 }
 JSON;
-        $this->client->request('POST', '/api/auth/register', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
+        $this->client->request('POST', '/api/users', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
         $response = $this->client->getResponse();
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
         $this->assertEquals("application/json", $response->headers->get('Content-Type'));
@@ -84,13 +102,11 @@ JSON;
         $data = <<<JSON
 {
     "email": "b@lup.com",
-    "password": "foofoo",
     "nickname": "blup",
     "surname": "baa",
-    "infoMail": true
 }
 JSON;
-        $this->client->request('POST', '/api/auth/register', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
+        $this->client->request('POST', '/api/users', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
         $response = $this->client->getResponse();
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
         $this->assertEquals("application/json", $response->headers->get('Content-Type'));
@@ -107,12 +123,12 @@ JSON;
     "nickname": "blup",
     "firstname": "foo",
     "surname": "baa",
-    "infoMail": true
+    "infoMails": true
 }
 JSON;
-        $this->client->request('POST', '/api/auth/register', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
+        $this->client->request('POST', '/api/users', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
         $response = $this->client->getResponse();
-        $this->assertEquals(Response::HTTP_CONFLICT, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
         $this->assertEquals("application/json", $response->headers->get('Content-Type'));
         $this->assertJson($response->getContent());
     }
@@ -127,12 +143,12 @@ JSON;
     "nickname": "User 1",
     "firstname": "foo",
     "surname": "baa",
-    "infoMail": true
+    "infoMails": true
 }
 JSON;
-        $this->client->request('POST', '/api/auth/register', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
+        $this->client->request('POST', '/api/users', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
         $response = $this->client->getResponse();
-        $this->assertEquals(Response::HTTP_CONFLICT, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
         $this->assertEquals("application/json", $response->headers->get('Content-Type'));
         $this->assertJson($response->getContent());
     }
@@ -147,10 +163,10 @@ JSON;
     "nickname": "blup",
     "firstname": "foo",
     "surname": "baa",
-    "infoMail": "of course"
+    "infoMails": "of course"
 }
 JSON;
-        $this->client->request('POST', '/api/auth/register', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
+        $this->client->request('POST', '/api/users', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
         $response = $this->client->getResponse();
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
         $this->assertEquals("application/json", $response->headers->get('Content-Type'));
@@ -167,11 +183,11 @@ JSON;
     "nickname": "blup",
     "firstname": "foo",
     "surname": "baa",
-    "infoMail": true,
+    "infoMails": true,
     "invalid": "invalid"
 }
 JSON;
-        $this->client->request('POST', '/api/auth/register', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
+        $this->client->request('POST', '/api/users', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
         $response = $this->client->getResponse();
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
         $this->assertEquals("application/json", $response->headers->get('Content-Type'));
@@ -189,10 +205,10 @@ JSON;
     "nickname": 1,
     "firstname": "foo",
     "surname": "baa",
-    "infoMail": true
+    "infoMails": true
 }
 JSON;
-        $this->client->request('POST', '/api/auth/register', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
+        $this->client->request('POST', '/api/users', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
         $response = $this->client->getResponse();
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
         $this->assertEquals("application/json", $response->headers->get('Content-Type'));
