@@ -2,13 +2,11 @@
 
 namespace App\Controller\Rest;
 
-use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Service\LoginService;
 use App\Transfer\Error;
 use App\Transfer\Login;
 use App\Transfer\Register;
-use App\Transfer\UserAvailability;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -92,32 +90,4 @@ class AuthController extends AbstractFOSRestController
         return $this->handleView($view);
     }
 
-    /**
-     * Checks availability of EMail and/or Nickname.
-     * TODO: is this required?
-     *
-     * @Rest\Post("/check")
-     * @ParamConverter("userAvailability", converter="fos_rest.request_body", options={"deserializationContext": {"allow_extra_attributes": false}})
-     */
-    public function checkAvailabilityAction(UserAvailability $userAvailability, ConstraintViolationListInterface $validationErrors)
-    {
-        if (count($validationErrors) > 0) {
-            $view = $this->view(Error::withMessageAndDetail('Invalid JSON Body supplied, please check the Documentation', $validationErrors[0]), Response::HTTP_BAD_REQUEST);
-            return $this->handleView($view);
-        }
-
-        if ('email' == $userAvailability->mode) {
-            $user = $this->userRepository->findOneCaseInsensitive(['email' => $userAvailability->name]);
-        } elseif ('nickname' == $userAvailability->mode) {
-            $user = $this->userRepository->findOneCaseInsensitive(['nickname' => $userAvailability->name]);
-        }
-
-        if ($user) {
-            $view = $this->view(null, Response::HTTP_NO_CONTENT);
-        } else {
-            $view = $this->view(null, Response::HTTP_NOT_FOUND);
-        }
-
-        return $this->handleView($view);
-    }
 }
