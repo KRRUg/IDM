@@ -7,63 +7,57 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ClanRepository")
  * @ORM\Table(name="clan")
  * @ORM\HasLifecycleCallbacks
+ *
+ * @UniqueEntity(fields={"name"}, message="There is already a clan with this name")
+ * @UniqueEntity(fields={"clantag"}, message="There is already a tag with this name")
  */
 class Clan
 {
     public function __construct()
     {
-        if (null === $this->uuid) {
-            $this->uuid = Uuid::uuid4();
-        }
-        $this->setCreatedAt(new \DateTime());
-        if (null == $this->getModifiedAt()) {
-            $this->setModifiedAt(new \DateTime());
-        }
         $this->users = new ArrayCollection();
     }
 
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
-    private $id;
-
-    /**
-     * The internal primary identity key.
-     *
-     * @var UuidInterface
-     *
-     * @ORM\Column(type="uuid", unique=true)
-     * @Assert\NotBlank
-     */
-    protected $uuid;
+    use EntityIdTrait;
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
-     * @Assert\NotBlank
+     * @Assert\NotBlank(groups={"Default", "Transfer"})
+     * @Groups({"read", "write"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\Length(
+     *      min = 6,
+     *      max = 256,
+     *      minMessage = "The password must be at least {{ limit }} characters long",
+     *      maxMessage = "The password cannot be longer than {{ limit }} characters",
+     *      groups = {"Transfer"}
+     * )
+     * @Groups({"read", "write"})
      */
     private $joinPassword;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Groups({"read"})
      */
     private $createdAt;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Groups({"read"})
      */
     private $modifiedAt;
 
@@ -73,30 +67,30 @@ class Clan
      *     mappedBy="clan",
      *     cascade={"all"},
      * )
+     * @Groups({"read"})
      */
     private $users;
 
     /**
      * @ORM\Column(type="string", length=24, unique=true)
-     * @Assert\NotBlank
+     * @Assert\NotBlank(groups={"Default", "Transfer"})
+     * @Groups({"read", "write"})
      */
     private $clantag;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Assert\Url()
+     * @Assert\Url(groups={"Default", "Transfer"})
+     * @Groups({"read", "write"})
      */
     private $website;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="string", length=4096, nullable=true)
+     * @Groups({"read", "write"})
      */
     private $description;
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
 
     public function getName(): ?string
     {
@@ -154,26 +148,6 @@ class Clan
         return $this->users;
     }
 
-    public function getUuid(): UuidInterface
-    {
-        return $this->uuid;
-    }
-
-    public function setUuid(UuidInterface $uuid)
-    {
-        $this->uuid = $uuid;
-    }
-
-    /**
-     * @ORM\PrePersist()
-     * @ORM\PreUpdate()
-     */
-    public function updateModifiedAtDatetime()
-    {
-        // update the modified time
-        $this->setModifiedAt(new \DateTime());
-    }
-
     public function getClantag(): ?string
     {
         return $this->clantag;
@@ -210,4 +184,15 @@ class Clan
         return $this;
     }
 
+    /**
+     * @ORM\PrePersist()
+     * @ORM\PreUpdate()
+     */
+    public function updateModifiedDatetime() {
+        // update the modified time and creation time
+        $this->setModifiedAt(new \DateTime());
+        if ($this->getCreatedAt() === null) {
+            $this->setCreatedAt(new \DateTime());
+        }
+    }
 }

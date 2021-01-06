@@ -4,24 +4,15 @@ namespace App\Service;
 
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
 
 class LoginService
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $em;
-    /**
-     * @var UserRepository
-     */
-    private $userRepository;
-    /**
-     * @var UserPasswordEncoderInterface
-     */
-    private $passwordEncoder;
+    private EntityManagerInterface $em;
+    private UserRepository $userRepository;
+    private PasswordEncoderInterface $passwordEncoder;
 
-    public function __construct(EntityManagerInterface $entityManager, UserRepository $userRepository, UserPasswordEncoderInterface $passwordEncoder)
+    public function __construct(EntityManagerInterface $entityManager, UserRepository $userRepository, PasswordEncoderInterface $passwordEncoder)
     {
         $this->em = $entityManager;
         $this->userRepository = $userRepository;
@@ -40,15 +31,10 @@ class LoginService
             return false;
         }
 
-        $valid = $this->passwordEncoder->isPasswordValid($user, $password);
-        if ($this->passwordEncoder->needsRehash($user)) {
+        $valid = $this->passwordEncoder->isPasswordValid($user->getPassword(), $password, null);
+        if ($this->passwordEncoder->needsRehash($user->getPassword())) {
             //Rehash legacy Password if needed
-            $user->setPassword(
-                $this->passwordEncoder->encodePassword(
-                    $user,
-                    $password
-                )
-            );
+            $user->setPassword($this->passwordEncoder->encodePassword($password, null));
             $this->em->flush();
         }
 

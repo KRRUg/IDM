@@ -5,24 +5,15 @@ namespace App\Service;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
 
 class UserService
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $em;
-    /**
-     * @var UserRepository
-     */
-    private $userRepository;
-    /**
-     * @var UserPasswordEncoderInterface
-     */
-    private $passwordEncoder;
+    private EntityManagerInterface $em;
+    private UserRepository $userRepository;
+    private PasswordEncoderInterface $passwordEncoder;
 
-    public function __construct(EntityManagerInterface $entityManager, UserRepository $userRepository, UserPasswordEncoderInterface $passwordEncoder)
+    public function __construct(EntityManagerInterface $entityManager, UserRepository $userRepository, PasswordEncoderInterface $passwordEncoder)
     {
         $this->em = $entityManager;
         $this->userRepository = $userRepository;
@@ -169,9 +160,7 @@ class UserService
         $user->setNickname($nickname);
         $user->setStatus(1);
         $user->setEmailConfirmed($confirmed);
-        $user->setPassword(
-            $this->passwordEncoder->encodePassword($user, $password)
-        );
+        $user->setPassword($this->passwordEncoder->encodePassword($password, null));
 
         if ($infoMails) {
             if ('true' === $infoMails || true === $infoMails) {

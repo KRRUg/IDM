@@ -3,7 +3,6 @@
 namespace App\Controller\Rest;
 
 use App\Entity\User;
-use App\Form\UserEditType;
 use App\Repository\UserRepository;
 use App\Transfer\Error;
 use App\Transfer\PaginationCollection;
@@ -50,35 +49,53 @@ class UserController extends AbstractFOSRestController
     /**
      * Edits a User.
      *
-     * WARNING: for now it's mandatory to supply a full UserObject
-     * TODO: change this by adding a denormalizer
-     *
-     * @Rest\Patch("/{uuid}", requirements= {"uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
-     * @ParamConverter()
+     * @Rest\Put("/{uuid}", requirements= {"uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
+     * @ParamConverter("user")
+     * @ParamConverter("update", converter="fos_rest.request_body",
+     *     options={
+     *      "deserializationContext": {"allow_extra_attributes": false},
+     *      "validator": {"groups": {"Transfer"} }
+     *     })
      */
-    public function editUserAction(User $user, Request $request)
+    public function editUserAction(User $user, User $update, ConstraintViolationListInterface $validationErrors)
     {
-        $form = $this->createForm(UserEditType::class, $user);
-
-        // Specify clearMissing on false to support partial editing
-        $form->submit($request->request->all(), false);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $user = $form->getData();
-
-            $this->em->persist($user);
-            $this->em->flush();
-
-            $user = $this->userRepository->findOneBy(['uuid' => $user->getUuid()]);
-            $view = $this->view($user);
-            $view->getContext()->setSerializeNull(true);
-            $view->getContext()->addGroup('default');
-
-            return $this->handleView($view);
-        } else {
-            $view = $this->view(Error::withMessage("User not found"), Response::HTTP_NOT_FOUND);
-
+        if (count($validationErrors) > 0) {
+            $view = $this->view(Error::withMessageAndDetail("Invalid JSON Body supplied, please check the Documentation", $validationErrors[0]), Response::HTTP_BAD_REQUEST);
             return $this->handleView($view);
         }
+
+//        foreach ($update as $key => $value) {
+//            if (!empty())
+//            $user->$key
+//        }
+
+        $this->em->persist($user);
+        $this->em->flush();
+
+        return $this->handleView($this->view($user));
+
+
+
+//        $form = $this->createForm(UserEditType::class, $user);
+//
+//        // Specify clearMissing on false to support partial editing
+//        $form->submit($request->request->all(), false);
+//        if ($form->isSubmitted() && $form->isValid()) {
+//            $user = $form->getData();
+//
+
+//
+//            $user = $this->userRepository->findOneBy(['uuid' => $user->getUuid()]);
+//            $view = $this->view($user);
+//            $view->getContext()->setSerializeNull(true);
+//            $view->getContext()->addGroup('default');
+//
+//            return $this->handleView($view);
+//        } else {
+//            $view = $this->view(Error::withMessage("User not found"), Response::HTTP_NOT_FOUND);
+//
+//            return $this->handleView($view);
+//        }
     }
 
     /**

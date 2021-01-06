@@ -2,12 +2,12 @@
 
 namespace App\Entity;
 
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
-use Ramsey\Uuid\Uuid;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
@@ -15,18 +15,12 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * @ORM\HasLifecycleCallbacks
  *
  * @UniqueEntity(fields={"email"}, message="There is already an account with this email")
+ * @UniqueEntity(fields={"nickname"}, message="There is already an account with this nickname")
  */
-class User implements UserInterface
+class User
 {
     public function __construct()
     {
-        if (null === $this->uuid) {
-            $this->uuid = Uuid::uuid4();
-        }
-        $this->setRegisteredAt(new \DateTime());
-        if (null == $this->getModifiedAt()) {
-            $this->setModifiedAt(new \DateTime());
-        }
         $this->clans = new ArrayCollection();
     }
 
@@ -34,107 +28,140 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
+     * @Assert\Email(groups={"Default", "Transfer"})
+     * @Groups({"read", "write"})
      */
     private $email;
 
     /**
      * @var string The hashed password
      * @ORM\Column(type="string")
+     * @Assert\Length(
+     *      min = 6,
+     *      max = 256,
+     *      minMessage = "The password must be at least {{ limit }} characters long",
+     *      maxMessage = "The password cannot be longer than {{ limit }} characters",
+     *      groups = {"Transfer"}
+     * )
+     * @Groups({"write"})
      */
     private $password;
 
     /**
-     * @ORM\Column(type="string", length=255, unique=false)
+     * @ORM\Column(type="string", length=255, unique=true)
+     * @Groups({"read", "write"})
      */
     private $nickname;
 
     /**
      * @ORM\Column(type="integer")
+     * @Groups({"read"})
+     * TODO check if status can be IDM internal
      */
     private $status;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"read", "write"})
      */
     private $firstname;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"read", "write"})
      */
     private $surname;
 
     /**
-     * @ORM\Column(type="integer", nullable=true)
+     * @ORM\Column(type="string", length=8, nullable=true)
+     * @Groups({"read", "write"})
      */
     private $postcode;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"read", "write"})
      */
     private $city;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"read", "write"})
      */
     private $street;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="string", length=2, nullable=true)
+     * @Assert\Country(groups={"Default", "Transfer"})
+     * @Groups({"read", "write"})
      */
     private $country;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"read", "write"})
      */
     private $phone;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="string", length=1, nullable=true)
+     * @Assert\Choice({"m","w","d"}, groups={"Default", "Transfer"})
+     * @Groups({"read", "write"})
      */
     private $gender;
 
     /**
      * @ORM\Column(type="boolean")
+     * @Groups({"read", "write"})
      */
     private $emailConfirmed;
 
     /**
      * @ORM\Column(type="boolean")
+     * @Groups({"read"})
      */
     private $isSuperadmin = false;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Assert\Url(groups={"Default", "Transfer"})
+     * @Groups({"read", "write"})
      */
     private $website;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"read", "write"})
      */
     private $steamAccount;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Groups({"read"})
      */
     private $registeredAt;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Groups({"read"})
      */
     private $modifiedAt;
 
     /**
      * @ORM\Column(type="string", length=4096, nullable=true)
+     * @Groups({"read", "write"})
      */
     private $hardware;
 
     /**
      * @ORM\Column(type="boolean")
+     * @Groups({"read", "write"})
      */
     private $infoMails;
 
     /**
      * @ORM\Column(type="string", length=4096, nullable=true)
+     * @Groups({"read", "write"})
      */
     private $statements;
 
@@ -144,11 +171,14 @@ class User implements UserInterface
      *     mappedBy="user",
      *     cascade={"all"},
      * )
+     * @Groups({"read"})
      */
     private $clans;
 
     /**
      * @ORM\Column(type="date", nullable=true)
+     * @Assert\Date(groups={"Default", "Transfer"})
+     * @Groups({"read", "write"})
      */
     private $birthdate;
 
@@ -308,27 +338,6 @@ class User implements UserInterface
         return $this;
     }
 
-    /**
-     * A visual identifier that represents this user.
-     *
-     * @see UserInterface
-     */
-    public function getUsername(): string
-    {
-        return (string) $this->email;
-    }
-
-    /**
-     * @see UserInterface
-     */
-    public function getRoles(): array
-    {
-        return [];
-    }
-
-    /**
-     * @see UserInterface
-     */
     public function getPassword(): string
     {
         return (string) $this->password;
@@ -339,23 +348,6 @@ class User implements UserInterface
         $this->password = $password;
 
         return $this;
-    }
-
-    /**
-     * @see UserInterface
-     */
-    public function getSalt()
-    {
-        // not needed when using the "bcrypt" algorithm in security.yaml
-    }
-
-    /**
-     * @see UserInterface
-     */
-    public function eraseCredentials()
-    {
-        // If you store any temporary, sensitive data on the user, clear it here
-        // $this->plainPassword = null;
     }
 
     public function getWebsite(): ?string
@@ -443,17 +435,7 @@ class User implements UserInterface
     }
 
     /**
-     * @ORM\PrePersist()
-     * @ORM\PreUpdate()
-     */
-    public function updateModifiedAtDatetime()
-    {
-        // update the modified time
-        $this->setModifiedAt(new \DateTime());
-    }
-
-    /**
-     * @return Collection|UserClan[]
+     * @return Collection|UserClan[]|null
      */
     public function getClans(): Collection
     {
@@ -472,4 +454,15 @@ class User implements UserInterface
         return $this;
     }
 
+    /**
+     * @ORM\PrePersist()
+     * @ORM\PreUpdate()
+     */
+    public function updateModifiedDatetime() {
+        // update the modified time and creation time
+        $this->setModifiedAt(new \DateTime());
+        if ($this->getRegisteredAt() === null) {
+            $this->setRegisteredAt(new \DateTime());
+        }
+    }
 }

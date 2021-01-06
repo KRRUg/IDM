@@ -13,7 +13,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Swagger\Annotations as SWG;
@@ -74,7 +74,7 @@ class AuthController extends AbstractFOSRestController
      * @Rest\Post("/register")
      * @ParamConverter("register", converter="fos_rest.request_body", options={"deserializationContext": {"allow_extra_attributes": false}})
      */
-    public function postRegisterAction(Register $register, ConstraintViolationListInterface $validationErrors, UserPasswordEncoderInterface $passwordEncoder): Response
+    public function postRegisterAction(Register $register, ConstraintViolationListInterface $validationErrors, PasswordEncoderInterface $passwordEncoder): Response
     {
         if (count($validationErrors) > 0) {
             $view = $this->view(Error::withMessageAndDetail('Invalid JSON Body supplied, please check the Documentation', $validationErrors[0]), Response::HTTP_BAD_REQUEST);
@@ -95,12 +95,7 @@ class AuthController extends AbstractFOSRestController
         $user->setInfoMails($register->infoMail);
 
         // encode the plain password
-        $user->setPassword(
-            $passwordEncoder->encodePassword(
-                $user,
-                $register->password
-            )
-        );
+        $user->setPassword($passwordEncoder->encodePassword($register->password, null));
 
         // set defaults in User
         $user->setStatus(1);

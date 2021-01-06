@@ -195,4 +195,19 @@ JSON;
         $this->assertEquals(0, $result['total']);
         $this->assertEquals(0, $result['count']);
     }
+
+    public function testUserUpdateSuccessful()
+    {
+        $data = <<<JSON
+{
+    "email": "user1@localhost.local",
+    "firstname": "User",
+    "surname": "One",
+    "nickname": "User 1"
+}
+JSON;
+        $this->client->request('PUT', '/api/users/00000000-0000-0000-0000-000000000001', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
+        $response = $this->client->getResponse();
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+    }
 }

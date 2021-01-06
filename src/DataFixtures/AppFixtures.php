@@ -10,21 +10,21 @@ use App\Repository\UserRepository;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
 
 
 class AppFixtures extends Fixture
 {
     /**
-     * @var UserPasswordEncoderInterface
+     * @var PasswordEncoderInterface
      */
-    private UserPasswordEncoderInterface $encoder;
+    private PasswordEncoderInterface $encoder;
     /**
      * @var UserRepository
      */
     private UserRepository $userRepository;
 
-    public function __construct(UserPasswordEncoderInterface $encoder)
+    public function __construct(PasswordEncoderInterface $encoder)
     {
         $this->encoder = $encoder;
     }
@@ -38,7 +38,7 @@ class AppFixtures extends Fixture
             $user->setEmail('user'.$i.'@localhost.local');
             $user->setUuid(Uuid::fromInteger(strval($i)));
             $user->setStatus(1);
-            $user->setPassword($this->encoder->encodePassword($user, 'user'.$i));
+            $user->setPassword($this->encoder->encodePassword('user'.$i, null));
             $user->setEmailConfirmed(1 == mt_rand(0, 1));
             $user->setInfoMails(1 == mt_rand(0, 1));
             $user->setIsSuperadmin(false);
@@ -113,7 +113,7 @@ class AppFixtures extends Fixture
         $admin->setNickname('Admin');
         $admin->setEmail('admin@localhost.local');
         $admin->setStatus(1);
-        $admin->setPassword($this->encoder->encodePassword($admin, 'admin'));
+        $admin->setPassword($this->encoder->encodePassword('admin', null));
         $admin->setEmailConfirmed(1);
         $admin->setInfoMails(false);
         $admin->setIsSuperadmin(true);

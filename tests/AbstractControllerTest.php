@@ -11,6 +11,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\BrowserKit\AbstractBrowser;
+use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
 
 abstract class AbstractControllerTest extends WebTestCase
 {
@@ -19,7 +20,6 @@ abstract class AbstractControllerTest extends WebTestCase
     private ORMExecutor $executor;
 
     protected AbstractBrowser $client;
-
 
     public function setUp()
     {
@@ -32,7 +32,7 @@ abstract class AbstractControllerTest extends WebTestCase
             ->get('doctrine')
             ->getManager();
         $encoder = $kernel->getContainer()
-            ->get('security.password_encoder');
+            ->get('password_encoder');
         $this->executor = new ORMExecutor($this->manager, new ORMPurger());
 
         // Run the schema update tool using our entity metadata
