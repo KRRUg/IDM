@@ -43,6 +43,7 @@ class Clan
      *      max = 256,
      *      minMessage = "The password must be at least {{ limit }} characters long",
      *      maxMessage = "The password cannot be longer than {{ limit }} characters",
+     *      allowEmptyString="false",
      *      groups = {"Transfer"}
      * )
      * @Groups({"read", "write"})

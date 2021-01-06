@@ -255,7 +255,42 @@ JSON;
 JSON;
         $this->client->request('PATCH', '/api/users/00000000-0000-0000-0000-000000000001', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
         $response = $this->client->getResponse();
-        $this->assertNotEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->assertEquals("application/json", $response->headers->get('Content-Type'));
+        $this->assertJson($response->getContent(), "No valid JSON returned.");
+    }
+
+    public function testUserUpdateSuccessWithPassword()
+    {
+        $data = <<<JSON
+{
+    "email": "user1@localhost.local",
+    "password": "new_secure_password"
+}
+JSON;
+        $this->client->request('PATCH', '/api/users/00000000-0000-0000-0000-000000000001', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
+        $response = $this->client->getResponse();
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertEquals("application/json", $response->headers->get('Content-Type'));
+        $this->assertJson($response->getContent(), "No valid JSON returned.");
+
+        // try to login with new PW
+        $this->client->request('POST', '/api/auth/authorize', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
+        $response = $this->client->getResponse();
+        $this->assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        $this->assertEmpty($response->getContent(), "No data expected");
+    }
+
+    public function testUserUpdateFailTooShortPassword()
+    {
+        $data = <<<JSON
+{
+    "password": "pw"
+}
+JSON;
+        $this->client->request('PATCH', '/api/users/00000000-0000-0000-0000-000000000001', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
+        $response = $this->client->getResponse();
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
         $this->assertEquals("application/json", $response->headers->get('Content-Type'));
         $this->assertJson($response->getContent(), "No valid JSON returned.");
     }

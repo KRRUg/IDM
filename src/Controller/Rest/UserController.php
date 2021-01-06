@@ -16,6 +16,7 @@ use Pagerfanta\Pagerfanta;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 /**
@@ -26,13 +27,14 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
 class UserController extends AbstractFOSRestController
 {
     private EntityManagerInterface $em;
-
     private UserRepository $userRepository;
+    private PasswordEncoderInterface $passwordEncoder;
 
-    public function __construct(EntityManagerInterface $entityManager, UserRepository $userRepository)
+    public function __construct(EntityManagerInterface $entityManager, UserRepository $userRepository, PasswordEncoderInterface $passwordEncoder)
     {
         $this->em = $entityManager;
         $this->userRepository = $userRepository;
+        $this->passwordEncoder = $passwordEncoder;
     }
 
     /**
@@ -58,11 +60,15 @@ class UserController extends AbstractFOSRestController
      *      "attribute_to_populate": "user",
      *     })
      */
-    public function editUserAction(User $old, User $update, ConstraintViolationListInterface $validationErrors)
+    public function editUserAction(User $update, ConstraintViolationListInterface $validationErrors)
     {
         if (count($validationErrors) > 0) {
             $view = $this->view(Error::withMessageAndDetail("Invalid JSON Body supplied, please check the Documentation", $validationErrors[0]), Response::HTTP_BAD_REQUEST);
             return $this->handleView($view);
+        }
+
+        if ($this->passwordEncoder->needsRehash($update->getPassword())) {
+            $update->setPassword($this->passwordEncoder->encodePassword($update->getPassword(), null));
         }
 
         $this->em->persist($update);

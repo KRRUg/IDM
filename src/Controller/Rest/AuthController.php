@@ -26,21 +26,21 @@ use Swagger\Annotations as SWG;
 class AuthController extends AbstractFOSRestController
 {
     private LoginService $loginService;
-
     private UserRepository $userRepository;
-
     private EntityManagerInterface $em;
+    private PasswordEncoderInterface $passwordEncoder;
 
     /**
      * AuthController constructor.
      * @param LoginService $loginService
      * @param UserRepository $userRepository
      */
-    public function __construct(EntityManagerInterface $em, LoginService $loginService, UserRepository $userRepository)
+    public function __construct(EntityManagerInterface $em, LoginService $loginService, UserRepository $userRepository, PasswordEncoderInterface $passwordEncoder)
     {
         $this->em = $em;
         $this->loginService = $loginService;
         $this->userRepository = $userRepository;
+        $this->passwordEncoder = $passwordEncoder;
     }
 
     /**
@@ -74,7 +74,7 @@ class AuthController extends AbstractFOSRestController
      * @Rest\Post("/register")
      * @ParamConverter("register", converter="fos_rest.request_body", options={"deserializationContext": {"allow_extra_attributes": false}})
      */
-    public function postRegisterAction(Register $register, ConstraintViolationListInterface $validationErrors, PasswordEncoderInterface $passwordEncoder): Response
+    public function postRegisterAction(Register $register, ConstraintViolationListInterface $validationErrors): Response
     {
         if (count($validationErrors) > 0) {
             $view = $this->view(Error::withMessageAndDetail('Invalid JSON Body supplied, please check the Documentation', $validationErrors[0]), Response::HTTP_BAD_REQUEST);
@@ -95,7 +95,7 @@ class AuthController extends AbstractFOSRestController
         $user->setInfoMails($register->infoMail);
 
         // encode the plain password
-        $user->setPassword($passwordEncoder->encodePassword($register->password, null));
+        $user->setPassword($this->passwordEncoder->encodePassword($register->password, null));
 
         // set defaults in User
         $user->setStatus(1);
