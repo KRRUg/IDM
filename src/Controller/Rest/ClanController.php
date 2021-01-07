@@ -3,10 +3,7 @@
 namespace App\Controller\Rest;
 
 use App\Entity\Clan;
-use App\Entity\User;
 use App\Entity\UserClan;
-use App\Form\ClanCreateType;
-use App\Form\ClanEditType;
 use App\Repository\ClanRepository;
 use App\Repository\UserClanRepository;
 use App\Repository\UserRepository;
