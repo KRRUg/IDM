@@ -61,7 +61,7 @@ class UserNormalizer implements ContextAwareNormalizerInterface, ContextAwareDen
         $context[ObjectNormalizer::GROUPS] = ['write'];
         $context[ObjectNormalizer::IGNORED_ATTRIBUTES][] = 'clans';
         if (!array_key_exists(ObjectNormalizer::ALLOW_EXTRA_ATTRIBUTES, $context)) {
-            $context[ObjectNormalizer::ALLOW_EXTRA_ATTRIBUTES] = false;
+            $context[ObjectNormalizer::ALLOW_EXTRA_ATTRIBUTES] = true;
         }
         return $this->normalizer->denormalize($data, $type, $format, $context);
     }

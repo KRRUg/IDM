@@ -7,6 +7,7 @@ use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Swagger\Annotations as SWG;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 trait EntityIdTrait
 {
@@ -24,6 +25,7 @@ trait EntityIdTrait
      *
      * @SWG\Property(type="string")
      * @ORM\Column(type="uuid", unique=true)
+     * @Assert\Uuid(strict=false)
      * @Groups({"read"})
      */
     protected $uuid;
