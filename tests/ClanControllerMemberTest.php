@@ -3,11 +3,8 @@
 
 namespace App\Tests;
 
-
-use App\Transfer\UuidObject;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
-use function foo\func;
 
 class ClanControllerMemberTest extends AbstractControllerTest
 {

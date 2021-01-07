@@ -79,8 +79,8 @@ class ClanControllerGetTest extends AbstractControllerTest
         $this->assertIsArray($items);
         $this->assertIsNumeric($result['total']);
         $this->assertIsNumeric($result['count']);
-        $this->assertEquals(2, $result['total']);
-        $this->assertEquals(2, $result['count']);
+        $this->assertEquals(3, $result['total']);
+        $this->assertEquals(3, $result['count']);
     }
 
     public function testClanGetFailFilterPageExceeding()
