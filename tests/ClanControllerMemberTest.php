@@ -28,7 +28,11 @@ class ClanControllerMemberTest extends AbstractControllerTest
     {
         $uuid = Uuid::fromInteger(1001)->toString();
         $user = Uuid::fromInteger(4)->toString();
-        $data = "\"{$user}\"";
+        $data = <<<JSON
+{
+    "uuid": "{$user}"
+}
+JSON;
 
         $this->client->request('POST', '/api/clans/' . $uuid . "/users", [], [], ['CONTENT_TYPE' => 'application/json'], $data);
         $response = $this->client->getResponse();

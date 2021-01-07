@@ -44,7 +44,7 @@ class UserNormalizer implements ContextAwareNormalizerInterface, ContextAwareDen
             $context[ObjectNormalizer::GROUPS] = ['read'];
             $context[ObjectNormalizer::IGNORED_ATTRIBUTES] = ['clans'];
             if (!array_key_exists(ObjectNormalizer::SKIP_NULL_VALUES, $context)) {
-                $context[ObjectNormalizer::SKIP_NULL_VALUES] = false;
+                $context[ObjectNormalizer::SKIP_NULL_VALUES] = true;
             }
             $data = $this->normalizer->normalize($user, $format, $context);
             $data['clans'] = [];
