@@ -46,23 +46,11 @@ JSON;
         $this->assertArrayHasKey("uuid", $result[0]);
         $this->assertArrayHasKey("email", $result[0]);
         $this->assertArrayHasKey("nickname", $result[0]);
-        $this->assertArrayHasKey("firstname", $result[0]);
-        $this->assertArrayHasKey("surname", $result[0]);
-        $this->assertArrayHasKey("postcode", $result[0]);
-        $this->assertArrayHasKey("city", $result[0]);
-        $this->assertArrayHasKey("street", $result[0]);
-        $this->assertArrayHasKey("country", $result[0]);
-        $this->assertArrayHasKey("phone", $result[0]);
-        $this->assertArrayHasKey("gender", $result[0]);
         $this->assertArrayHasKey("emailConfirmed", $result[0]);
         $this->assertArrayHasKey("isSuperadmin", $result[0]);
-        $this->assertArrayHasKey("steamAccount", $result[0]);
         $this->assertArrayHasKey("registeredAt", $result[0]);
         $this->assertArrayHasKey("modifiedAt", $result[0]);
-        $this->assertArrayHasKey("hardware", $result[0]);
         $this->assertArrayHasKey("infoMails", $result[0]);
-        $this->assertArrayHasKey("statements", $result[0]);
-        $this->assertArrayHasKey("birthdate", $result[0]);
         $this->assertArrayNotHasKey("password", $result[0]);
     }
 

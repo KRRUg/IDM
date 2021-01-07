@@ -24,7 +24,7 @@ trait EntityIdTrait
      *
      * @SWG\Property(type="string")
      * @ORM\Column(type="uuid", unique=true)
-     * @Groups({"read", "uuid"})
+     * @Groups({"read"})
      */
     protected $uuid;
 

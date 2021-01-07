@@ -104,6 +104,7 @@ class User
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Groups({"read", "write"})
+     * @Assert\Regex("/^[+]?\d([ \/()]?\d)*$/", message="Invalid phone number format.", groups={"Default", "Transfer"})
      */
     private $phone;
 
@@ -234,12 +235,12 @@ class User
         return $this;
     }
 
-    public function getPostcode(): ?int
+    public function getPostcode(): ?string
     {
         return $this->postcode;
     }
 
-    public function setPostcode(int $postcode): self
+    public function setPostcode(string $postcode): self
     {
         $this->postcode = $postcode;
 

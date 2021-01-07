@@ -38,29 +38,35 @@ class ClanNormalizer implements ContextAwareNormalizerInterface, ContextAwareDen
     public function normalize($clan, $format = null, array $context = [])
     {
         if (array_key_exists(self::UUID_ONLY, $context) && is_bool($context[self::UUID_ONLY]) && $context[self::UUID_ONLY]) {
-            return ['uuid' => $clan->getUuid()];
-        }
-
-        $context['groups'] = ['read'];
-        $context['ignored_attributes'] = ['users'];
-        $context['skip_null_values'] = false;
-        $data = $this->normalizer->normalize($clan, $format, $context);
-        $data['users'] = [];
-        $data['admins'] = [];
-        foreach ($clan->getUsers() as $userClan) {
-            $uuid = $userClan->getUser()->getUuid();
-            $data['users'][] = $uuid;
-            if ($userClan->getAdmin())
-                $data['admins'][] = $uuid;
+            $context[ObjectNormalizer::ATTRIBUTES] = ['uuid'];
+            $data = $this->normalizer->normalize($clan, $format, $context);
+        } else {
+            $context[ObjectNormalizer::GROUPS] = ['read'];
+            $context[ObjectNormalizer::IGNORED_ATTRIBUTES] = ['users'];
+            if (!array_key_exists(ObjectNormalizer::SKIP_NULL_VALUES, $context)) {
+                $context[ObjectNormalizer::SKIP_NULL_VALUES] = false;
+            }
+            $data = $this->normalizer->normalize($clan, $format, $context);
+            $data['users'] = [];
+            $data['admins'] = [];
+            $context[ObjectNormalizer::ATTRIBUTES] = ['uuid'];
+            foreach ($clan->getUsers() as $userClan) {
+                $user = $this->normalizer->normalize($userClan->getUser(), $format, $context);
+                $data['users'][] = $user;
+                if ($userClan->getAdmin())
+                    $data['admins'][] = $user;
+            }
         }
         return $data;
     }
 
     public function denormalize($data, $type, $format = null, array $context = [])
     {
-        $context['groups'] = ['write'];
-        $context['ignored_attributes'] = ['users'];
-        $context['allow_extra_attributes'] = false;
+        $context[ObjectNormalizer::GROUPS] = ['write'];
+        $context[ObjectNormalizer::IGNORED_ATTRIBUTES][] = 'users';
+        if (!array_key_exists(ObjectNormalizer::ALLOW_EXTRA_ATTRIBUTES, $context)) {
+            $context[ObjectNormalizer::ALLOW_EXTRA_ATTRIBUTES] = false;
+        }
         return $this->normalizer->denormalize($data, $type, $format, $context);
     }
 

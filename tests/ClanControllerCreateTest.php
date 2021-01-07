@@ -13,7 +13,9 @@ class ClanControllerCreateTest extends AbstractControllerTest
 {
     "name": "Clan 1337",
     "clantag": "<1337>",
-    "joinPassword": "foofoo"
+    "joinPassword": "foofoo",
+    "description": "we are 1337",
+    "website": "https://1337.io"
 }
 JSON;
         $this->client->request('POST', '/api/clans', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
@@ -34,6 +36,8 @@ JSON;
 
         $this->assertEquals("Clan 1337", $result['name']);
         $this->assertEquals("<1337>", $result['clantag']);
+        $this->assertEquals("https://1337.io", $result['website']);
+        $this->assertEquals("we are 1337", $result['description']);
         $this->assertIsArray($result["users"]);
         $this->assertIsArray($result["admins"]);
     }

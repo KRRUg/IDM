@@ -22,23 +22,11 @@ class UserControllerGetTest extends AbstractControllerTest
         $this->assertArrayHasKey("uuid", $result);
         $this->assertArrayHasKey("email", $result);
         $this->assertArrayHasKey("nickname", $result);
-        $this->assertArrayHasKey("firstname", $result);
-        $this->assertArrayHasKey("surname", $result);
-        $this->assertArrayHasKey("postcode", $result);
-        $this->assertArrayHasKey("city", $result);
-        $this->assertArrayHasKey("street", $result);
-        $this->assertArrayHasKey("country", $result);
-        $this->assertArrayHasKey("phone", $result);
-        $this->assertArrayHasKey("gender", $result);
         $this->assertArrayHasKey("emailConfirmed", $result);
         $this->assertArrayHasKey("isSuperadmin", $result);
-        $this->assertArrayHasKey("steamAccount", $result);
         $this->assertArrayHasKey("registeredAt", $result);
         $this->assertArrayHasKey("modifiedAt", $result);
-        $this->assertArrayHasKey("hardware", $result);
         $this->assertArrayHasKey("infoMails", $result);
-        $this->assertArrayHasKey("statements", $result);
-        $this->assertArrayHasKey("birthdate", $result);
         $this->assertArrayNotHasKey("password", $result);
 
         $this->assertEquals("User 1", $result['nickname']);

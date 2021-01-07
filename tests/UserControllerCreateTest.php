@@ -18,7 +18,16 @@ class UserControllerCreateTest extends AbstractControllerTest
     "nickname": "blup",
     "firstname": "foo",
     "surname": "baa",
-    "infoMails": true
+    "infoMails": true,
+    "postcode": "1A234",
+    "city": "Footown",
+    "street": "Some Street 1",
+    "country": "AT",
+    "phone": "+43 664/1234567",
+    "gender": "d",
+    "steamAccount": "fup",
+    "hardware": "some old Laptop",
+    "statements": "fup fup fup"
 }
 JSON;
         $this->client->request('POST', '/api/users', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
@@ -47,7 +56,6 @@ JSON;
         $this->assertArrayHasKey("hardware", $result);
         $this->assertArrayHasKey("infoMails", $result);
         $this->assertArrayHasKey("statements", $result);
-        $this->assertArrayHasKey("birthdate", $result);
         $this->assertArrayNotHasKey("password", $result);
 
         $this->assertEquals("blup", $result['nickname']);
