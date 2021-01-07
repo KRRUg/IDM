@@ -8,6 +8,7 @@ use App\Entity\UserClan;
 use App\Repository\ClanRepository;
 use App\Repository\UserClanRepository;
 use App\Repository\UserRepository;
+use App\Serializer\UserNormalizer;
 use App\Transfer\Error;
 use App\Transfer\PaginationCollection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -209,10 +210,11 @@ class ClanController extends AbstractFOSRestController
     {
         $result = array();
         foreach ($clan->getUsers() as $userClan) {
-            $result[] = $userClan->getUser()->getUuid();
+            $result[] = $userClan->getUser();
         }
 
         $view = $this->view($result, Response::HTTP_OK);
+        $view->getContext()->setAttribute(UserNormalizer::UUID_ONLY, true);
         return $this->handleView($view);
     }
 

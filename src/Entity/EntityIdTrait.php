@@ -16,7 +16,6 @@ trait EntityIdTrait
      * @ORM\Id
      * @ORM\Column(type="integer", options={"unsigned": true})
      * @ORM\GeneratedValue
-     * @Groups({"read"})
      */
     protected $id;
 
@@ -25,7 +24,7 @@ trait EntityIdTrait
      *
      * @SWG\Property(type="string")
      * @ORM\Column(type="uuid", unique=true)
-     * @Groups({"read"})
+     * @Groups({"read", "uuid"})
      */
     protected $uuid;
 

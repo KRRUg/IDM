@@ -6,6 +6,7 @@ use App\Entity\Clan;
 use App\Entity\User;
 use App\Entity\UserClan;
 use App\Repository\UserRepository;
+use App\Serializer\ClanNormalizer;
 use App\Service\UserService;
 use App\Transfer\Error;
 use App\Transfer\PaginationCollection;
@@ -175,10 +176,10 @@ class UserController extends AbstractFOSRestController
     {
         $result = array();
         foreach ($user->getClans() as $userClan) {
-            $result[] = $userClan->getClan()->getUuid();
+            $result[] = $userClan->getClan();
         }
-
         $view = $this->view($result, Response::HTTP_OK);
+        $view->getContext()->setAttribute(ClanNormalizer::UUID_ONLY, true);
         return $this->handleView($view);
     }
 

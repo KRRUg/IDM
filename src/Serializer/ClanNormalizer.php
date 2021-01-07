@@ -19,6 +19,11 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 class ClanNormalizer implements ContextAwareNormalizerInterface, ContextAwareDenormalizerInterface
 {
+    /**
+     * Set to true to serialze just the UUID
+     */
+    public const UUID_ONLY = 'uuid_only';
+
     private ObjectNormalizer $normalizer;
 
     /**
@@ -32,6 +37,10 @@ class ClanNormalizer implements ContextAwareNormalizerInterface, ContextAwareDen
 
     public function normalize($clan, $format = null, array $context = [])
     {
+        if (array_key_exists(self::UUID_ONLY, $context) && is_bool($context[self::UUID_ONLY]) && $context[self::UUID_ONLY]) {
+            return ['uuid' => $clan->getUuid()];
+        }
+
         $context['groups'] = ['read'];
         $context['ignored_attributes'] = ['users'];
         $context['skip_null_values'] = false;
