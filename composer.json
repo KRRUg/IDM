@@ -24,7 +24,6 @@
         "symfony/orm-pack": "^1.0",
         "symfony/security-bundle": "4.4.*",
         "symfony/serializer-pack": "^1.0",
-        "symfony/twig-pack": "^1.0",
         "symfony/validator": "4.4.*",
         "symfony/yaml": "4.4.*"
     },
