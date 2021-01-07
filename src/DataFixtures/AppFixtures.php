@@ -105,7 +105,14 @@ class AppFixtures extends Fixture
         $userclan->setClan($clan);
 
         $manager->persist($userclan);
+        $manager->persist($clan);
 
+        // create an empty clan
+        $clan = new Clan();
+        $clan->setName('Clan 3');
+        $clan->setClantag('CL3');
+        $clan->setUuid(Uuid::fromInteger(strval(1003)));
+        $clan->setJoinPassword(password_hash('clan3', PASSWORD_ARGON2ID));
         $manager->persist($clan);
 
         // create admin user

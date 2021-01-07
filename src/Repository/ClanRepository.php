@@ -108,10 +108,10 @@ class ClanRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('c');
 
         $qb
-            ->select('u', 'c', 'userclan')
-            ->innerJoin('c.users', 'userclan')
-            ->innerJoin('userclan.user', 'u')
-            ->where($qb->expr()->gte('u.status', 1))
+            ->select('c', 'uc', 'u')
+            ->leftJoin('c.users', 'uc')
+            ->leftJoin('uc.user', 'u')
+            ->where('u is null or u.status >= 1')
             ->orderBy('c.name');
 
         if (!empty($filter)) {

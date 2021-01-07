@@ -193,7 +193,7 @@ class UserController extends AbstractFOSRestController
      * @ParamConverter("user", options={"mapping": {"uuid": "uuid"}})
      * @ParamConverter("clan", options={"mapping": {"clan": "uuid"}})
      */
-    public function getMemberOfClanAction(User $user, Clan $clan)
+    public function getClanOfMemberAction(User $user, Clan $clan)
     {
         $clan_ids = $user->getClans()->map(function (UserClan $uc) { return $uc->getClan()->getUuid(); })->toArray();
         if (!in_array($clan->getUuid(), $clan_ids)) {

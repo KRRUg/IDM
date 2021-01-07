@@ -182,21 +182,39 @@ class ClanController extends AbstractFOSRestController
             return $this->handleView($view);
         }
 
-        foreach ($clan->getUsers() as $userClan) {
-            if ($userClan->getUser() === $user) {
-                $view = $this->view(Error::withMessage('User already member'), Response::HTTP_OK);
-                return $this->handleView($view);
-            }
+        if ($this->UserJoin($clan, $user)) {
+            $view = $this->view(null, Response::HTTP_NO_CONTENT);
+        } else {
+            $view = $this->view(Error::withMessage('User already member'), Response::HTTP_OK);
+        }
+        return $this->handleView($view);
+    }
+
+    /**
+     * Adds a User to a Clan.
+     *
+     * @Rest\Post("/{uuid}/admins", requirements= {"uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
+     * @ParamConverter("clan", options={"mapping": {"uuid": "uuid"}})
+     * @ParamConverter("user_uuid", converter="fos_rest.request_body")
+     */
+    public function addAdminAction(Clan $clan, UuidObject $user_uuid, ConstraintViolationListInterface $validationErrors)
+    {
+        if (count($validationErrors) > 0) {
+            $view = $this->view(Error::withMessageAndDetail('Invalid JSON Body supplied, please check the Documentation', $validationErrors[0]), Response::HTTP_BAD_REQUEST);
+            return $this->handleView($view);
         }
 
-        $userClan = new UserClan();
-        $userClan->setClan($clan);
-        $userClan->setUser($user);
-        $userClan->setAdmin(false);
-        $this->em->persist($userClan);
-        $this->em->flush();
+        $user = $this->userRepository->findOneBy(['uuid' => $user_uuid->uuid]);
+        if (empty($user)) {
+            $view = $this->view(Error::withMessage('User not found'), Response::HTTP_NOT_FOUND);
+            return $this->handleView($view);
+        }
 
-        $view = $this->view(null, Response::HTTP_NO_CONTENT);
+        if ($this->UserSetAdmin($clan, $user, true) || $this->UserJoin($clan, $user, true)) {
+            $view = $this->view(null, Response::HTTP_NO_CONTENT);
+        } else {
+            $view = $this->view(Error::withMessage('User already admin'), Response::HTTP_OK);
+        }
         return $this->handleView($view);
     }
 
@@ -219,6 +237,25 @@ class ClanController extends AbstractFOSRestController
     }
 
     /**
+     * Gets Users of Clan
+     *
+     * @Rest\Get("/{uuid}/admins", requirements= {"uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
+     * @ParamConverter("clan", options={"mapping": {"uuid": "uuid"}})
+     */
+    public function getAdminAction(Clan $clan)
+    {
+        $result = array();
+        foreach ($clan->getUsers() as $userClan) {
+            if ($userClan->getAdmin())
+                $result[] = $userClan->getUser();
+        }
+
+        $view = $this->view($result, Response::HTTP_OK);
+        $view->getContext()->setAttribute(UserNormalizer::UUID_ONLY, true);
+        return $this->handleView($view);
+    }
+
+    /**
      * Removes a User from a Clan.
      *
      * @Rest\Delete("/{uuid}/users/{user}", requirements= {
@@ -230,14 +267,31 @@ class ClanController extends AbstractFOSRestController
      */
     public function removeMemberAction(Clan $clan, User $user)
     {
-        foreach ($clan->getUsers() as $userClan) {
-            if ($userClan->getUser() === $user)
-            $this->em->remove($userClan);
-            break;
+        if ($this->UserLeave($clan, $user)) {
+            $view = $this->view(null, Response::HTTP_NO_CONTENT);
+        } else {
+            $view = $this->view(Error::withMessage('User not member'), Response::HTTP_NOT_FOUND);
         }
-        $this->em->flush();
+        return $this->handleView($view);
+    }
 
-        $view = $this->view(null, Response::HTTP_NO_CONTENT);
+    /**
+     * Removes a Admin from a Clan.
+     *
+     * @Rest\Delete("/{uuid}/admins/{user}", requirements= {
+     *     "uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+     *     "user"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"}
+     * )
+     * @ParamConverter("clan", options={"mapping": {"uuid": "uuid"}})
+     * @ParamConverter("user", options={"mapping": {"user": "uuid"}})
+     */
+    public function removeAdminAction(Clan $clan, User $user)
+    {
+        if ($this->UserSetAdmin($clan, $user, false)) {
+            $view = $this->view(null, Response::HTTP_NO_CONTENT);
+        } else {
+            $view = $this->view(Error::withMessage('User not admin'), Response::HTTP_NOT_FOUND);
+        }
         return $this->handleView($view);
     }
 
@@ -253,10 +307,96 @@ class ClanController extends AbstractFOSRestController
      */
     public function getMemberOfClanAction(Clan $clan, User $user)
     {
-        $user_ids = $clan->getUsers()->map(function (UserClan $uc) { return $uc->getUser()->getUuid(); })->toArray();
+        $user_ids = $clan->getUsers()
+            ->map(function (UserClan $uc) { return $uc->getUser()->getUuid(); })
+            ->toArray();
         if (!in_array($user->getUuid(), $user_ids)) {
             return $this->handleView($this->view(Error::withMessage("User not in clan"), Response::HTTP_NOT_FOUND));
         }
         return $this->redirectToRoute('app_rest_user_getuser', ["uuid" => $user->getUuid()]);
+    }
+
+    /**
+     * Gets a User from a Clan.
+     *
+     * @Rest\Get("/{uuid}/admins/{user}", requirements= {
+     *     "uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+     *     "user"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"}
+     * )
+     * @ParamConverter("clan", options={"mapping": {"uuid": "uuid"}})
+     * @ParamConverter("user", options={"mapping": {"user": "uuid"}})
+     */
+    public function getAdminOfClanAction(Clan $clan, User $user)
+    {
+        $user_ids = $clan->getUsers()
+            ->filter(function (UserClan $uc) { return $uc->getAdmin(); })
+            ->map(function (UserClan $uc) { return $uc->getUser()->getUuid(); })
+            ->toArray();
+        if (!in_array($user->getUuid(), $user_ids)) {
+            return $this->handleView($this->view(Error::withMessage("User not admin of clan"), Response::HTTP_NOT_FOUND));
+        }
+        return $this->redirectToRoute('app_rest_user_getuser', ["uuid" => $user->getUuid()]);
+    }
+
+    /**
+     * @param Clan $clan
+     * @param User $user
+     * @param bool $admin
+     * @return bool True if user was joined, false otherwise
+     */
+    private function UserJoin(Clan $clan, User $user, bool $admin = false): bool
+    {
+        foreach ($clan->getUsers() as $userClan) {
+            if ($userClan->getUser() === $user) {
+                return false;
+            }
+        }
+
+        $userClan = new UserClan();
+        $userClan->setClan($clan);
+        $userClan->setUser($user);
+        $userClan->setAdmin($admin);
+        $this->em->persist($userClan);
+        $this->em->flush();
+
+        return true;
+    }
+
+    /**
+     * @param Clan $clan
+     * @param User $user
+     * @return bool True if user was removed, false otherwise
+     */
+    private function UserLeave(Clan $clan, User $user): bool
+    {
+        foreach ($clan->getUsers() as $userClan) {
+            if ($userClan->getUser() === $user) {
+                $this->em->remove($userClan);
+                $this->em->flush();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @param Clan $clan
+     * @param User $user
+     * @param bool $admin
+     * @return bool True if user is member and status was changed, false otherwise
+     */
+    private function UserSetAdmin(Clan $clan, User $user, bool $admin): bool
+    {
+        foreach ($clan->getUsers() as $userClan) {
+            if ($userClan->getUser() === $user) {
+                if ($admin === $userClan->getAdmin())
+                    return false;
+                $userClan->setAdmin($admin);
+                $this->em->persist($userClan);
+                $this->em->flush();
+                return true;
+            }
+        }
+        return false;
     }
 }
