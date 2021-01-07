@@ -24,6 +24,7 @@ use Pagerfanta\Pagerfanta;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 /**
@@ -33,98 +34,19 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
  */
 class ClanController extends AbstractFOSRestController
 {
-    /**
-     * @var EntityManagerInterface
-     */
     private EntityManagerInterface $em;
-    /**
-     * @var ClanRepository
-     */
     private ClanRepository $clanRepository;
-    /**
-     * @var UserRepository
-     */
     private UserRepository $userRepository;
-    /**
-     * @var UserClanRepository
-     */
     private UserClanRepository $userClanRepository;
+    private PasswordEncoderInterface $passwordEncoder;
 
-    public function __construct(EntityManagerInterface $entityManager, ClanRepository $clanRepository, UserRepository $userRepository, UserClanRepository $userClanRepository)
+    public function __construct(EntityManagerInterface $entityManager, ClanRepository $clanRepository, UserRepository $userRepository, UserClanRepository $userClanRepository, PasswordEncoderInterface $passwordEncoder)
     {
         $this->em = $entityManager;
         $this->clanRepository = $clanRepository;
         $this->userRepository = $userRepository;
         $this->userClanRepository = $userClanRepository;
-    }
-
-    /**
-     * Creates a Clan.
-     *
-     * @Rest\Post("")
-     */
-    public function createClanAction(Request $request)
-    {
-        $clan = new Clan();
-
-        $form = $this->createForm(ClanCreateType::class, $clan);
-        $form->submit($request->request->all());
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            // get Data from Form
-            $clan = $form->getData();
-
-            //Check if ClanName and ClanTag are not already used
-            if ($this->clanRepository->findOneByLowercase(['name' => $form->get('name')->getData()])) {
-                $view = $this->view(Error::withMessage('ClanName exists already'), Response::HTTP_CONFLICT);
-
-                return $this->handleView($view);
-            }
-            if ($this->clanRepository->findOneByLowercase(['clantag' => $form->get('clantag')->getData()])) {
-                $view = $this->view(Error::withMessage('ClanTag exists already'), Response::HTTP_CONFLICT);
-
-                return $this->handleView($view);
-            }
-
-            // encode the plain password
-            $clan->setJoinPassword(password_hash($form->get('joinPassword')->getData(), PASSWORD_ARGON2ID));
-
-            // add Creator as Admin and Member if set
-            if (null !== $form->get('user')->getData()) {
-                $user = $this->userRepository->findOneBy(['uuid' => $form->get('user')->getData()]);
-
-                if ($user instanceof User) {
-                    $userclan = new UserClan();
-                    $userclan->setClan($clan);
-                    $userclan->setUser($user);
-                    $userclan->setAdmin(true);
-
-                    $this->em->persist($clan);
-                    $this->em->persist($userclan);
-                    $this->em->flush();
-                } else {
-                    $view = $this->view(Error::withMessage('Supplied User could not be found'), Response::HTTP_BAD_REQUEST);
-
-                    return $this->handleView($view);
-                }
-            } else {
-                $this->em->persist($clan);
-                $this->em->flush();
-            }
-
-            // return the Clan Object
-            $clan = $this->clanRepository->findOneBy(['uuid' => $clan->getUuid()]);
-
-            $view = $this->view($clan, Response::HTTP_CREATED);
-            $view->getContext()->setSerializeNull(true);
-            $view->getContext()->addGroup('default');
-
-            return $this->handleView($view);
-        }
-
-        $view = $this->view(Error::withMessageAndDetail('Invalid JSON Body supplied, please check the Documentation', $form->getErrors(true, false)), Response::HTTP_BAD_REQUEST);
-
-        return $this->handleView($view);
+        $this->passwordEncoder = $passwordEncoder;
     }
 
     /**
@@ -140,75 +62,58 @@ class ClanController extends AbstractFOSRestController
     }
 
     /**
-     * Edits a Clan.
+     * Creates a Clan.
      *
-     * Edits a Clan
-     *
-     * @Rest\Patch("/{uuid}", requirements= {"uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
-     * @ParamConverter()
+     * @Rest\Post("")
+     * @ParamConverter("new", converter="fos_rest.request_body",
+     *     options={
+     *      "deserializationContext": {"allow_extra_attributes": false},
+     *      "validator": {"groups": {"Transfer", "Create"} }
+     *     })
      */
-    public function editClanAction(Clan $clan, Request $request)
+    public function createClanAction(Clan $new, ConstraintViolationListInterface $validationErrors)
     {
-        $form = $this->createForm(ClanEditType::class, $clan);
-
-        // Specify clearMissing on false to support partial editing
-        $form->submit($request->request->all(), false);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $formclan = $form->getData();
-
-            // Check if the ClanName or Tag are already used
-            $clantag = $this->clanRepository->findOneByLowercase(['clantag' => $form->get('clantag')->getData()]);
-            if (null !== $clantag && $clantag->getUuid() !== $clan->getUuid()) {
-                $view = $this->view(Error::withMessage('ClanTag already in use'), Response::HTTP_BAD_REQUEST);
-
-                return $this->handleView($view);
-            }
-            $clanname = $this->clanRepository->findOneByLowercase(['name' => $form->get('name')->getData()]);
-            if (null !== $clanname && $clanname->getUuid() !== $clan->getUuid()) {
-                $view = $this->view(Error::withMessage('Clanname already in use'), Response::HTTP_BAD_REQUEST);
-
-                return $this->handleView($view);
-            }
-
-            // Only set the Password when it's not empty
-            if (null != $form->get('joinPassword')->getData() && '' != $form->get('joinPassword')->getData()) {
-                $formclan->setJoinPassword(password_hash($form->get('joinPassword')->getData(), PASSWORD_ARGON2ID));
-            }
-            // Set Admins to the specified List
-            if (is_array($form->get('admins')->getData()) && !empty($form->get('admins')->getData())) {
-                // First remove all the Admins that are no longer in the List
-                foreach ($this->userClanRepository->findAllAdminsByClanUuid($clan->getUuid()) as $admin) {
-                    if (!array_key_exists((string) $admin->getUser()->getUuid(), $form->get('admins')->getData())) {
-                        $admin->setAdmin(false);
-                        $this->em->persist($admin);
-                    }
-                }
-                // Add the new Admins
-                foreach ($form->get('admins')->getData() as $admin) {
-                    $clanuser = $this->userClanRepository->findOneClanUserByUuid($formclan->getUuid(), $admin);
-                    if ($clanuser) {
-                        if (true != $clanuser->getAdmin()) {
-                            $clanuser->setAdmin(true);
-                            $this->em->persist($clanuser);
-                        }
-                    } else {
-                        $view = $this->view(Error::withMessageAndDetail('User UUID is not Member of the Clan', $admin), Response::HTTP_BAD_REQUEST);
-
-                        return $this->handleView($view);
-                    }
-                }
-            }
-            $this->em->persist($clan);
-            $this->em->flush();
-
-            $formclan = $this->clanRepository->findOneBy(['uuid' => $formclan->getUuid()]);
-            $view = $this->view($formclan);
-            return $this->handleView($view);
-        } else {
-            $view = $this->view(Error::withMessageAndDetail('Invalid JSON Body supplied, please check the Documentation', $form->getErrors(true, false)), Response::HTTP_BAD_REQUEST);
-
+        if (count($validationErrors) > 0) {
+            $view = $this->view(Error::withMessageAndDetail("Invalid JSON Body supplied, please check the Documentation", $validationErrors[0]), Response::HTTP_BAD_REQUEST);
             return $this->handleView($view);
         }
+
+        $new->setJoinPassword($this->passwordEncoder->encodePassword($new->getJoinPassword(), null));
+
+        $this->em->persist($new);
+        $this->em->flush();
+
+        $view = $this->view($new);
+        return $this->handleView($view);
+    }
+
+    /**
+     * Edits a clan.
+     *
+     * @Rest\Patch("/{uuid}", requirements= {"uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
+     * @ParamConverter("clan", class="App\Entity\Clan")
+     * @ParamConverter("update", converter="fos_rest.request_body",
+     *     options={
+     *      "deserializationContext": {"allow_extra_attributes": false},
+     *      "validator": {"groups": {"Transfer"} },
+     *      "attribute_to_populate": "clan",
+     *     })
+     */
+    public function editClanAction(Clan $update, ConstraintViolationListInterface $validationErrors)
+    {
+        if (count($validationErrors) > 0) {
+            $view = $this->view(Error::withMessageAndDetail("Invalid JSON Body supplied, please check the Documentation", $validationErrors[0]), Response::HTTP_BAD_REQUEST);
+            return $this->handleView($view);
+        }
+
+        if ($this->passwordEncoder->needsRehash($update->getJoinPassword())) {
+            $update->setJoinPassword($this->passwordEncoder->encodePassword($update->getJoinPassword(), null));
+        }
+
+        $this->em->persist($update);
+        $this->em->flush();
+
+        return $this->handleView($this->view($update));
     }
 
     /**
@@ -227,15 +132,12 @@ class ClanController extends AbstractFOSRestController
     }
 
     /**
-     * Returns all Clan Objects.
+     * Returns all Clan objects with filter.
      *
      * @Rest\Get("")
      * @Rest\QueryParam(name="page", requirements="\d+", default="1")
      * @Rest\QueryParam(name="limit", requirements="\d+", default="10")
      * @Rest\QueryParam(name="q", default="")
-     * @param Request $request
-     * @param ParamFetcher $fetcher
-     * @return Response
      */
     public function getClansAction(ParamFetcher $fetcher)
     {

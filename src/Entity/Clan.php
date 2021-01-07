@@ -17,8 +17,8 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * @ORM\Table(name="clan")
  * @ORM\HasLifecycleCallbacks
  *
- * @UniqueEntity(fields={"name"}, message="There is already a clan with this name")
- * @UniqueEntity(fields={"clantag"}, message="There is already a tag with this name")
+ * @UniqueEntity(fields={"name"}, groups={"Default", "Create"}, message="There is already a clan with this name")
+ * @UniqueEntity(fields={"clantag"}, groups={"Default", "Create"}, message="There is already a tag with this name")
  */
 class Clan
 {
@@ -31,7 +31,7 @@ class Clan
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
-     * @Assert\NotBlank(groups={"Default", "Transfer"})
+     * @Assert\NotBlank(groups={"Default", "Create"})
      * @Groups({"read", "write"})
      */
     private $name;
@@ -44,9 +44,10 @@ class Clan
      *      minMessage = "The password must be at least {{ limit }} characters long",
      *      maxMessage = "The password cannot be longer than {{ limit }} characters",
      *      allowEmptyString="false",
-     *      groups = {"Transfer"}
+     *      groups = {"Transfer", "Create"}
      * )
-     * @Groups({"read", "write"})
+     * @Assert\NotBlank(groups={"Default", "Create"})
+     * @Groups({"write"})
      */
     private $joinPassword;
 
@@ -74,7 +75,15 @@ class Clan
 
     /**
      * @ORM\Column(type="string", length=24, unique=true)
-     * @Assert\NotBlank(groups={"Default", "Transfer"})
+     * @Assert\Length(
+     *      min = 1,
+     *      max = 24,
+     *      minMessage = "The clantag must be at least {{ limit }} characters long",
+     *      maxMessage = "The clantag cannot be longer than {{ limit }} characters",
+     *      allowEmptyString="false",
+     *      groups = {"Default", "Transfer", "Create"}
+     * )
+     * @Assert\NotBlank(groups={"Default", "Create"})
      * @Groups({"read", "write"})
      */
     private $clantag;
@@ -88,6 +97,11 @@ class Clan
 
     /**
      * @ORM\Column(type="string", length=4096, nullable=true)
+     * @Assert\Length(
+     *      max = 4096,
+     *      maxMessage = "The clan description cannot be longer than {{ limit }} characters",
+     *      groups = {"Default", "Transfer"}
+     * )
      * @Groups({"read", "write"})
      */
     private $description;

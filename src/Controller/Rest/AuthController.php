@@ -6,7 +6,6 @@ use App\Repository\UserRepository;
 use App\Service\LoginService;
 use App\Transfer\Error;
 use App\Transfer\Login;
-use App\Transfer\Register;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;

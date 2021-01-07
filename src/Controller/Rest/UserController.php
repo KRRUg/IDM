@@ -81,7 +81,7 @@ class UserController extends AbstractFOSRestController
     }
 
     /**
-     * Edits a User.
+     * Creates a User.
      *
      * @Rest\Post("")
      * @ParamConverter("new", converter="fos_rest.request_body",
@@ -97,7 +97,7 @@ class UserController extends AbstractFOSRestController
             return $this->handleView($view);
         }
 
-        // TODO move this to UserServicew
+        // TODO move this to UserService
         $new->setStatus(1);
         $new->setEmailConfirmed(false);
         $new->setInfoMails($new->getInfoMails() ?? false);
@@ -131,15 +131,14 @@ class UserController extends AbstractFOSRestController
     }
 
     /**
-     * Returns all Userobjects.
+     * Returns all User objects with filter.
      *
      * @Rest\Get("")
      * @Rest\QueryParam(name="page", requirements="\d+", default="1")
      * @Rest\QueryParam(name="limit", requirements="\d+", default="10")
      * @Rest\QueryParam(name="q", default="")
-     *
      */
-    public function getUsersAction(Request $request, ParamFetcher $fetcher)
+    public function getUsersAction(ParamFetcher $fetcher)
     {
         $page = intval($fetcher->get('page'));
         $limit = intval($fetcher->get('limit'));
