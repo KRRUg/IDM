@@ -2,17 +2,14 @@
 
 namespace App\Transfer;
 
+use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
-final class ClanAvailability
+final class Uuid
 {
     /**
      * @Assert\NotBlank()
+     * @Assert\Uuid(strict=false)
      */
-    public $mode;
-
-    /**
-     * @Assert\NotBlank()
-     */
-    public $name;
+    public UuidInterface $uuid;
 }

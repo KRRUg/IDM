@@ -2,7 +2,9 @@
 
 namespace App\Controller\Rest;
 
+use App\Entity\Clan;
 use App\Entity\User;
+use App\Entity\UserClan;
 use App\Repository\UserRepository;
 use App\Service\UserService;
 use App\Transfer\Error;
@@ -15,7 +17,6 @@ use FOS\RestBundle\Request\ParamFetcher;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Pagerfanta\Pagerfanta;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
@@ -23,7 +24,7 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
 /**
  * Class UserController.
  *
- * @Rest\Route("/users", name="rest_users_")
+ * @Rest\Route("/users")
  */
 class UserController extends AbstractFOSRestController
 {
@@ -162,5 +163,41 @@ class UserController extends AbstractFOSRestController
 
         $view = $this->view($collection);
         return $this->handleView($view);
+    }
+
+    /**
+     * Gets Clans of User
+     *
+     * @Rest\Get("/{uuid}/clans", requirements= {"uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
+     * @ParamConverter("user", options={"mapping": {"uuid": "uuid"}})
+     */
+    public function getMemberAction(User $user)
+    {
+        $result = array();
+        foreach ($user->getClans() as $userClan) {
+            $result[] = $userClan->getClan()->getUuid();
+        }
+
+        $view = $this->view($result, Response::HTTP_OK);
+        return $this->handleView($view);
+    }
+
+    /**
+     * Gets a Clan from a User.
+     *
+     * @Rest\Get("/{uuid}/clans/{clan}", requirements= {
+     *     "uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+     *     "clan"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"}
+     * )
+     * @ParamConverter("user", options={"mapping": {"uuid": "uuid"}})
+     * @ParamConverter("clan", options={"mapping": {"clan": "uuid"}})
+     */
+    public function getMemberOfClanAction(User $user, Clan $clan)
+    {
+        $clan_ids = $user->getClans()->map(function (UserClan $uc) { return $uc->getClan()->getUuid(); })->toArray();
+        if (!in_array($clan->getUuid(), $clan_ids)) {
+            return $this->handleView($this->view(Error::withMessage("User not in clan"), Response::HTTP_NOT_FOUND));
+        }
+        return $this->redirectToRoute('app_rest_clan_getclan', ["uuid" => $clan->getUuid()]);
     }
 }
