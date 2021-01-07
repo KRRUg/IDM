@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ClanControllerGetTest extends AbstractControllerTest
 {
-    public function testUserRequestSuccessful()
+    public function testClanRequestSuccessful()
     {
         $uuid = Uuid::fromInteger(1001)->toString();
         $this->client->request('GET', '/api/clans/' . $uuid);
@@ -44,7 +44,7 @@ class ClanControllerGetTest extends AbstractControllerTest
         $this->assertJson($response->getContent(), "No valid JSON returned.");
     }
 
-    public function testUserGetSuccessfulAll()
+    public function testClanGetSuccessfulAll()
     {
         $this->client->request('GET', '/api/clans');
         $response = $this->client->getResponse();
@@ -63,7 +63,7 @@ class ClanControllerGetTest extends AbstractControllerTest
         $this->assertEquals(2, $result['total']);
     }
 
-    public function testUserGetSuccessfulFilter()
+    public function testClanGetSuccessfulFilter()
     {
         $this->client->request('GET', '/api/clans', ['q' => "Clan", "limit" => 5, "page" => 1]);
         $response = $this->client->getResponse();
@@ -83,7 +83,7 @@ class ClanControllerGetTest extends AbstractControllerTest
         $this->assertEquals(2, $result['count']);
     }
 
-    public function testUserGetFailFilterPageExceeding()
+    public function testClanGetFailFilterPageExceeding()
     {
         $this->client->request('GET', '/api/clans', ['q' => "Clan", "limit" => 5, "page" => 200]);
         $response = $this->client->getResponse();
@@ -92,7 +92,7 @@ class ClanControllerGetTest extends AbstractControllerTest
         $this->assertJson($response->getContent(), "No valid JSON returned.");
     }
 
-    public function testUserGetSuccessfulNothingFound()
+    public function testClanGetSuccessfulNothingFound()
     {
         $this->client->request('GET', '/api/clans', ['q' => "DoesNotExistInDatabase"]);
         $response = $this->client->getResponse();

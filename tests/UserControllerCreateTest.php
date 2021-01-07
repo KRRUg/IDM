@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class UserControllerCreateTest extends AbstractControllerTest
 {
-    public function testRegisterSuccess()
+    public function testUserCreateSuccess()
     {
         $data = <<<JSON
 {
@@ -59,7 +59,7 @@ JSON;
         $this->assertTrue($result['infoMails']);
     }
 
-    public function testRegisterSuccess2()
+    public function testUserCreateSuccess2()
     {
         $data = <<<JSON
 {
@@ -77,7 +77,7 @@ JSON;
         $this->assertJson($response->getContent(), "No valid JSON returned.");
     }
 
-    public function testRegisterFailInvalidEmail()
+    public function testUserCreateFailInvalidEmail()
     {
         $data = <<<JSON
 {
@@ -96,7 +96,7 @@ JSON;
         $this->assertJson($response->getContent());
     }
 
-    public function testRegisterFailMissingField()
+    public function testUserCreateFailMissingField()
     {
         // firstname missing
         $data = <<<JSON
@@ -113,7 +113,7 @@ JSON;
         $this->assertJson($response->getContent());
     }
 
-    public function testRegisterFailExistingEmail()
+    public function testUserCreateFailExistingEmail()
     {
         // email existing
         $data = <<<JSON
@@ -133,7 +133,7 @@ JSON;
         $this->assertJson($response->getContent());
     }
 
-    public function testRegisterFailExistingNickname()
+    public function testUserCreateFailExistingNickname()
     {
         // nickname existing
         $data = <<<JSON
@@ -153,7 +153,7 @@ JSON;
         $this->assertJson($response->getContent());
     }
 
-    public function testRegisterFailInvalidTypeBool()
+    public function testUserCreateFailInvalidTypeBool()
     {
         // infoMail type is invalid
         $data = <<<JSON
@@ -173,7 +173,7 @@ JSON;
         $this->assertJson($response->getContent());
     }
 
-    public function testRegisterFailAdditionalField()
+    public function testUserCreateFailAdditionalField()
     {
         // infoMail type is invalid
         $data = <<<JSON
@@ -195,7 +195,7 @@ JSON;
     }
 
 
-    public function testRegisterFailInvalidTypeString()
+    public function testUserCreateFailInvalidTypeString()
     {
         // nickname type is invalid
         $data = <<<JSON

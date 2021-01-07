@@ -83,7 +83,7 @@ class ClanController extends AbstractFOSRestController
         $this->em->persist($new);
         $this->em->flush();
 
-        $view = $this->view($new);
+        $view = $this->view($new, Response::HTTP_CREATED);
         return $this->handleView($view);
     }
 
