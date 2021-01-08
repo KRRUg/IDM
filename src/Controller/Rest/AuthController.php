@@ -9,6 +9,7 @@ use App\Transfer\Login;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
@@ -47,23 +48,20 @@ class AuthController extends AbstractFOSRestController
      *
      * @SWG\Response(
      *     response=200,
-     *     description="Returns UserObject"
+     *     description="Returns the User",
+     *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Entity\User::class, groups={"read"}))
      * )
      * @SWG\Response(
      *     response=404,
      *     description="Returns if no EMail and/or Password could be found"
      * )
      * @SWG\Parameter(
-     *     name="email",
-     *     in="formData",
-     *     type="string",
-     *     description="EMail"
-     * )
-     * @SWG\Parameter(
-     *     name="password",
-     *     in="formData",
-     *     type="string",
-     *     description="Plaintext Password"
+     *     name="body",
+     *     in="body",
+     *     description="credentials as JSON",
+     *     required=true,
+     *     format="application/json",
+     *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Transfer\Login::class))
      * )
      * @SWG\Tag(name="Authorization")
      *
@@ -81,7 +79,7 @@ class AuthController extends AbstractFOSRestController
         $user = $this->loginService->checkCredentials($login->email, $login->password);
 
         if ($user) {
-            $view = $this->view();
+            $view = $this->view($user);
         } else {
             $view = $this->view(Error::withMessage('Invalid credentials'), Response::HTTP_NOT_FOUND);
         }

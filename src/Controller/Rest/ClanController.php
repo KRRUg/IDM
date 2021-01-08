@@ -20,6 +20,7 @@ use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Pagerfanta\Pagerfanta;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Swagger\Annotations as SWG;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
@@ -49,15 +50,25 @@ class ClanController extends AbstractFOSRestController
     /**
      * Returns a single Clan object.
      *
-     * @SWG\Tag(name="Clan")
      * @SWG\Response(
      *     response=200,
-     *     description="Returns Clan object"
+     *     description="Returns the Clan",
+     *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Entity\Clan::class, groups={"read"}))
      * )
      * @SWG\Response(
      *     response=404,
-     *     description="Returns if no clan can be found with uuid could be found"
+     *     description="Returns if the clan does not exitst"
      * )
+     * @SWG\Parameter(
+     *     name="uuid",
+     *     type="string",
+     *     in="path",
+     *     description="the UUID of the clan to query",
+     *     required=true,
+     *     format="uuid"
+     * )
+     * @SWG\Tag(name="Clan")
+     *
      * @Rest\Get("/{uuid}", requirements= {"uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
      * @ParamConverter()
      */
@@ -70,15 +81,25 @@ class ClanController extends AbstractFOSRestController
     /**
      * Creates a Clan.
      *
-     * @SWG\Tag(name="Clan")
      * @SWG\Response(
      *     response=201,
-     *     description="The clan was created"
+     *     description="The edited clan",
+     *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Entity\Clan::class, groups={"read"}))
      * )
      * @SWG\Response(
      *     response=400,
-     *     description="If an anvalid request was made (e.g. missing fields, wrong types)"
+     *     description="Returns if the body was invalid"
      * )
+     * @SWG\Parameter(
+     *     name="body",
+     *     in="body",
+     *     description="the updated clan field as JSON",
+     *     required=true,
+     *     format="application/json",
+     *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Entity\Clan::class, groups={"write"}))
+     * )
+     * @SWG\Tag(name="Clan")
+     *
      * @Rest\Post("")
      * @ParamConverter("new", converter="fos_rest.request_body",
      *     options={
@@ -104,6 +125,37 @@ class ClanController extends AbstractFOSRestController
 
     /**
      * Edits a clan.
+     *
+     * @SWG\Response(
+     *     response=200,
+     *     description="The edited clan",
+     *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Entity\Clan::class, groups={"read"}))
+     * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="Returns if the clan does not exitst"
+     * )
+     * @SWG\Response(
+     *     response=400,
+     *     description="Returns if the body was invalid"
+     * )
+     * @SWG\Parameter(
+     *     name="uuid",
+     *     type="string",
+     *     in="path",
+     *     description="the UUID of the clan to modify",
+     *     required=true,
+     *     format="uuid"
+     * )
+     * @SWG\Parameter(
+     *     name="body",
+     *     in="body",
+     *     description="the updated clan field as JSON",
+     *     required=true,
+     *     format="application/json",
+     *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Entity\Clan::class, groups={"write"}))
+     * )
+     * @SWG\Tag(name="Clan")
      *
      * @Rest\Patch("/{uuid}", requirements= {"uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
      * @ParamConverter("clan", class="App\Entity\Clan")
