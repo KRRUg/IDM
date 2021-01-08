@@ -19,6 +19,7 @@ use FOS\RestBundle\Request\ParamFetcher;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Pagerfanta\Pagerfanta;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Swagger\Annotations as SWG;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
@@ -46,8 +47,17 @@ class ClanController extends AbstractFOSRestController
     }
 
     /**
-     * Returns a single Clanobject.
+     * Returns a single Clan object.
      *
+     * @SWG\Tag(name="Clan")
+     * @SWG\Response(
+     *     response=200,
+     *     description="Returns Clan object"
+     * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="Returns if no clan can be found with uuid could be found"
+     * )
      * @Rest\Get("/{uuid}", requirements= {"uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
      * @ParamConverter()
      */
@@ -60,6 +70,15 @@ class ClanController extends AbstractFOSRestController
     /**
      * Creates a Clan.
      *
+     * @SWG\Tag(name="Clan")
+     * @SWG\Response(
+     *     response=201,
+     *     description="The clan was created"
+     * )
+     * @SWG\Response(
+     *     response=400,
+     *     description="If an anvalid request was made (e.g. missing fields, wrong types)"
+     * )
      * @Rest\Post("")
      * @ParamConverter("new", converter="fos_rest.request_body",
      *     options={

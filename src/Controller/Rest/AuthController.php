@@ -18,7 +18,7 @@ use Swagger\Annotations as SWG;
 /**
  * Class AuthController.
  *
- * @Rest\Route("/auth", name="auth_")
+ * @Rest\Route("/auth")
  */
 class AuthController extends AbstractFOSRestController
 {
