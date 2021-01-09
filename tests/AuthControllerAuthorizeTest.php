@@ -19,7 +19,7 @@ class AuthControllerAuthorizeTest extends AbstractControllerTest
 JSON;
         $this->client->request('POST', '/api/auth/authorize', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
         $response = $this->client->getResponse();
-        $this->assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $this->assertEmpty($response->getContent(), "No data expected");
     }
 

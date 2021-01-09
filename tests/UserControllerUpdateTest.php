@@ -86,12 +86,14 @@ JSON;
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $this->assertEquals("application/json", $response->headers->get('Content-Type'));
         $this->assertJson($response->getContent(), "No valid JSON returned.");
+        $user1 = json_decode($response->getContent(), true);
 
         // try to login with new PW
         $this->client->request('POST', '/api/auth/authorize', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
         $response = $this->client->getResponse();
-        $this->assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
-        $this->assertEmpty($response->getContent(), "No data expected");
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $user2 = json_decode($response->getContent(), true);
+        $this->assertEquals($user1, $user2);
     }
 
     public function testUserUpdateFailTooShortPassword()

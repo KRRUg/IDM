@@ -20,7 +20,7 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 class UserNormalizer implements ContextAwareNormalizerInterface, ContextAwareDenormalizerInterface
 {
     /**
-     * Set to true to serialze just the UUID
+     * Set to true to serialize just the UUID
      */
     public const UUID_ONLY = 'uuid_only';
 

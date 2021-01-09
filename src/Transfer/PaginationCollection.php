@@ -1,10 +1,6 @@
 <?php
 
-
 namespace App\Transfer;
-
-use Symfony\Component\Serializer\Annotation\Groups;
-
 
 final class PaginationCollection
 {
