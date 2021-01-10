@@ -30,8 +30,16 @@ class Clan
     use EntityIdTrait;
 
     /**
-     * @ORM\Column(type="string", length=255, unique=true)
+     * @ORM\Column(type="string", length=64, unique=true)
      * @Assert\NotBlank(groups={"Default", "Create"})
+     * @Assert\Length(
+     *      min = 1,
+     *      max = 64,
+     *      minMessage = "The clantag must be at least {{ limit }} characters long",
+     *      maxMessage = "The clantag cannot be longer than {{ limit }} characters",
+     *      allowEmptyString="false",
+     *      groups = {"Default", "Transfer", "Create"}
+     * )
      * @Groups({"read", "write"})
      */
     private $name;
@@ -40,7 +48,7 @@ class Clan
      * @ORM\Column(type="string", length=255)
      * @Assert\Length(
      *      min = 6,
-     *      max = 256,
+     *      max = 128,
      *      minMessage = "The password must be at least {{ limit }} characters long",
      *      maxMessage = "The password cannot be longer than {{ limit }} characters",
      *      allowEmptyString="false",
@@ -74,10 +82,10 @@ class Clan
     private $users;
 
     /**
-     * @ORM\Column(type="string", length=24, unique=true)
+     * @ORM\Column(type="string", length=10, unique=true)
      * @Assert\Length(
      *      min = 1,
-     *      max = 24,
+     *      max = 10,
      *      minMessage = "The clantag must be at least {{ limit }} characters long",
      *      maxMessage = "The clantag cannot be longer than {{ limit }} characters",
      *      allowEmptyString="false",

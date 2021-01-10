@@ -27,7 +27,7 @@ class User
     use EntityIdTrait;
 
     /**
-     * @ORM\Column(type="string", length=180, unique=true)
+     * @ORM\Column(type="string", length=320, unique=true)
      * @Assert\NotBlank(groups={"Default", "Create"})
      * @Assert\Email(groups={"Default", "Transfer", "Create"})
      * @Groups({"read", "write"})
@@ -39,7 +39,7 @@ class User
      * @ORM\Column(type="string")
      * @Assert\Length(
      *      min = 6,
-     *      max = 256,
+     *      max = 128,
      *      minMessage = "The password must be at least {{ limit }} characters long",
      *      maxMessage = "The password cannot be longer than {{ limit }} characters",
      *      allowEmptyString="false",
@@ -51,8 +51,16 @@ class User
     private $password;
 
     /**
-     * @ORM\Column(type="string", length=255, unique=true)
+     * @ORM\Column(type="string", length=64, unique=true)
      * @Assert\NotBlank(groups={"Default", "Create"})
+     * @Assert\Length(
+     *      min = 1,
+     *      max = 64,
+     *      minMessage = "The nickname must be at least {{ limit }} characters long",
+     *      maxMessage = "The nickname cannot be longer than {{ limit }} characters",
+     *      allowEmptyString="false",
+     *      groups = {"Default", "Transfer", "Create"}
+     * )
      * @Groups({"read", "write"})
      */
     private $nickname;
