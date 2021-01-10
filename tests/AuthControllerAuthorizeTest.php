@@ -20,7 +20,6 @@ JSON;
         $this->client->request('POST', '/api/auth/authorize', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
         $response = $this->client->getResponse();
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
-        $this->assertEmpty($response->getContent(), "No data expected");
     }
 
     public function testAuthorizeFailPasswordIncorrect()
