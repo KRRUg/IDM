@@ -14,8 +14,8 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * @ORM\Table(name="gamer")
  * @ORM\HasLifecycleCallbacks
  *
- * @UniqueEntity(fields={"email"}, groups={"Default", "Create"}, message="There is already an account with this email")
- * @UniqueEntity(fields={"nickname"}, groups={"Default", "Create"}, message="There is already an account with this nickname")
+ * @UniqueEntity(fields={"email"}, groups={"Default", "Unique"}, message="There is already an account with this email")
+ * @UniqueEntity(fields={"nickname"}, groups={"Default", "Unique"}, message="There is already an account with this nickname")
  */
 class User
 {

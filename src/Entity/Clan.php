@@ -17,8 +17,8 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * @ORM\Table(name="clan")
  * @ORM\HasLifecycleCallbacks
  *
- * @UniqueEntity(fields={"name"}, groups={"Default", "Create"}, message="There is already a clan with this name")
- * @UniqueEntity(fields={"clantag"}, groups={"Default", "Create"}, message="There is already a tag with this name")
+ * @UniqueEntity(fields={"name"}, groups={"Default", "Unique"}, message="There is already a clan with this name")
+ * @UniqueEntity(fields={"clantag"}, groups={"Default", "Unique"}, message="There is already a tag with this name")
  */
 class Clan
 {
@@ -35,8 +35,8 @@ class Clan
      * @Assert\Length(
      *      min = 1,
      *      max = 64,
-     *      minMessage = "The clantag must be at least {{ limit }} characters long",
-     *      maxMessage = "The clantag cannot be longer than {{ limit }} characters",
+     *      minMessage = "The name must be at least {{ limit }} characters long",
+     *      maxMessage = "The name cannot be longer than {{ limit }} characters",
      *      allowEmptyString="false",
      *      groups = {"Default", "Transfer", "Create"}
      * )

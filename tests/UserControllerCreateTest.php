@@ -136,7 +136,7 @@ JSON;
 JSON;
         $this->client->request('POST', '/api/users', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
         $response = $this->client->getResponse();
-        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_CONFLICT, $response->getStatusCode());
         $this->assertEquals("application/json", $response->headers->get('Content-Type'));
         $this->assertJson($response->getContent());
     }
@@ -156,7 +156,7 @@ JSON;
 JSON;
         $this->client->request('POST', '/api/users', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
         $response = $this->client->getResponse();
-        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_CONFLICT, $response->getStatusCode());
         $this->assertEquals("application/json", $response->headers->get('Content-Type'));
         $this->assertJson($response->getContent());
     }

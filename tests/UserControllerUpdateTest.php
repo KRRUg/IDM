@@ -109,4 +109,35 @@ JSON;
         $this->assertEquals("application/json", $response->headers->get('Content-Type'));
         $this->assertJson($response->getContent(), "No valid JSON returned.");
     }
+
+    public function testUserUpdateAlreadyExistingNicknameSelfupdate()
+    {
+        // Set name User 1 to User 1
+        $data = <<<JSON
+{
+    "nickname": "User 1"
+}
+JSON;
+        $uuid = Uuid::fromInteger(1)->toString();
+        $this->client->request('PATCH', '/api/users/' . $uuid, [], [], ['CONTENT_TYPE' => 'application/json'], $data);
+        $response = $this->client->getResponse();
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertEquals("application/json", $response->headers->get('Content-Type'));
+        $this->assertJson($response->getContent(), "No valid JSON returned.");
+    }
+
+    public function testUserUpdateAlreadyExistingName()
+    {
+        $data = <<<JSON
+{
+    "nickname": "User 2"
+}
+JSON;
+        $uuid = Uuid::fromInteger(1)->toString();
+        $this->client->request('PATCH', '/api/users/' . $uuid, [], [], ['CONTENT_TYPE' => 'application/json'], $data);
+        $response = $this->client->getResponse();
+        $this->assertEquals(Response::HTTP_CONFLICT, $response->getStatusCode());
+        $this->assertEquals("application/json", $response->headers->get('Content-Type'));
+        $this->assertJson($response->getContent(), "No valid JSON returned.");
+    }
 }

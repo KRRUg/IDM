@@ -21,6 +21,7 @@ use Pagerfanta\Pagerfanta;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Swagger\Annotations as SWG;
 use Nelmio\ApiDocBundle\Annotation\Model;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
@@ -45,6 +46,19 @@ class ClanController extends AbstractFOSRestController
         $this->userRepository = $userRepository;
         $this->userClanRepository = $userClanRepository;
         $this->passwordEncoder = $passwordEncoder;
+    }
+
+    private function handleValidiationErrors(ConstraintViolationListInterface $errors)
+    {
+        if (count($errors) == 0)
+            return null;
+
+        $error = $errors[0];
+        if ($error->getConstraint() instanceof UniqueEntity){
+            return $this->view(Error::withMessageAndDetail("There is already an object with the same unique values", $error), Response::HTTP_CONFLICT);
+        } else {
+            return $this->view(Error::withMessageAndDetail("Invalid JSON Body supplied, please check the Documentation", $error), Response::HTTP_BAD_REQUEST);
+        }
     }
 
     /**
@@ -104,13 +118,18 @@ class ClanController extends AbstractFOSRestController
      * @ParamConverter("new", converter="fos_rest.request_body",
      *     options={
      *      "deserializationContext": {"allow_extra_attributes": false},
-     *      "validator": {"groups": {"Transfer", "Create"} }
+     *      "validator": {"groups": {"Transfer", "Create", "Unique"} }
      *     })
      */
     public function createClanAction(Clan $new, ConstraintViolationListInterface $validationErrors)
     {
         if (count($validationErrors) > 0) {
-            $view = $this->view(Error::withMessageAndDetail("Invalid JSON Body supplied, please check the Documentation", $validationErrors[0]), Response::HTTP_BAD_REQUEST);
+            $error = $validationErrors[0];
+            if ($error->getConstraint() instanceof UniqueEntity){
+                $view = $this->view(Error::withMessageAndDetail("There is already an object with the same unique values", $error), Response::HTTP_CONFLICT);
+            } else {
+                $view = $this->view(Error::withMessageAndDetail("Invalid JSON Body supplied, please check the Documentation", $error), Response::HTTP_BAD_REQUEST);
+            }
             return $this->handleView($view);
         }
 
@@ -162,14 +181,13 @@ class ClanController extends AbstractFOSRestController
      * @ParamConverter("update", converter="fos_rest.request_body",
      *     options={
      *      "deserializationContext": {"allow_extra_attributes": false},
-     *      "validator": {"groups": {"Transfer"} },
+     *      "validator": {"groups": {"Transfer", "Unique"} },
      *      "attribute_to_populate": "clan",
      *     })
      */
     public function editClanAction(Clan $update, ConstraintViolationListInterface $validationErrors)
     {
-        if (count($validationErrors) > 0) {
-            $view = $this->view(Error::withMessageAndDetail("Invalid JSON Body supplied, please check the Documentation", $validationErrors[0]), Response::HTTP_BAD_REQUEST);
+        if ($view = $this->handleValidiationErrors($validationErrors)) {
             return $this->handleView($view);
         }
 
@@ -242,8 +260,7 @@ class ClanController extends AbstractFOSRestController
      */
     public function addMemberAction(Clan $clan, UuidObject $user_uuid, ConstraintViolationListInterface $validationErrors)
     {
-        if (count($validationErrors) > 0) {
-            $view = $this->view(Error::withMessageAndDetail('Invalid JSON Body supplied, please check the Documentation', $validationErrors[0]), Response::HTTP_BAD_REQUEST);
+        if ($view = $this->handleValidiationErrors($validationErrors)) {
             return $this->handleView($view);
         }
 
@@ -270,8 +287,7 @@ class ClanController extends AbstractFOSRestController
      */
     public function addAdminAction(Clan $clan, UuidObject $user_uuid, ConstraintViolationListInterface $validationErrors)
     {
-        if (count($validationErrors) > 0) {
-            $view = $this->view(Error::withMessageAndDetail('Invalid JSON Body supplied, please check the Documentation', $validationErrors[0]), Response::HTTP_BAD_REQUEST);
+        if ($view = $this->handleValidiationErrors($validationErrors)) {
             return $this->handleView($view);
         }
 
