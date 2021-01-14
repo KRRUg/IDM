@@ -202,4 +202,31 @@ class UserService
     {
         return $this->userRepository->findOneBy(['uuid' => $uuid]);
     }
+
+    public function checkCredentials(string $email, string $password)
+    {
+        if (empty($email) || empty($password)) {
+            return false;
+        }
+
+        $user = $this->userRepository->findOneBy(['email' => $email]);
+
+        if (empty($user)) {
+            return false;
+        }
+
+        $valid = $this->passwordEncoder->isPasswordValid($user->getPassword(), $password, null);
+        if ($this->passwordEncoder->needsRehash($user->getPassword())) {
+            //Rehash legacy Password if needed
+            $user->setPassword($this->passwordEncoder->encodePassword($password, null));
+            $this->em->flush();
+        }
+
+        if ($valid) {
+            return $user;
+        } else {
+            // User or Password false
+            return false;
+        }
+    }
 }

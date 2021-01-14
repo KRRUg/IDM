@@ -88,8 +88,14 @@ JSON;
         $this->assertJson($response->getContent(), "No valid JSON returned.");
         $user1 = json_decode($response->getContent(), true);
 
+        $data = <<<JSON
+{
+    "name": "user1@localhost.local",
+    "secret": "new_secure_password"
+}
+JSON;
         // try to login with new PW
-        $this->client->request('POST', '/api/auth/authorize', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
+        $this->client->request('POST', '/api/users/authorize', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
         $response = $this->client->getResponse();
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $user2 = json_decode($response->getContent(), true);

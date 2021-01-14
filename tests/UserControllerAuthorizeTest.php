@@ -1,23 +1,20 @@
 <?php
 
-
 namespace App\Tests;
 
-
-use Sentry\Util\JSON;
 use Symfony\Component\HttpFoundation\Response;
 
-class AuthControllerAuthorizeTest extends AbstractControllerTest
+class UserControllerAuthorizeTest extends AbstractControllerTest
 {
     public function testAuthorizeSuccessful()
     {
         $data = <<<JSON
 {
-    "email": "user1@localhost.local",
-    "password": "user1"
+    "name": "user1@localhost.local",
+    "secret": "user1"
 }
 JSON;
-        $this->client->request('POST', '/api/auth/authorize', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
+        $this->client->request('POST', '/api/users/authorize', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
         $response = $this->client->getResponse();
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
     }
@@ -26,11 +23,11 @@ JSON;
     {
         $data = <<<JSON
 {
-    "email": "user1@localhost.local",
-    "password": "incorrect"
+    "name": "user1@localhost.local",
+    "secret": "incorrect"
 }
 JSON;
-        $this->client->request('POST', '/api/auth/authorize', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
+        $this->client->request('POST', '/api/users/authorize', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
         $response = $this->client->getResponse();
         $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
         $this->assertEquals("application/json", $response->headers->get('Content-Type'));
@@ -42,10 +39,10 @@ JSON;
     {
         $data = <<<JSON
 {
-    "email": "user1@localhost.local"
+    "name": "user1@localhost.local"
 }
 JSON;
-        $this->client->request('POST', '/api/auth/authorize', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
+        $this->client->request('POST', '/api/users/authorize', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
         $response = $this->client->getResponse();
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
         $this->assertEquals("application/json", $response->headers->get('Content-Type'));
@@ -57,11 +54,11 @@ JSON;
     {
         $data = <<<JSON
 {
-    "email": "user1@localhost.local",
-    "password": true
+    "name": "user1@localhost.local",
+    "secret": true
 }
 JSON;
-        $this->client->request('POST', '/api/auth/authorize', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
+        $this->client->request('POST', '/api/users/authorize', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
         $response = $this->client->getResponse();
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
         $this->assertEquals("application/json", $response->headers->get('Content-Type'));
@@ -72,12 +69,12 @@ JSON;
     {
         $data = <<<JSON
 {
-    "email": "user1@localhost.local",
-    "password": "user1",
+    "name": "user1@localhost.local",
+    "secret": "user1",
     "override": "yes"
 }
 JSON;
-        $this->client->request('POST', '/api/auth/authorize', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
+        $this->client->request('POST', '/api/users/authorize', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
         $response = $this->client->getResponse();
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
         $this->assertEquals("application/json", $response->headers->get('Content-Type'));

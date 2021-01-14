@@ -1,23 +1,20 @@
 <?php
 
-
 namespace App\Transfer;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-
-final class Login
+final class AuthObject
 {
     /**
      * @var string
-     * @Assert\Email()
      * @Assert\NotBlank()
      */
-    public string $email;
+    public string $name;
 
     /**
      * @var string
      * @Assert\NotBlank()
      */
-    public string $password;
+    public string $secret;
 }

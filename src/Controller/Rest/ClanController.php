@@ -9,7 +9,9 @@ use App\Repository\ClanRepository;
 use App\Repository\UserClanRepository;
 use App\Repository\UserRepository;
 use App\Serializer\UserNormalizer;
+use App\Service\ClanService;
 use App\Transfer\Error;
+use App\Transfer\AuthObject;
 use App\Transfer\PaginationCollection;
 use App\Transfer\UuidObject;
 use Doctrine\ORM\EntityManagerInterface;
@@ -34,14 +36,22 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
 class ClanController extends AbstractFOSRestController
 {
     private EntityManagerInterface $em;
+    private ClanService $clanService;
     private ClanRepository $clanRepository;
     private UserRepository $userRepository;
     private UserClanRepository $userClanRepository;
     private PasswordEncoderInterface $passwordEncoder;
 
-    public function __construct(EntityManagerInterface $entityManager, ClanRepository $clanRepository, UserRepository $userRepository, UserClanRepository $userClanRepository, PasswordEncoderInterface $passwordEncoder)
-    {
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        ClanService $clanService,
+        ClanRepository $clanRepository,
+        UserRepository $userRepository,
+        UserClanRepository $userClanRepository,
+        PasswordEncoderInterface $passwordEncoder
+    ){
         $this->em = $entityManager;
+        $this->clanService = $clanService;
         $this->clanRepository = $clanRepository;
         $this->userRepository = $userRepository;
         $this->userClanRepository = $userClanRepository;
@@ -485,5 +495,50 @@ class ClanController extends AbstractFOSRestController
             }
         }
         return false;
+    }
+
+    /**
+     * Checks if the Clan credentials are correct
+     *
+     * Checks Username/Password against the Database and returns the user if credentials are valid
+     *
+     * @SWG\Response(
+     *     response=200,
+     *     description="Returns the Clan",
+     *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Entity\Clan::class, groups={"read"}))
+     * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="Returns if no Name and/or Password could be found"
+     * )
+     * @SWG\Parameter(
+     *     name="body",
+     *     in="body",
+     *     description="credentials as JSON",
+     *     required=true,
+     *     format="application/json",
+     *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Transfer\Login::class))
+     * )
+     * @SWG\Tag(name="Authorization")
+     *
+     * @Rest\Post("/authorize")
+     * @ParamConverter("auth", converter="fos_rest.request_body", options={"deserializationContext": {"allow_extra_attributes": false}})
+     */
+    public function postAuthorizeAction(AuthObject $auth, ConstraintViolationListInterface $validationErrors)
+    {
+        if ($view = $this->handleValidiationErrors($validationErrors)) {
+            return $this->handleView($view);
+        }
+
+        //Check if User can login
+        $clan = $this->clanService->checkCredentials($auth->name, $auth->secret);
+
+        if ($clan) {
+            $view = $this->view($clan);
+        } else {
+            $view = $this->view(Error::withMessage('Invalid credentials'), Response::HTTP_NOT_FOUND);
+        }
+
+        return $this->handleView($view);
     }
 }

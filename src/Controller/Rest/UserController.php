@@ -9,6 +9,7 @@ use App\Repository\UserRepository;
 use App\Serializer\ClanNormalizer;
 use App\Service\UserService;
 use App\Transfer\Error;
+use App\Transfer\AuthObject;
 use App\Transfer\PaginationCollection;
 use App\Transfer\Search;
 use Doctrine\ORM\EntityManagerInterface;
@@ -213,6 +214,51 @@ class UserController extends AbstractFOSRestController
         $user = $this->userRepository->findBySearch($search);
 
         $view = $this->view($user);
+        return $this->handleView($view);
+    }
+
+    /**
+     * Checks if the User is allowed to Login.
+     *
+     * Checks Username/Password against the Database and returns the user if credentials are valid
+     *
+     * @SWG\Response(
+     *     response=200,
+     *     description="Returns the User",
+     *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Entity\User::class, groups={"read"}))
+     * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="Returns if no EMail and/or Password could be found"
+     * )
+     * @SWG\Parameter(
+     *     name="body",
+     *     in="body",
+     *     description="credentials as JSON",
+     *     required=true,
+     *     format="application/json",
+     *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Transfer\Login::class))
+     * )
+     * @SWG\Tag(name="Authorization")
+     *
+     * @Rest\Post("/authorize")
+     * @ParamConverter("auth", converter="fos_rest.request_body", options={"deserializationContext": {"allow_extra_attributes": false}})
+     */
+    public function postAuthorizeAction(AuthObject $auth, ConstraintViolationListInterface $validationErrors)
+    {
+        if ($view = $this->handleValidiationErrors($validationErrors)) {
+            return $this->handleView($view);
+        }
+
+        //Check if User can login
+        $user = $this->userService->checkCredentials($auth->name, $auth->secret);
+
+        if ($user) {
+            $view = $this->view($user);
+        } else {
+            $view = $this->view(Error::withMessage('Invalid credentials'), Response::HTTP_NOT_FOUND);
+        }
+
         return $this->handleView($view);
     }
 
