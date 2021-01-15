@@ -141,6 +141,26 @@ JSON;
         $this->assertJson($response->getContent());
     }
 
+    public function testUserCreateFailExistingEmailCaseInsensitive()
+    {
+        // email existing
+        $data = <<<JSON
+{
+    "email": "uSeR1@localHost.local",
+    "password": "foofoo",
+    "nickname": "blup",
+    "firstname": "foo",
+    "surname": "baa",
+    "infoMails": true
+}
+JSON;
+        $this->client->request('POST', '/api/users', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
+        $response = $this->client->getResponse();
+        $this->assertEquals(Response::HTTP_CONFLICT, $response->getStatusCode());
+        $this->assertEquals("application/json", $response->headers->get('Content-Type'));
+        $this->assertJson($response->getContent());
+    }
+
     public function testUserCreateFailExistingNickname()
     {
         // nickname existing

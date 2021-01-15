@@ -44,38 +44,50 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->_em->flush();
     }
 
-    public function userAvailable(?string $email, ?string $nickname)
-    {
-        $qb = $this->createQueryBuilder('u');
-        $qb->select('count(u)');
-
-        if (!is_null($email)) {
-            $qb->orWhere('LOWER(u.email) = LOWER(:email)')->setParameter('email', $email);
-        }
-        if (!is_null($nickname)) {
-            $qb->orWhere('LOWER(u.nickname) = LOWER(:nick)')->setParameter('nick', $nickname);
-        }
-        return 0 == $qb->getQuery()->getSingleScalarResult();
-    }
-
     /**
-     * Returns one User.
+     * Returns one User. Search case insensitive.
      *
      * @param array
      *
-     * @return User|null Returns an User object or null if none could be found
+     * @return User|null Returns a User object or null if none could be found
      */
-    public function findOneCaseInsensitive(array $criteria): ?User
+    public function findOneByCi(array $criteria): ?User
     {
+        $fields = $this->getEntityManager()->getClassMetadata(User::class)->getFieldNames();
+        $criteria = $this->filterArray($criteria, $fields);
+
         $qb = $this->createQueryBuilder('u');
 
         foreach ($criteria as $k => $v) {
-            $v = strtolower($v);
-            $qb->andWhere($qb->expr()->like("LOWER(u.{$k})", ":{$k}"))->setParameter($k, $v);
+            $qb->andWhere($qb->expr()->eq("LOWER(u.{$k})", "LOWER(:{$k})"));
         }
+        $qb
+            ->setParameters($criteria)
+            ->setMaxResults(1);
 
-        $query = $qb->getQuery();
-        return $query->getOneOrNullResult();
+        return $qb->getQuery()->getOneOrNullResult();
+    }
+
+    /**
+     * Returns User objects. Search case insensitive.
+     *
+     * @param array
+     *
+     * @return mixed Returns the list of found User objects.
+     */
+    public function findByCi(array $criteria)
+    {
+        $fields = $this->getEntityManager()->getClassMetadata(User::class)->getFieldNames();
+        $criteria = $this->filterArray($criteria, $fields);
+
+        $qb = $this->createQueryBuilder('u');
+
+        foreach ($criteria as $k => $v) {
+            $qb->andWhere($qb->expr()->eq("LOWER(u.{$k})", "LOWER(:{$k})"));
+        }
+        $qb->setParameters($criteria);
+
+        return $qb->getQuery()->getResult();
     }
 
     public function findBySearch(Search $search)

@@ -84,6 +84,52 @@ class ClanRepository extends ServiceEntityRepository
         return $qb;
     }
 
+    /**
+     * Returns one Clan. Search case insensitive.
+     *
+     * @param array
+     *
+     * @return Clan|null Returns a Clan object or null if none could be found
+     */
+    public function findOneByCi(array $criteria): ?Clan
+    {
+        $fields = $this->getEntityManager()->getClassMetadata(Clan::class)->getFieldNames();
+        $criteria = $this->filterArray($criteria, $fields);
+
+        $qb = $this->createQueryBuilder('c');
+
+        foreach ($criteria as $k => $v) {
+            $qb->andWhere($qb->expr()->eq("LOWER(c.{$k})", "LOWER(:{$k})"));
+        }
+        $qb
+            ->setParameters($criteria)
+            ->setMaxResults(1);
+
+        return $qb->getQuery()->getOneOrNullResult();
+    }
+
+    /**
+     * Returns Clan objects. Search case insensitive.
+     *
+     * @param array
+     *
+     * @return mixed Returns the list of found Clan objects.
+     */
+    public function findByCi(array $criteria)
+    {
+        $fields = $this->getEntityManager()->getClassMetadata(Clan::class)->getFieldNames();
+        $criteria = $this->filterArray($criteria, $fields);
+
+        $qb = $this->createQueryBuilder('c');
+
+        foreach ($criteria as $k => $v) {
+            $qb->andWhere($qb->expr()->eq("LOWER(c.{$k})", "LOWER(:{$k})"));
+        }
+        $qb->setParameters($criteria);
+
+        return $qb->getQuery()->getResult();
+    }
+
     public function findAllSimpleQueryBuilder(?string $filter = null, array $sort = [], bool $exact = false): QueryBuilder
     {
         $qb = $this->createQueryBuilder('c');
