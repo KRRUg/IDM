@@ -112,4 +112,47 @@ class ClanControllerGetTest extends AbstractControllerTest
         $this->assertEquals(0, $result['total']);
         $this->assertEquals(0, $result['count']);
     }
+
+    public function testClanGetSuccessfulSort()
+    {
+        $this->client->request('GET', '/api/clans', ['sort' => [ 'name' => 'desc']]);
+        $response = $this->client->getResponse();
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertEquals("application/json", $response->headers->get('Content-Type'));
+        $this->assertJson($response->getContent(), "No valid JSON returned.");
+
+        $result = json_decode($response->getContent(), true);
+        $this->assertArrayHasKey("total", $result);
+        $this->assertArrayHasKey("count", $result);
+        $this->assertArrayHasKey("items", $result);
+        $items = $result["items"];
+        $this->assertIsArray($items);
+        $this->assertNotEmpty($items);
+        $this->assertIsNumeric($result['total']);
+        $this->assertIsNumeric($result['count']);
+        $item1 = $items[0];
+        $this->assertEquals("Clan 3", $item1['name']);
+    }
+
+    public function testClanGetSuccessfulFilterAndSort()
+    {
+        $this->client->request('GET', '/api/clans', ['filter' => ['name' => 'Clan'], 'sort' => [ 'clantag' => 'desc']]);
+        $response = $this->client->getResponse();
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertEquals("application/json", $response->headers->get('Content-Type'));
+        $this->assertJson($response->getContent(), "No valid JSON returned.");
+
+        $result = json_decode($response->getContent(), true);
+        $this->assertArrayHasKey("total", $result);
+        $this->assertArrayHasKey("count", $result);
+        $this->assertArrayHasKey("items", $result);
+        $items = $result["items"];
+        $this->assertIsArray($items);
+        $this->assertNotEmpty($items);
+        $this->assertIsNumeric($result['total']);
+        $this->assertIsNumeric($result['count']);
+        $item1 = $items[0];
+        $this->assertEquals("Clan 3", $item1['name']);
+        $this->assertEquals("CL3", $item1['clantag']);
+    }
 }

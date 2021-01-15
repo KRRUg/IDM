@@ -284,9 +284,9 @@ class UserController extends AbstractFOSRestController
         $exact = $exact === 'true';
 
         if (is_array($filter)) {
-            $qb = $this->userRepository->findAllActiveQueryBuilderFilter($filter, $sort, $exact);
+            $qb = $this->userRepository->findAllQueryBuilder($filter, $sort, $exact);
         } else {
-            $qb = $this->userRepository->findAllActiveQueryBuilder($filter, $sort, $exact);
+            $qb = $this->userRepository->findAllSimpleQueryBuilder($filter, $sort, $exact);
         }
 
         // Select all Users where the Status is greater then 0 (e.g. not disabled/locked/deactivated)

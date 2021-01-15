@@ -6,6 +6,7 @@ use App\Entity\Clan;
 use App\Helper\QueryHelper;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\ORM\QueryBuilder;
 
 /**
  * @method Clan|null find($id, $lockMode = null, $lockVersion = null)
@@ -64,48 +65,6 @@ class ClanRepository extends ServiceEntityRepository
         return $query->getOneOrNullResult();
     }
 
-    /**
-     * Returns one Clan.
-     *
-     * @param array
-     *
-     * @return Clan|null Returns a Clan object or null if none could be found
-     */
-    public function findOneByLowercase(array $criteria): ?Clan
-    {
-        $qb = $this->createQueryBuilder('c');
-        $qb
-            ->select('u', 'c', 'userclan')
-            ->innerJoin('c.users', 'userclan')
-            ->innerJoin('userclan.user', 'u');
-
-        foreach ($criteria as $k => $v) {
-            $v = strtolower($v);
-            $qb->andWhere($qb->expr()->like("LOWER(c.{$k})", ":{$k}"));
-            $qb->setParameter($k, $v);
-
-        }
-
-        $query = $qb->getQuery();
-
-        return $query->getOneOrNullResult();
-    }
-
-    /**
-     * Returns all Clans but don't return Data from User Relations.
-     *
-     * @return Clan[] Returns an array of Clan objects
-     */
-    public function findAllWithoutUserRelations(): array
-    {
-        $qb = $this->createQueryBuilder('c');
-        $qb->select('c.clantag', 'c.createdAt', 'c.description', 'c.modifiedAt', 'c.name', 'c.uuid', 'c.website');
-
-        $query = $qb->getQuery();
-
-        return $query->execute();
-    }
-
     public function findAllWithActiveUsersQueryBuilder(string $filter = null)
     {
         $qb = $this->createQueryBuilder('c');
@@ -120,6 +79,72 @@ class ClanRepository extends ServiceEntityRepository
         if (!empty($filter)) {
             $qb->andWhere('LOWER(c.name) LIKE LOWER(:q)')
                 ->setParameter('q', "%".$filter."%");
+        }
+
+        return $qb;
+    }
+
+    public function findAllSimpleQueryBuilder(?string $filter = null, array $sort = [], bool $exact = false): QueryBuilder
+    {
+        $qb = $this->createQueryBuilder('c');
+
+        $fields = $this->getEntityManager()->getClassMetadata(Clan::class)->getFieldNames();
+        $sort = $this->filterArray($sort, $fields, ['asc', 'desc']);
+
+        $parameter = $exact ?
+            $this->makeLikeParam($filter, "%s") :
+            $this->makeLikeParam($filter, "%%%s%%");
+
+        if (!empty($filter)) {
+            $qb->andWhere(
+                $qb->expr()->orX(
+                    "LOWER(c.name) LIKE LOWER(:q) ESCAPE '!'",
+                    "LOWER(c.clantag) LIKE LOWER(:q) ESCAPE '!'",
+                )
+            )->setParameter('q', $parameter);
+        }
+
+        if (empty($sort)) {
+            $qb->orderBy('c.name');
+        } else {
+            foreach ($sort as $s => $d) {
+                $qb->addOrderBy('c.'.$s, $d);
+            }
+        }
+
+        return $qb;
+    }
+
+    public function findAllQueryBuilder(array $filter, array $sort = [], bool $exact = false): QueryBuilder
+    {
+        $qb = $this->createQueryBuilder('c');
+
+        $parameter = [];
+        $criteria = [];
+        $fields = $this->getEntityManager()->getClassMetadata(Clan::class)->getFieldNames();
+
+        $filter = $this->filterArray($filter, $fields);
+        $sort = $this->filterArray($sort, $fields, ['asc', 'desc']);
+
+        foreach ($filter as $field => $value) {
+            $parameter[$field] = $exact ?
+                $this->makeLikeParam($value, "%s") :
+                $this->makeLikeParam($value, "%%%s%%");
+            $criteria[] = $exact ?
+                "c.{$field} LIKE :{$field} ESCAPE '!'" :
+                "LOWER(c.{$field}) LIKE LOWER(:{$field}) ESCAPE '!'";
+        }
+
+        $qb
+            ->andWhere($qb->expr()->andX(...$criteria))
+            ->setParameters($parameter);
+
+        if (empty($sort)) {
+            $qb->orderBy('c.nickname');
+        } else {
+            foreach ($sort as $field => $dir) {
+                $qb->addOrderBy('c.'.$field, $dir);
+            }
         }
 
         return $qb;

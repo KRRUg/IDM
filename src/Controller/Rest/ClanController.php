@@ -232,15 +232,26 @@ class ClanController extends AbstractFOSRestController
      * @Rest\Get("")
      * @Rest\QueryParam(name="page", requirements="\d+", default="1")
      * @Rest\QueryParam(name="limit", requirements="\d+", default="10")
-     * @Rest\QueryParam(name="q", default="")
+     * @Rest\QueryParam(name="filter")
+     * @Rest\QueryParam(name="sort", requirements="(asc|desc)", map=true)
+     * @Rest\QueryParam(name="exact", requirements="(true|false)", allowBlank=false, default="false")
      */
     public function getClansAction(ParamFetcher $fetcher)
     {
         $page = intval($fetcher->get('page'));
         $limit = intval($fetcher->get('limit'));
-        $filter = $fetcher->get('q');
+        $filter = $fetcher->get('filter');
+        $sort = $fetcher->get('sort');
+        $exact = $fetcher->get('exact');
 
-        $qb = $this->clanRepository->findAllWithActiveUsersQueryBuilder($filter);
+        $sort = is_array($sort) ? $sort : (empty($sort) ? [] : [$sort => 'asc']);
+        $exact = $exact === 'true';
+
+        if (is_array($filter)) {
+            $qb = $this->clanRepository->findAllQueryBuilder($filter, $sort, $exact);
+        } else {
+            $qb = $this->clanRepository->findAllSimpleQueryBuilder($filter, $sort, $exact);
+        }
 
         //set useOutputWalker to false otherwise we cannot Paginate Entities with INNER/LEFT Joins
         $pager = new Pagerfanta(new QueryAdapter($qb, true, false));
