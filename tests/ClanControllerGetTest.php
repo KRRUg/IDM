@@ -34,6 +34,23 @@ class ClanControllerGetTest extends AbstractControllerTest
         $this->assertGreaterThan(0, sizeof($result["admins"]));
     }
 
+    public function testClanRequestSuccessfulDeletedUser()
+    {
+        $uuid = Uuid::fromInteger(1001)->toString();
+        $this->client->request('GET', '/api/clans/' . $uuid);
+        $response = $this->client->getResponse();
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertEquals("application/json", $response->headers->get('Content-Type'));
+        $this->assertJson($response->getContent(), "No valid JSON returned.");
+
+        $result = json_decode($response->getContent(), true);
+
+        $this->assertIsArray($result["users"]);
+        $this->assertIsArray($result["admins"]);
+        $deleted_user = Uuid::fromInteger(42)->toString();
+        $this->assertNotContains(['uuid' => $deleted_user], $result['users']);
+    }
+
     public function testClanRequestFailNotFound()
     {
         $uuid = Uuid::fromInteger(30)->toString();
@@ -65,7 +82,7 @@ class ClanControllerGetTest extends AbstractControllerTest
 
     public function testClanGetSuccessfulFilter()
     {
-        $this->client->request('GET', '/api/clans', ['q' => "Clan", "limit" => 5, "page" => 1]);
+        $this->client->request('GET', '/api/clans', ['filter' => "Clan", "limit" => 5, "page" => 1]);
         $response = $this->client->getResponse();
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $this->assertEquals("application/json", $response->headers->get('Content-Type'));
@@ -85,7 +102,7 @@ class ClanControllerGetTest extends AbstractControllerTest
 
     public function testClanGetFailFilterPageExceeding()
     {
-        $this->client->request('GET', '/api/clans', ['q' => "Clan", "limit" => 5, "page" => 200]);
+        $this->client->request('GET', '/api/clans', ['filter' => "Clan", "limit" => 5, "page" => 200]);
         $response = $this->client->getResponse();
         $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
         $this->assertEquals("application/json", $response->headers->get('Content-Type'));
@@ -94,7 +111,7 @@ class ClanControllerGetTest extends AbstractControllerTest
 
     public function testClanGetSuccessfulNothingFound()
     {
-        $this->client->request('GET', '/api/clans', ['q' => "DoesNotExistInDatabase"]);
+        $this->client->request('GET', '/api/clans', ['filter' => "DoesNotExistInDatabase"]);
         $response = $this->client->getResponse();
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $this->assertEquals("application/json", $response->headers->get('Content-Type'));

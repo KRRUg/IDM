@@ -48,6 +48,17 @@ class AppFixtures extends Fixture
 
         $manager->flush();
 
+        $ghost = new User();
+        $ghost->setUuid(Uuid::fromInteger(42));
+        $ghost->setNickname("DeletedUser");
+        $ghost->setStatus(-1);
+        $ghost->setEmail('ghost@localhost.local');
+        $ghost->setPassword($this->encoder->encodePassword('ghost', null));
+        $ghost->setEmailConfirmed(1);
+        $ghost->setInfoMails(true);
+        $manager->persist($ghost);
+        $manager->flush();
+
         // assign Clans to Users
 
         $clan = new Clan();
@@ -76,6 +87,13 @@ class AppFixtures extends Fixture
         $manager->persist($userclan);
 
         $manager->persist($clan);
+
+        $userclan = new UserClan();
+        $userclan->setAdmin(false);
+        $userclan->setUser($ghost);
+        $userclan->setClan($clan);
+
+        $manager->persist($userclan);
 
         $clan = new Clan();
         $clan->setName('Clan 2');

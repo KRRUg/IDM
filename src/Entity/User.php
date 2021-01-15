@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use DateTime;
+use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -25,6 +27,7 @@ class User
     }
 
     use EntityIdTrait;
+    use HideableTrait;
 
     /**
      * @ORM\Column(type="string", length=320, unique=true)
@@ -64,13 +67,6 @@ class User
      * @Groups({"read", "write"})
      */
     private $nickname;
-
-    /**
-     * @ORM\Column(type="integer")
-     * @Groups({"read"})
-     * TODO check if status can be IDM internal
-     */
-    private $status;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -203,18 +199,6 @@ class User
     public function setEmail(string $email): self
     {
         $this->email = $email;
-
-        return $this;
-    }
-
-    public function getStatus(): ?int
-    {
-        return $this->status;
-    }
-
-    public function setStatus(int $status): self
-    {
-        $this->status = $status;
 
         return $this;
     }
@@ -387,24 +371,24 @@ class User
         return $this;
     }
 
-    public function getRegisteredAt(): ?\DateTimeInterface
+    public function getRegisteredAt(): ?DateTimeInterface
     {
         return $this->registeredAt;
     }
 
-    public function setRegisteredAt(\DateTimeInterface $registeredAt): self
+    public function setRegisteredAt(DateTimeInterface $registeredAt): self
     {
         $this->registeredAt = $registeredAt;
 
         return $this;
     }
 
-    public function getModifiedAt(): ?\DateTimeInterface
+    public function getModifiedAt(): ?DateTimeInterface
     {
         return $this->modifiedAt;
     }
 
-    public function setModifiedAt(\DateTimeInterface $modifiedAt): self
+    public function setModifiedAt(DateTimeInterface $modifiedAt): self
     {
         $this->modifiedAt = $modifiedAt;
 
@@ -455,12 +439,12 @@ class User
         return $this->clans;
     }
 
-    public function getBirthdate(): ?\DateTimeInterface
+    public function getBirthdate(): ?DateTimeInterface
     {
         return $this->birthdate;
     }
 
-    public function setBirthdate(?\DateTimeInterface $birthdate): self
+    public function setBirthdate(?DateTimeInterface $birthdate): self
     {
         $this->birthdate = $birthdate;
 
@@ -473,9 +457,9 @@ class User
      */
     public function updateModifiedDatetime() {
         // update the modified time and creation time
-        $this->setModifiedAt(new \DateTime());
+        $this->setModifiedAt(new DateTime());
         if ($this->getRegisteredAt() === null) {
-            $this->setRegisteredAt(new \DateTime());
+            $this->setRegisteredAt(new DateTime());
         }
     }
 }

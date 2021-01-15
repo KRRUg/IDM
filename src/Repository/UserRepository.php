@@ -111,8 +111,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 
     public function findAllSimpleQueryBuilder(?string $filter = null, array $sort = [], bool $exact = false): QueryBuilder
     {
-        $qb = $this->createQueryBuilder('u')
-            ->where('u.status > 0');
+        $qb = $this->createQueryBuilder('u');
 
         $fields = $this->getEntityManager()->getClassMetadata(User::class)->getFieldNames();
         $sort = $this->filterArray($sort, $fields, ['asc', 'desc']);
@@ -145,8 +144,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 
     public function findAllQueryBuilder(array $filter, array $sort = [], bool $exact = false): QueryBuilder
     {
-        $qb = $this->createQueryBuilder('u')
-            ->where('u.status > 0');
+        $qb = $this->createQueryBuilder('u');
 
         $parameter = [];
         $criteria = [];

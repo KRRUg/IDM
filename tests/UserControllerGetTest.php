@@ -217,4 +217,23 @@ class UserControllerGetTest extends AbstractControllerTest
         $this->assertEquals("User 9", $item1['nickname']);
         $this->assertEquals("user9@localhost.local", $item1['email']);
     }
+
+    public function testUserGetFailDeletedUser()
+    {
+        $this->client->request('GET', '/api/users', ['filter' => ['email' => 'ghost@localhost.local']]);
+        $response = $this->client->getResponse();
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertEquals("application/json", $response->headers->get('Content-Type'));
+        $this->assertJson($response->getContent(), "No valid JSON returned.");
+
+        $result = json_decode($response->getContent(), true);
+        $this->assertArrayHasKey("total", $result);
+        $this->assertArrayHasKey("count", $result);
+        $this->assertArrayHasKey("items", $result);
+        $this->assertEquals(0, $result['total']);
+        $this->assertEquals(0, $result['count']);
+        $items = $result["items"];
+        $this->assertIsArray($items);
+        $this->assertEmpty($items);
+    }
 }
