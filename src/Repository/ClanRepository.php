@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Clan;
+use App\Helper\QueryHelper;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
 
@@ -14,6 +15,8 @@ use Doctrine\Common\Persistence\ManagerRegistry;
  */
 class ClanRepository extends ServiceEntityRepository
 {
+    use QueryHelper;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Clan::class);

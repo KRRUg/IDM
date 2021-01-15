@@ -66,7 +66,7 @@ class UserControllerGetTest extends AbstractControllerTest
 
     public function testUserGetSuccessfulFilter()
     {
-        $this->client->request('GET', '/api/users', ['q' => "User", "limit" => 5, "page" => 2]);
+        $this->client->request('GET', '/api/users', ['filter' => "User", "limit" => 5, "page" => 2]);
         $response = $this->client->getResponse();
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $this->assertEquals("application/json", $response->headers->get('Content-Type'));
@@ -84,9 +84,69 @@ class UserControllerGetTest extends AbstractControllerTest
         $this->assertEquals(5, $result['count']);
     }
 
+    public function testUserGetSuccessfulFilterExact()
+    {
+        $this->client->request('GET', '/api/users', ['filter' => "User 1", "exact" => "true", "limit" => 5, "page" => 1]);
+        $response = $this->client->getResponse();
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertEquals("application/json", $response->headers->get('Content-Type'));
+        $this->assertJson($response->getContent(), "No valid JSON returned.");
+
+        $result = json_decode($response->getContent(), true);
+        $this->assertArrayHasKey("total", $result);
+        $this->assertArrayHasKey("count", $result);
+        $this->assertArrayHasKey("items", $result);
+        $items = $result["items"];
+        $this->assertIsArray($items);
+        $this->assertIsNumeric($result['total']);
+        $this->assertIsNumeric($result['count']);
+        $this->assertEquals(1, $result['total']);
+        $this->assertEquals(1, $result['count']);
+    }
+
+    public function testUserGetSuccessfulFilterAdvanced()
+    {
+        $this->client->request('GET', '/api/users', ["filter" => ["nickname" => "User 1"], "exact" => "false"]);
+        $response = $this->client->getResponse();
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertEquals("application/json", $response->headers->get('Content-Type'));
+        $this->assertJson($response->getContent(), "No valid JSON returned.");
+
+        $result = json_decode($response->getContent(), true);
+        $this->assertArrayHasKey("total", $result);
+        $this->assertArrayHasKey("count", $result);
+        $this->assertArrayHasKey("items", $result);
+        $items = $result["items"];
+        $this->assertIsArray($items);
+        $this->assertIsNumeric($result['total']);
+        $this->assertIsNumeric($result['count']);
+        $this->assertEquals(11, $result['total']);
+        $this->assertEquals(10, $result['count']);
+    }
+
+    public function testUserGetSuccessfulFilterAdvancedExact()
+    {
+        $this->client->request('GET', '/api/users', ["filter" => ["nickname" => "User 1"], "exact" => "true"]);
+        $response = $this->client->getResponse();
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertEquals("application/json", $response->headers->get('Content-Type'));
+        $this->assertJson($response->getContent(), "No valid JSON returned.");
+
+        $result = json_decode($response->getContent(), true);
+        $this->assertArrayHasKey("total", $result);
+        $this->assertArrayHasKey("count", $result);
+        $this->assertArrayHasKey("items", $result);
+        $items = $result["items"];
+        $this->assertIsArray($items);
+        $this->assertIsNumeric($result['total']);
+        $this->assertIsNumeric($result['count']);
+        $this->assertEquals(1, $result['total']);
+        $this->assertEquals(1, $result['count']);
+    }
+
     public function testUserGetFailFilterPageExceeding()
     {
-        $this->client->request('GET', '/api/users', ['q' => "User", "limit" => 5, "page" => 200]);
+        $this->client->request('GET', '/api/users', ['filter' => "User", "limit" => 5, "page" => 200]);
         $response = $this->client->getResponse();
         $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
         $this->assertEquals("application/json", $response->headers->get('Content-Type'));
@@ -95,7 +155,7 @@ class UserControllerGetTest extends AbstractControllerTest
 
     public function testUserGetSuccessfulNothingFound()
     {
-        $this->client->request('GET', '/api/users', ['q' => "DoesNotExistInDatabase"]);
+        $this->client->request('GET', '/api/users', ['filter' => "DoesNotExistInDatabase"]);
         $response = $this->client->getResponse();
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $this->assertEquals("application/json", $response->headers->get('Content-Type'));
@@ -112,5 +172,49 @@ class UserControllerGetTest extends AbstractControllerTest
         $this->assertIsNumeric($result['count']);
         $this->assertEquals(0, $result['total']);
         $this->assertEquals(0, $result['count']);
+    }
+
+    public function testUserGetSuccessfulSort()
+    {
+        $this->client->request('GET', '/api/users', ['sort' => [ 'nickname' => 'desc']]);
+        $response = $this->client->getResponse();
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertEquals("application/json", $response->headers->get('Content-Type'));
+        $this->assertJson($response->getContent(), "No valid JSON returned.");
+
+        $result = json_decode($response->getContent(), true);
+        $this->assertArrayHasKey("total", $result);
+        $this->assertArrayHasKey("count", $result);
+        $this->assertArrayHasKey("items", $result);
+        $items = $result["items"];
+        $this->assertIsArray($items);
+        $this->assertNotEmpty($items);
+        $this->assertIsNumeric($result['total']);
+        $this->assertIsNumeric($result['count']);
+        $item1 = $items[0];
+        $this->assertEquals("User 9", $item1['nickname']);
+        $this->assertEquals("user9@localhost.local", $item1['email']);
+    }
+
+    public function testUserGetSuccessfulFilterAndSort()
+    {
+        $this->client->request('GET', '/api/users', ['filter' => ['email' => '@localhost.local'], 'sort' => [ 'email' => 'desc']]);
+        $response = $this->client->getResponse();
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertEquals("application/json", $response->headers->get('Content-Type'));
+        $this->assertJson($response->getContent(), "No valid JSON returned.");
+
+        $result = json_decode($response->getContent(), true);
+        $this->assertArrayHasKey("total", $result);
+        $this->assertArrayHasKey("count", $result);
+        $this->assertArrayHasKey("items", $result);
+        $items = $result["items"];
+        $this->assertIsArray($items);
+        $this->assertNotEmpty($items);
+        $this->assertIsNumeric($result['total']);
+        $this->assertIsNumeric($result['count']);
+        $item1 = $items[0];
+        $this->assertEquals("User 9", $item1['nickname']);
+        $this->assertEquals("user9@localhost.local", $item1['email']);
     }
 }
