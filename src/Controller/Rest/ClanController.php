@@ -8,7 +8,7 @@ use App\Entity\UserClan;
 use App\Repository\ClanRepository;
 use App\Repository\UserClanRepository;
 use App\Repository\UserRepository;
-use App\Serializer\UserNormalizer;
+use App\Serializer\UserClanNormalizer;
 use App\Service\ClanService;
 use App\Transfer\Error;
 use App\Transfer\AuthObject;
@@ -340,7 +340,7 @@ class ClanController extends AbstractFOSRestController
         }
 
         $view = $this->view($result, Response::HTTP_OK);
-        $view->getContext()->setAttribute(UserNormalizer::UUID_ONLY, true);
+        $view->getContext()->setAttribute(UserClanNormalizer::UUID_ONLY, true);
         return $this->handleView($view);
     }
 
@@ -359,7 +359,7 @@ class ClanController extends AbstractFOSRestController
         }
 
         $view = $this->view($result, Response::HTTP_OK);
-        $view->getContext()->setAttribute(UserNormalizer::UUID_ONLY, true);
+        $view->getContext()->setAttribute(UserClanNormalizer::UUID_ONLY, true);
         return $this->handleView($view);
     }
 
