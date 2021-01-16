@@ -20,17 +20,25 @@ class UserService
         $this->passwordEncoder = $passwordEncoder;
     }
 
-    public function listUser($searchParameter = null, $searchValue = null)
+    public function listUser($searchParameter = null, $searchValue = null, $disabled = false)
     {
+        if ($disabled)
+            $this->em->getFilters()->disable('userFilter');
+
         if ('uuid' === $searchParameter) {
-            return $this->userRepository->findBy(['uuid' => $searchValue]);
+            $result = $this->userRepository->findBy(['uuid' => $searchValue]);
         } elseif ('externId' === $searchParameter) {
-            return $this->userRepository->findBy(['externId' => $searchValue]);
+            $result = $this->userRepository->findBy(['externId' => $searchValue]);
         } elseif ('email' === $searchParameter) {
-            return $this->userRepository->findBy(['email' => $searchValue]);
+            $result = $this->userRepository->findBy(['email' => $searchValue]);
         } else {
-            return $this->userRepository->findAll();
+            $result = $this->userRepository->findAll();
         }
+
+        if ($disabled)
+            $this->em->getFilters()->enable('userFilter');
+
+        return $result;
     }
 
     public function editUser($userdata)
@@ -120,21 +128,28 @@ class UserService
     public function enableUser(string $uuid)
     {
         try {
+            $this->em->getFilters()->disable('userFilter');
+
             // fetches the UserEntity from the Repository and enables it
             $user = $this->userRepository->findOneBy(['uuid' => $uuid]);
             $user->setStatus(1);
+            $this->em->persist($user);
             $this->em->flush();
 
             return $user;
         } catch (\Exception $exception) {
             // TODO: return actual Exception
             return null;
+        } finally {
+            $this->em->getFilters()->enable('userFilter');
         }
     }
 
     public function disableUser(string $uuid)
     {
         try {
+            $this->em->getFilters()->disable('userFilter');
+
             // fetches the UserEntity from the Repository and disables it
             $user = $this->userRepository->findOneBy(['uuid' => $uuid]);
             $user->setStatus(-1);
@@ -144,6 +159,8 @@ class UserService
         } catch (\Exception $exception) {
             // TODO: return actual Exception
             return null;
+        } finally {
+            $this->em->getFilters()->enable('userFilter');
         }
     }
 

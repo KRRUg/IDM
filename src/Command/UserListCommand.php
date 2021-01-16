@@ -32,6 +32,7 @@ class UserListCommand extends Command
             ->addOption('uuid', null, InputOption::VALUE_REQUIRED, 'Gets User based on UUID')
             ->addOption('externId', null, InputOption::VALUE_REQUIRED, 'Gets User based on externID')
             ->addOption('email', null, InputOption::VALUE_REQUIRED, 'Gets User based on EMail')
+            ->addOption('all', 'a', InputOption::VALUE_NONE, 'Show all users include disabled.')
             ->addOption('detailed', 'd', InputOption::VALUE_NONE, 'Shows all Parameters')
         ;
     }
@@ -39,15 +40,16 @@ class UserListCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
+        $disabled = $input->getOption('all');
 
         if ($input->getOption('uuid')) {
-            $users = $this->userService->listUser('uuid', $input->getOption('uuid'));
+            $users = $this->userService->listUser('uuid', $input->getOption('uuid'), $disabled);
         } elseif ($input->getOption('externId')) {
-            $users = $this->userService->listUser('externId', $input->getOption('externId'));
+            $users = $this->userService->listUser('externId', $input->getOption('externId'), $disabled);
         } elseif ($input->getOption('email')) {
-            $users = $this->userService->listUser('email', $input->getOption('email'));
+            $users = $this->userService->listUser('email', $input->getOption('email'), $disabled);
         } else {
-            $users = $this->userService->listUser();
+            $users = $this->userService->listUser(null, null , $disabled);
         }
 
         if ($users) {

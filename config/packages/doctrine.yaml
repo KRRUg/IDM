@@ -19,6 +19,6 @@ doctrine:
                 prefix: 'App\Entity'
                 alias: App
         filters:
-            hideFilter:
+            userFilter:
                 class: App\Filter\UserFilter
                 enabled: true

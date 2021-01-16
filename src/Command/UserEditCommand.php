@@ -34,7 +34,6 @@ class UserEditCommand extends Command
             ->addOption('confirmed', null, InputOption::VALUE_REQUIRED, 'Change emailConfirmed Flag (true/false)')
             ->addOption('superadmin', null, InputOption::VALUE_REQUIRED, 'Change Superadmin Flag (true/false)')
             ->addOption('infoMails', null, InputOption::VALUE_REQUIRED, 'Change infoMails Flag (true/false)')
-            ->addOption('status', null, InputOption::VALUE_REQUIRED, 'Edit Status')
             ->addOption('postcode', null, InputOption::VALUE_REQUIRED, 'Edit Postcode')
             ->addOption('nickname', null, InputOption::VALUE_REQUIRED, 'Edit Nickname')
             ->addOption('firstname', null, InputOption::VALUE_REQUIRED, 'Edit Firstname')
