@@ -125,7 +125,7 @@ class ClanRepository extends ServiceEntityRepository
             ->setParameters($parameter);
 
         if (empty($sort)) {
-            $qb->orderBy('c.nickname');
+            $qb->orderBy('c.name');
         } else {
             foreach ($sort as $field => $dir) {
                 $qb->addOrderBy('c.'.$field, $dir);

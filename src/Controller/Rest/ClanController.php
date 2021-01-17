@@ -95,10 +95,14 @@ class ClanController extends AbstractFOSRestController
      *
      * @Rest\Get("/{uuid}", requirements= {"uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
      * @ParamConverter()
+     *
+     * @Rest\QueryParam(name="depth", requirements="\d+", allowBlank=false, default="2")
      */
-    public function getClanAction(Clan $clan)
+    public function getClanAction(Clan $clan, ParamFetcher $fetcher)
     {
+        $depth = intval($fetcher->get('depth'));
         $view = $this->view($clan);
+        $view->getContext()->setAttribute(UserClanNormalizer::DEPTH, $depth);
         return $this->handleView($view);
     }
 
@@ -235,6 +239,7 @@ class ClanController extends AbstractFOSRestController
      * @Rest\QueryParam(name="filter")
      * @Rest\QueryParam(name="sort", requirements="(asc|desc)", map=true)
      * @Rest\QueryParam(name="exact", requirements="(true|false)", allowBlank=false, default="false")
+     * @Rest\QueryParam(name="depth", requirements="\d+", allowBlank=false, default="1")
      */
     public function getClansAction(ParamFetcher $fetcher)
     {
@@ -243,6 +248,7 @@ class ClanController extends AbstractFOSRestController
         $filter = $fetcher->get('filter');
         $sort = $fetcher->get('sort');
         $exact = $fetcher->get('exact');
+        $depth = intval($fetcher->get('depth'));
 
         $sort = is_array($sort) ? $sort : (empty($sort) ? [] : [$sort => 'asc']);
         $exact = $exact === 'true';
@@ -269,6 +275,7 @@ class ClanController extends AbstractFOSRestController
         );
 
         $view = $this->view($collection);
+        $view->getContext()->setAttribute(UserClanNormalizer::DEPTH, $depth);
         return $this->handleView($view);
     }
 
@@ -331,8 +338,10 @@ class ClanController extends AbstractFOSRestController
      *
      * @Rest\Get("/{uuid}/users", requirements= {"uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
      * @ParamConverter("clan", options={"mapping": {"uuid": "uuid"}})
+     *
+     * @Rest\QueryParam(name="depth", requirements="\d+", allowBlank=false, default="1")
      */
-    public function getMemberAction(Clan $clan)
+    public function getMemberAction(Clan $clan, ParamFetcher $fetcher)
     {
         $result = array();
         foreach ($clan->getUsers() as $userClan) {
@@ -340,7 +349,7 @@ class ClanController extends AbstractFOSRestController
         }
 
         $view = $this->view($result, Response::HTTP_OK);
-        $view->getContext()->setAttribute(UserClanNormalizer::UUID_ONLY, true);
+        $view->getContext()->setAttribute(UserClanNormalizer::DEPTH, intval($fetcher->get('depth')));
         return $this->handleView($view);
     }
 
@@ -349,8 +358,10 @@ class ClanController extends AbstractFOSRestController
      *
      * @Rest\Get("/{uuid}/admins", requirements= {"uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
      * @ParamConverter("clan", options={"mapping": {"uuid": "uuid"}})
+     *
+     * @Rest\QueryParam(name="depth", requirements="\d+", allowBlank=false, default="1")
      */
-    public function getAdminAction(Clan $clan)
+    public function getAdminAction(Clan $clan, ParamFetcher $fetcher)
     {
         $result = array();
         foreach ($clan->getUsers() as $userClan) {
@@ -359,7 +370,7 @@ class ClanController extends AbstractFOSRestController
         }
 
         $view = $this->view($result, Response::HTTP_OK);
-        $view->getContext()->setAttribute(UserClanNormalizer::UUID_ONLY, true);
+        $view->getContext()->setAttribute(UserClanNormalizer::DEPTH, intval($fetcher->get('depth')));
         return $this->handleView($view);
     }
 
@@ -528,7 +539,7 @@ class ClanController extends AbstractFOSRestController
      *     description="credentials as JSON",
      *     required=true,
      *     format="application/json",
-     *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Transfer\Login::class))
+     *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Transfer\AuthObject::class))
      * )
      * @SWG\Tag(name="Authorization")
      *

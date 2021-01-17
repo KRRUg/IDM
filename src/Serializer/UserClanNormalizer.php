@@ -30,8 +30,10 @@ class UserClanNormalizer implements ContextAwareNormalizerInterface, ContextAwar
     {
         $depth = array_key_exists(self::DEPTH, $context) && is_int($context[self::DEPTH]) ? intval($context[self::DEPTH]) : 1;
         $depth = $depth < 0 ? 0 : $depth;
+        $depth = $depth > 3 ? 3 : $depth;
 
         $context[ObjectNormalizer::GROUPS] = ['read'];
+        $context[ObjectNormalizer::IGNORED_ATTRIBUTES] = ['users', 'clans'];
 
         switch (true) {
             case $object instanceof User:
@@ -46,20 +48,17 @@ class UserClanNormalizer implements ContextAwareNormalizerInterface, ContextAwar
     private function normalizeClan($object, int $depth, $format = null, array $context = [])
     {
         if ($depth == 0) {
-            $context[ObjectNormalizer::ATTRIBUTES] = ['uuid'];
-            return $this->on->normalize($object, $format, $context);
+            return ['uuid' => $object->getUuid()->toString()];
         }
 
-        $context[ObjectNormalizer::IGNORED_ATTRIBUTES] = ['users'];
         $data = $this->on->normalize($object, $format, $context);
         $data['users'] = [];
         $data['admins'] = [];
         foreach ($object->getUsers() as $userClan) {
             $user = $this->normalizeUser($userClan->getUser(), $depth - 1, $format, $context);
+            $data['users'][] = $user;
             if ($userClan->getAdmin())
                 $data['admins'][] = $user;
-            else
-                $data['users'][] = $user;
         }
         return $data;
     }
@@ -67,11 +66,9 @@ class UserClanNormalizer implements ContextAwareNormalizerInterface, ContextAwar
     private function normalizeUser($object, int $depth, $format = null, array $context = [])
     {
         if ($depth == 0) {
-            $context[ObjectNormalizer::ATTRIBUTES] = ['uuid'];
-            return $this->on->normalize($object, $format, $context);
+            return ['uuid' => $object->getUuid()->toString()];
         }
 
-        $context[ObjectNormalizer::IGNORED_ATTRIBUTES] = ['clans'];
         $data = $this->on->normalize($object, $format, $context);
         $data['clans'] = [];
 
@@ -84,9 +81,7 @@ class UserClanNormalizer implements ContextAwareNormalizerInterface, ContextAwar
     public function denormalize($data, $type, $format = null, array $context = [])
     {
         $context[ObjectNormalizer::GROUPS] = ['write'];
-        $context[ObjectNormalizer::IGNORED_ATTRIBUTES][] = 'clans';
-        $context[ObjectNormalizer::IGNORED_ATTRIBUTES][] = 'users';
-        $context[ObjectNormalizer::IGNORED_ATTRIBUTES][] = 'admins';
+        $context[ObjectNormalizer::IGNORED_ATTRIBUTES] = ['users', 'admins', 'clans'];
         if (!array_key_exists(ObjectNormalizer::ALLOW_EXTRA_ATTRIBUTES, $context)) {
             $context[ObjectNormalizer::ALLOW_EXTRA_ATTRIBUTES] = true;
         }

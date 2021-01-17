@@ -83,11 +83,14 @@ class UserController extends AbstractFOSRestController
      *
      * @Rest\Get("/{uuid}", requirements= {"uuid"="([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})"})
      * @ParamConverter()
+     *
+     * @Rest\QueryParam(name="depth", requirements="\d+", allowBlank=false, default="2")
      */
-    public function getUserAction(User $user)
+    public function getUserAction(User $user, ParamFetcher $fetcher)
     {
-        // TODO check KLMS as this cannot handle email any more
+        $depth = intval($fetcher->get('depth'));
         $view = $this->view($user);
+        $view->getContext()->setAttribute(UserClanNormalizer::DEPTH, $depth);
         return $this->handleView($view);
     }
 
@@ -237,7 +240,7 @@ class UserController extends AbstractFOSRestController
      *     description="credentials as JSON",
      *     required=true,
      *     format="application/json",
-     *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Transfer\Login::class))
+     *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Transfer\AuthObject::class))
      * )
      * @SWG\Tag(name="Authorization")
      *
@@ -271,6 +274,7 @@ class UserController extends AbstractFOSRestController
      * @Rest\QueryParam(name="filter")
      * @Rest\QueryParam(name="sort", requirements="(asc|desc)", map=true)
      * @Rest\QueryParam(name="exact", requirements="(true|false)", allowBlank=false, default="false")
+     * @Rest\QueryParam(name="depth", requirements="\d+", allowBlank=false, default="1")
      */
     public function getUsersAction(ParamFetcher $fetcher)
     {
@@ -279,6 +283,7 @@ class UserController extends AbstractFOSRestController
         $filter = $fetcher->get('filter');
         $sort = $fetcher->get('sort');
         $exact = $fetcher->get('exact');
+        $depth = intval($fetcher->get('depth'));
 
         $sort = is_array($sort) ? $sort : (empty($sort) ? [] : [$sort => 'asc']);
         $exact = $exact === 'true';
@@ -305,6 +310,7 @@ class UserController extends AbstractFOSRestController
         );
 
         $view = $this->view($collection);
+        $view->getContext()->setAttribute(UserClanNormalizer::DEPTH, $depth);
         return $this->handleView($view);
     }
 
@@ -313,15 +319,17 @@ class UserController extends AbstractFOSRestController
      *
      * @Rest\Get("/{uuid}/clans", requirements= {"uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
      * @ParamConverter("user", options={"mapping": {"uuid": "uuid"}})
+     *
+     * @Rest\QueryParam(name="depth", requirements="\d+", allowBlank=false, default="1")
      */
-    public function getMemberAction(User $user)
+    public function getMemberAction(User $user, ParamFetcher $fetcher)
     {
         $result = array();
         foreach ($user->getClans() as $userClan) {
             $result[] = $userClan->getClan();
         }
         $view = $this->view($result, Response::HTTP_OK);
-        $view->getContext()->setAttribute(UserClanNormalizer::DEPTH, 0);
+        $view->getContext()->setAttribute(UserClanNormalizer::DEPTH, intval($fetcher->get('depth')));
         return $this->handleView($view);
     }
 
