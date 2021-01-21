@@ -5,7 +5,7 @@ namespace App\Transfer;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-final class Error
+class Error
 {
     public int $code;
 

@@ -14,6 +14,7 @@ use App\Transfer\Error;
 use App\Transfer\AuthObject;
 use App\Transfer\PaginationCollection;
 use App\Transfer\UuidObject;
+use App\Transfer\ValidationError;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -65,9 +66,9 @@ class ClanController extends AbstractFOSRestController
 
         $error = $errors[0];
         if ($error->getConstraint() instanceof UniqueEntity){
-            return $this->view(Error::withMessageAndDetail("There is already an object with the same unique values", $error), Response::HTTP_CONFLICT);
+            return $this->view(ValidationError::withProperty($error->getPropertyPath(), 'UniqueEntity'), Response::HTTP_CONFLICT);
         } else {
-            return $this->view(Error::withMessageAndDetail("Invalid JSON Body supplied, please check the Documentation", $error), Response::HTTP_BAD_REQUEST);
+            return $this->view(ValidationError::withProperty($error->getPropertyPath(), 'Assert'), Response::HTTP_BAD_REQUEST);
         }
     }
 
@@ -116,6 +117,10 @@ class ClanController extends AbstractFOSRestController
      * )
      * @SWG\Response(
      *     response=400,
+     *     description="Returns if the body was invalid"
+     * )
+     * @SWG\Response(
+     *     response=409,
      *     description="Returns if the body was invalid"
      * )
      * @SWG\Parameter(

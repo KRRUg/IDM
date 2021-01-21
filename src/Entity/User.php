@@ -114,7 +114,7 @@ class User
 
     /**
      * @ORM\Column(type="string", length=1, nullable=true)
-     * @Assert\Choice({"m","w","d"}, groups={"Default", "Transfer"})
+     * @Assert\Choice({"m","f","x"}, groups={"Default", "Transfer"})
      * @Groups({"read", "write"})
      */
     private $gender;

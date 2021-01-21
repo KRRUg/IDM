@@ -17,6 +17,7 @@ trait EntityIdTrait
      * @ORM\Id
      * @ORM\Column(type="integer", options={"unsigned": true})
      * @ORM\GeneratedValue
+     * @Groups({"read"})
      */
     protected $id;
 
