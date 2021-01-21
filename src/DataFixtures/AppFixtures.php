@@ -11,7 +11,7 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
-
+use NumberToWords\NumberToWords;
 
 class AppFixtures extends Fixture
 {
@@ -31,11 +31,16 @@ class AppFixtures extends Fixture
 
     public function load(ObjectManager $manager)
     {
+        $numberToWords = new NumberToWords();
+        $numberTransformer = $numberToWords->getNumberTransformer('de');
+
         // create 20 Users
         for ($i = 0; $i < 20; ++$i) {
             $user = new User();
             $user->setNickname('User '.$i);
             $user->setEmail('user'.$i.'@localhost.local');
+            $user->setFirstname("User");
+            $user->setSurname(ucfirst($numberTransformer->toWords($i)));
             $user->setUuid(Uuid::fromInteger(strval($i)));
             $user->setStatus(1);
             $user->setPassword($this->encoder->encodePassword('user'.$i, null));
@@ -51,6 +56,8 @@ class AppFixtures extends Fixture
         $ghost = new User();
         $ghost->setUuid(Uuid::fromInteger(42));
         $ghost->setNickname("DeletedUser");
+        $ghost->setFirstname("Deleted");
+        $ghost->setSurname("User");
         $ghost->setStatus(-1);
         $ghost->setEmail('ghost@localhost.local');
         $ghost->setPassword($this->encoder->encodePassword('ghost', null));
@@ -136,6 +143,8 @@ class AppFixtures extends Fixture
         // create admin user
         $admin = new User();
         $admin->setNickname('Admin');
+        $admin->setFirstname('Ali');
+        $admin->setSurname('Admin');
         $admin->setEmail('admin@localhost.local');
         $admin->setStatus(1);
         $admin->setPassword($this->encoder->encodePassword('admin', null));

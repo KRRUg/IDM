@@ -135,6 +135,9 @@
     "jean85/pretty-package-versions": {
         "version": "1.5.1"
     },
+    "kwn/number-to-words": {
+        "version": "1.12.1"
+    },
     "laminas/laminas-code": {
         "version": "4.0.0"
     },
