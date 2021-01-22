@@ -24,7 +24,7 @@ class UserControllerCreateTest extends AbstractControllerTest
     "street": "Some Street 1",
     "country": "AT",
     "phone": "+43 664/1234567",
-    "gender": "d",
+    "gender": "f",
     "steamAccount": "fup",
     "hardware": "some old Laptop",
     "statements": "fup fup fup"

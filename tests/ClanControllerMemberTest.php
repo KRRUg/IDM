@@ -217,7 +217,6 @@ JSON;
         $expected = array_map(function (int $i) { return Uuid::fromInteger($i)->toString();}, $expected);
         foreach ($array as $item) {
             $this->assertIsArray($item);
-            $this->assertEquals(1, sizeof($item));
             $this->assertArrayHasKey("uuid", $item);
         }
         $array = array_map(function ($a) { return $a['uuid']; }, $array);

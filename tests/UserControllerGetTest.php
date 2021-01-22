@@ -27,6 +27,8 @@ class UserControllerGetTest extends AbstractControllerTest
         $this->assertArrayHasKey("registeredAt", $result);
         $this->assertArrayHasKey("modifiedAt", $result);
         $this->assertArrayHasKey("infoMails", $result);
+        $this->assertArrayHasKey("personalDataConfirmed", $result);
+        $this->assertArrayHasKey("personalDataLocked", $result);
         $this->assertArrayNotHasKey("password", $result);
 
         $this->assertEquals("User 1", $result['nickname']);

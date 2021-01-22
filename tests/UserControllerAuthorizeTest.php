@@ -47,7 +47,7 @@ JSON;
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
         $this->assertEquals("application/json", $response->headers->get('Content-Type'));
         $this->assertJson($response->getContent());
-        $this->assertStringContainsStringIgnoringCase("invalid", $response->getContent());
+        $this->assertStringContainsStringIgnoringCase("secret", $response->getContent());
     }
 
     public function testAuthorizeFailIncorrectData()

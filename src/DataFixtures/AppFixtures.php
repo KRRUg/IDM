@@ -44,8 +44,10 @@ class AppFixtures extends Fixture
             $user->setUuid(Uuid::fromInteger(strval($i)));
             $user->setStatus(1);
             $user->setPassword($this->encoder->encodePassword('user'.$i, null));
-            $user->setEmailConfirmed(1 == mt_rand(0, 1));
-            $user->setInfoMails(1 == mt_rand(0, 1));
+            $user->setEmailConfirmed(1 != $i % 5);
+            $user->setInfoMails(1 == ($i + 1) % 5);
+            $user->setPersonalDataLocked(1 == ($i + 1) % 7);
+            $user->setPersonalDataConfirmed(1 != ($i + 2) % 3);
             $user->setIsSuperadmin(false);
 
             $manager->persist($user);
@@ -63,6 +65,8 @@ class AppFixtures extends Fixture
         $ghost->setPassword($this->encoder->encodePassword('ghost', null));
         $ghost->setEmailConfirmed(1);
         $ghost->setInfoMails(true);
+        $ghost->setPersonalDataLocked(false);
+        $ghost->setPersonalDataConfirmed(false);
         $manager->persist($ghost);
         $manager->flush();
 
@@ -148,8 +152,10 @@ class AppFixtures extends Fixture
         $admin->setEmail('admin@localhost.local');
         $admin->setStatus(1);
         $admin->setPassword($this->encoder->encodePassword('admin', null));
-        $admin->setEmailConfirmed(1);
-        $admin->setInfoMails(false);
+        $user->setEmailConfirmed(true);
+        $user->setInfoMails(false);
+        $user->setPersonalDataLocked(false);
+        $user->setPersonalDataConfirmed(false);
         $admin->setIsSuperadmin(true);
 
         $manager->persist($admin);

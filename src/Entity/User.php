@@ -38,6 +38,18 @@ class User
     private $email;
 
     /**
+     * @ORM\Column(type="boolean")
+     * @Groups({"read", "write"})
+     */
+    private $emailConfirmed = false;
+
+    /**
+     * @ORM\Column(type="boolean")
+     * @Groups({"read", "write"})
+     */
+    private $infoMails = false;
+
+    /**
      * @var string The hashed password
      * @ORM\Column(type="string")
      * @Assert\Length(
@@ -81,7 +93,39 @@ class User
     private $surname;
 
     /**
-     * @ORM\Column(type="string", length=8, nullable=true)
+     * @ORM\Column(type="date", nullable=true)
+     * @Assert\Date(groups={"Default", "Transfer"})
+     * @Groups({"read", "write"})
+     */
+    private $birthdate;
+
+    /**
+     * @ORM\Column(type="string", length=1, nullable=true)
+     * @Assert\Choice({"m","f","x"}, groups={"Default", "Transfer"})
+     * @Groups({"read", "write"})
+     */
+    private $gender;
+
+    /**
+     * @ORM\Column(type="boolean")
+     * @Groups({"read", "write"})
+     */
+    private $personalDataConfirmed = false;
+
+    /**
+     * @ORM\Column(type="boolean")
+     * @Groups({"read", "write"})
+     */
+    private $personalDataLocked = false;
+
+    /**
+     * @ORM\Column(type="boolean")
+     * @Groups({"read"})
+     */
+    private $isSuperadmin = false;
+
+    /**
+     * @ORM\Column(type="string", length=10, nullable=true)
      * @Groups({"read", "write"})
      */
     private $postcode;
@@ -113,25 +157,6 @@ class User
     private $phone;
 
     /**
-     * @ORM\Column(type="string", length=1, nullable=true)
-     * @Assert\Choice({"m","f","x"}, groups={"Default", "Transfer"})
-     * @Groups({"read", "write"})
-     */
-    private $gender;
-
-    /**
-     * @ORM\Column(type="boolean")
-     * @Groups({"read", "write"})
-     */
-    private $emailConfirmed;
-
-    /**
-     * @ORM\Column(type="boolean")
-     * @Groups({"read"})
-     */
-    private $isSuperadmin = false;
-
-    /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Assert\Url(groups={"Default", "Transfer"})
      * @Groups({"read", "write"})
@@ -143,6 +168,18 @@ class User
      * @Groups({"read", "write"})
      */
     private $steamAccount;
+
+    /**
+     * @ORM\Column(type="string", length=4096, nullable=true)
+     * @Groups({"read", "write"})
+     */
+    private $hardware;
+
+    /**
+     * @ORM\Column(type="string", length=4096, nullable=true)
+     * @Groups({"read", "write"})
+     */
+    private $statements;
 
     /**
      * @ORM\Column(type="datetime")
@@ -157,24 +194,6 @@ class User
     private $modifiedAt;
 
     /**
-     * @ORM\Column(type="string", length=4096, nullable=true)
-     * @Groups({"read", "write"})
-     */
-    private $hardware;
-
-    /**
-     * @ORM\Column(type="boolean")
-     * @Groups({"read", "write"})
-     */
-    private $infoMails;
-
-    /**
-     * @ORM\Column(type="string", length=4096, nullable=true)
-     * @Groups({"read", "write"})
-     */
-    private $statements;
-
-    /**
      * @ORM\OneToMany(
      *     targetEntity="App\Entity\UserClan",
      *     mappedBy="user",
@@ -184,13 +203,6 @@ class User
      */
     private $clans;
 
-    /**
-     * @ORM\Column(type="date", nullable=true)
-     * @Assert\Date(groups={"Default", "Transfer"})
-     * @Groups({"read", "write"})
-     */
-    private $birthdate;
-
     public function getEmail(): ?string
     {
         return $this->email;
@@ -199,6 +211,18 @@ class User
     public function setEmail(string $email): self
     {
         $this->email = $email;
+
+        return $this;
+    }
+
+    public function getNickname(): ?string
+    {
+        return $this->nickname;
+    }
+
+    public function setNickname(string $nickname): self
+    {
+        $this->nickname = $nickname;
 
         return $this;
     }
@@ -223,6 +247,18 @@ class User
     public function setSurname(string $surname): self
     {
         $this->surname = $surname;
+
+        return $this;
+    }
+
+    public function isPersonalDataConfirmed(): ?bool
+    {
+        return $this->personalDataConfirmed;
+    }
+
+    public function setPersonalDataConfirmed(?bool $personalDataConfirmed): self
+    {
+        $this->personalDataConfirmed = $personalDataConfirmed;
 
         return $this;
     }
@@ -311,14 +347,14 @@ class User
         return $this;
     }
 
-    public function getNickname(): ?string
+    public function personalDataLocked(): ?bool
     {
-        return $this->nickname;
+        return $this->personalDataLocked;
     }
 
-    public function setNickname(string $nickname): self
+    public function setPersonalDataLocked(?bool $personalDataLocked): self
     {
-        $this->nickname = $nickname;
+        $this->personalDataLocked = $personalDataLocked;
 
         return $this;
     }
