@@ -275,7 +275,7 @@ class UserController extends AbstractFOSRestController
      * @Rest\QueryParam(name="filter")
      * @Rest\QueryParam(name="sort", requirements="(asc|desc)", map=true)
      * @Rest\QueryParam(name="exact", requirements="(true|false)", allowBlank=false, default="false")
-     * @Rest\QueryParam(name="depth", requirements="\d+", allowBlank=false, default="1")
+     * @Rest\QueryParam(name="depth", requirements="\d+", allowBlank=false, default="2")
      */
     public function getUsersAction(ParamFetcher $fetcher)
     {
