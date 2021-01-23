@@ -49,6 +49,7 @@ class AppFixtures extends Fixture
             $user->setPersonalDataLocked(1 == ($i + 1) % 7);
             $user->setPersonalDataConfirmed(1 != ($i + 2) % 3);
             $user->setIsSuperadmin(false);
+            $user->setGender(1 == $i % 3 ? 'f' : 'm');
 
             $manager->persist($user);
         }
