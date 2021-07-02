@@ -8,6 +8,7 @@ use App\Entity\UserClan;
 use App\Repository\UserRepository;
 use App\Serializer\UserClanNormalizer;
 use App\Service\UserService;
+use App\Transfer\Bulk;
 use App\Transfer\Error;
 use App\Transfer\AuthObject;
 use App\Transfer\PaginationCollection;
@@ -268,6 +269,24 @@ class UserController extends AbstractFOSRestController
         }
 
         return $this->handleView($view);
+    }
+
+    /**
+     * Requests multiple clans by their uuids
+     *
+     * Post a Bulk Request object to get a response object.
+     *
+     * @Rest\Post("/bulk")
+     * @ParamConverter("bulk", converter="fos_rest.request_body", options={"deserializationContext": {"allow_extra_attributes": false}})
+     */
+    public function postBulkRequestAction(Bulk $bulk, ConstraintViolationListInterface $validationErrors)
+    {
+        if ($view = $this->handleValidiationErrors($validationErrors)) {
+            return $this->handleView($view);
+        }
+
+        $data = $this->userRepository->findByBulk($bulk);
+        return $this->handleView($this->view($data));
     }
 
     /**

@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\User;
 use App\Helper\QueryHelper;
+use App\Transfer\Bulk;
 use App\Transfer\Search;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
@@ -88,6 +89,14 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $qb->setParameters($criteria);
 
         return $qb->getQuery()->getResult();
+    }
+
+    public function findByBulk(Bulk $bulk)
+    {
+        $qb = $this->createQueryBuilder('u');
+        $qb->andWhere('u.uuid in (:uuids)')->setParameter('uuids', $bulk->uuid);
+        $query = $qb->getQuery();
+        return $query->getResult();
     }
 
     public function findBySearch(Search $search)

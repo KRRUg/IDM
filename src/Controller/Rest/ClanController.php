@@ -10,6 +10,7 @@ use App\Repository\UserClanRepository;
 use App\Repository\UserRepository;
 use App\Serializer\UserClanNormalizer;
 use App\Service\ClanService;
+use App\Transfer\Bulk;
 use App\Transfer\Error;
 use App\Transfer\AuthObject;
 use App\Transfer\PaginationCollection;
@@ -570,5 +571,41 @@ class ClanController extends AbstractFOSRestController
         }
 
         return $this->handleView($view);
+    }
+
+    /**
+     * Requests multiple clans by their uuids
+     *
+     * Post a Bulk Request object to get a response object.
+     *
+     * @SWG\Response(
+     *     response=200,
+     *     description="Returns the requested Clans",
+     *     schema=@SWG\Schema(type="array", ref=@Model(type=\App\Entity\Clan::class, groups={"read"}))
+     * )
+     * @SWG\Response(
+     *     response=400,
+     *     description="Returns the request was malformated"
+     * )
+     * @SWG\Parameter(
+     *     name="body",
+     *     in="body",
+     *     description="JSON array of clan UUIDs",
+     *     required=true,
+     *     format="application/json",
+     *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Transfer\Bulk::class))
+     * )
+     *
+     * @Rest\Post("/bulk")
+     * @ParamConverter("bulk", converter="fos_rest.request_body", options={"deserializationContext": {"allow_extra_attributes": false}})
+     */
+    public function postBulkRequestAction(Bulk $bulk, ConstraintViolationListInterface $validationErrors)
+    {
+        if ($view = $this->handleValidiationErrors($validationErrors)) {
+            return $this->handleView($view);
+        }
+
+        $data = $this->clanRepository->findByBulk($bulk);
+        return $this->handleView($this->view($data));
     }
 }

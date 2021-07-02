@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Clan;
 use App\Helper\QueryHelper;
+use App\Transfer\Bulk;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\ORM\QueryBuilder;
@@ -67,6 +68,14 @@ class ClanRepository extends ServiceEntityRepository
         $qb->setParameters($criteria);
 
         return $qb->getQuery()->getResult();
+    }
+
+    public function findByBulk(Bulk $bulk)
+    {
+        $qb = $this->createQueryBuilder('c');
+        $qb->andWhere('c.uuid in (:uuids)')->setParameter('uuids', $bulk->uuid);
+        $query = $qb->getQuery();
+        return $query->getResult();
     }
 
     public function findAllSimpleQueryBuilder(?string $filter = null, array $sort = [], bool $exact = false): QueryBuilder
