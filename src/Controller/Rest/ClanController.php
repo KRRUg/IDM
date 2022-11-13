@@ -26,7 +26,7 @@ use Swagger\Annotations as SWG;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
+use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 /**
@@ -40,20 +40,20 @@ class ClanController extends AbstractFOSRestController
     private ClanService $clanService;
     private ClanRepository $clanRepository;
     private UserRepository $userRepository;
-    private EncoderFactoryInterface $encoderFactory;
+    private PasswordHasherFactoryInterface $hasherFactory;
 
     public function __construct(
         EntityManagerInterface $entityManager,
         ClanService $clanService,
         ClanRepository $clanRepository,
         UserRepository $userRepository,
-        EncoderFactoryInterface $encoderFactory
+        PasswordHasherFactoryInterface $hasherFactory
     ){
         $this->em = $entityManager;
         $this->clanService = $clanService;
         $this->clanRepository = $clanRepository;
         $this->userRepository = $userRepository;
-        $this->encoderFactory = $encoderFactory;
+        $this->hasherFactory = $hasherFactory;
     }
 
     private function handleValidiationErrors(ConstraintViolationListInterface $errors)
@@ -149,8 +149,8 @@ class ClanController extends AbstractFOSRestController
             return $this->handleView($view);
         }
 
-        $encoder = $this->encoderFactory->getEncoder(Clan::class);
-        $new->setJoinPassword($encoder->encodePassword($new->getJoinPassword(), null));
+        $hasher = $this->hasherFactory->getPasswordHasher(Clan::class);
+        $new->setJoinPassword($hasher->hash($new->getJoinPassword()));
 
         $this->em->persist($new);
         $this->em->flush();
@@ -208,10 +208,10 @@ class ClanController extends AbstractFOSRestController
             return $this->handleView($view);
         }
 
-        $encoder = $this->encoderFactory->getEncoder(Clan::class);
+        $hasher = $this->hasherFactory->getPasswordHasher(Clan::class);
 
-        if ($encoder->needsRehash($update->getJoinPassword())) {
-            $update->setJoinPassword($encoder->encodePassword($update->getJoinPassword(), null));
+        if ($hasher->needsRehash($update->getJoinPassword())) {
+            $update->setJoinPassword($hasher->hash($update->getJoinPassword()));
         }
 
         $this->em->persist($update);

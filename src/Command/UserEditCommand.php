@@ -13,6 +13,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class UserEditCommand extends Command
 {
     protected static $defaultName = 'app:user:edit';
+    protected static $defaultDescription = 'Edits a User';
     /**
      * @var UserService
      */
@@ -28,7 +29,6 @@ class UserEditCommand extends Command
     protected function configure()
     {
         $this
-            ->setDescription('Edits a User')
             ->addArgument('uuid', InputArgument::REQUIRED, 'UUID of User to be edited')
             ->addOption('email', null, InputOption::VALUE_REQUIRED, 'New EMail Address')
             ->addOption('confirmed', null, InputOption::VALUE_REQUIRED, 'Change emailConfirmed Flag (true/false)')
@@ -64,7 +64,7 @@ class UserEditCommand extends Command
             $io->error("Could not edit User \"{$input->getArgument('uuid')}\" !");
         }
 
-        return 0;
+        return (int) Command::SUCCESS;
 
         }
 }

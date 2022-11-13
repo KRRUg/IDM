@@ -13,6 +13,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class UserCreateCommand extends Command
 {
     protected static $defaultName = 'app:user:create';
+    protected static $defaultDescription = 'Creates a User';
     /**
      * @var UserService
      */
@@ -28,7 +29,6 @@ class UserCreateCommand extends Command
     protected function configure()
     {
         $this
-            ->setDescription('Creates a User')
             ->addArgument('email', InputArgument::REQUIRED, 'EMail')
             ->addArgument('password', InputArgument::REQUIRED, 'Plaintext Password')
             ->addArgument('nickname', InputArgument::REQUIRED, 'Nickname')
@@ -64,6 +64,6 @@ class UserCreateCommand extends Command
             $io->error("User \"{$input->getArgument('email')}\" could not be created!");
         }
 
-        return 0;
+        return (int) Command::SUCCESS;
     }
 }

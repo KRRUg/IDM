@@ -25,7 +25,7 @@ use Swagger\Annotations as SWG;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
+use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 /**
@@ -38,14 +38,14 @@ class UserController extends AbstractFOSRestController
     private EntityManagerInterface $em;
     private UserRepository $userRepository;
     private UserService $userService;
-    private EncoderFactoryInterface $encoderFactory;
+    private PasswordHasherFactoryInterface $hasherFactory;
 
-    public function __construct(EntityManagerInterface $entityManager, UserRepository $userRepository, UserService $userService, EncoderFactoryInterface $encoderFactory)
+    public function __construct(EntityManagerInterface $entityManager, UserRepository $userRepository, UserService $userService, PasswordHasherFactoryInterface $hasherFactory)
     {
         $this->em = $entityManager;
         $this->userRepository = $userRepository;
         $this->userService = $userService;
-        $this->encoderFactory = $encoderFactory;
+        $this->hasherFactory = $hasherFactory;
     }
 
     private function handleValidiationErrors(ConstraintViolationListInterface $errors)
@@ -145,10 +145,10 @@ class UserController extends AbstractFOSRestController
             return $this->handleView($view);
         }
 
-        $encoder = $this->encoderFactory->getEncoder(User::class);
+        $hasher = $this->hasherFactory->getPasswordHasher(User::class);
 
-        if ($encoder->needsRehash($update->getPassword())) {
-            $update->setPassword($encoder->encodePassword($update->getPassword(), null));
+        if ($hasher->needsRehash($update->getPassword())) {
+            $update->setPassword($hasher->hash($update->getPassword()));
         }
 
         $this->em->persist($update);
@@ -192,13 +192,13 @@ class UserController extends AbstractFOSRestController
             return $this->handleView($view);
         }
 
-        $encoder = $this->encoderFactory->getEncoder(User::class);
+        $hasher = $this->hasherFactory->getPasswordHasher(User::class);
 
         // TODO move this to UserService
         $new->setStatus(1);
         $new->setEmailConfirmed(false);
         $new->setInfoMails($new->getInfoMails() ?? false);
-        $new->setPassword($encoder->encodePassword($new->getPassword(), null));
+        $new->setPassword($hasher->hash($new->getPassword()));
 
         $this->em->persist($new);
         $this->em->flush();

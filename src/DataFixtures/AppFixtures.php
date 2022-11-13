@@ -10,13 +10,13 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Ramsey\Uuid\Uuid;
 use NumberToWords\NumberToWords;
-use Symfony\Component\Security\Core\Encoder\SodiumPasswordEncoder;
+use Symfony\Component\PasswordHasher\Hasher\SodiumPasswordHasher;
 
 class AppFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-        $encoder = new SodiumPasswordEncoder();
+        $hasher = new SodiumPasswordHasher();
 
         $numberToWords = new NumberToWords();
         $numberTransformer = $numberToWords->getNumberTransformer('de');
@@ -30,7 +30,7 @@ class AppFixtures extends Fixture
             $user->setSurname(ucfirst($numberTransformer->toWords($i)));
             $user->setUuid(Uuid::fromInteger(strval($i)));
             $user->setStatus(1);
-            $user->setPassword($encoder->encodePassword('user'.$i, null));
+            $user->setPassword($hasher->hash('user'.$i));
             $user->setEmailConfirmed(1 != $i % 5);
             $user->setInfoMails(1 == ($i + 1) % 5);
             $user->setPersonalDataLocked(1 == ($i + 1) % 7);
@@ -50,7 +50,7 @@ class AppFixtures extends Fixture
         $ghost->setSurname("User");
         $ghost->setStatus(-1);
         $ghost->setEmail('ghost@localhost.local');
-        $ghost->setPassword($encoder->encodePassword('ghost', null));
+        $ghost->setPassword($hasher->hash('ghost'));
         $ghost->setEmailConfirmed(1);
         $ghost->setInfoMails(true);
         $ghost->setPersonalDataLocked(false);
@@ -139,7 +139,7 @@ class AppFixtures extends Fixture
         $admin->setSurname('Admin');
         $admin->setEmail('admin@localhost.local');
         $admin->setStatus(1);
-        $admin->setPassword($encoder->encodePassword('admin', null));
+        $admin->setPassword($hasher->hash('admin'));
         $admin->setEmailConfirmed(true);
         $admin->setInfoMails(false);
         $admin->setPersonalDataLocked(false);

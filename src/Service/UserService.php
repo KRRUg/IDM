@@ -5,19 +5,19 @@ namespace App\Service;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
+use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 
 class UserService
 {
     private EntityManagerInterface $em;
     private UserRepository $userRepository;
-    private EncoderFactoryInterface $encoderFactory;
+    private PasswordHasherFactoryInterface $hasherFactory;
 
-    public function __construct(EntityManagerInterface $entityManager, EncoderFactoryInterface $upe, UserRepository $userRepository)
+    public function __construct(EntityManagerInterface $entityManager, PasswordHasherFactoryInterface $hasherFactory, UserRepository $userRepository)
     {
         $this->em = $entityManager;
         $this->userRepository = $userRepository;
-        $this->encoderFactory = $upe;
+        $this->hasherFactory = $hasherFactory;
     }
 
     public function listUser($searchParameter = null, $searchValue = null, $disabled = false)
@@ -177,8 +177,8 @@ class UserService
         $user->setNickname($nickname);
         $user->setStatus(1);
         $user->setEmailConfirmed($confirmed);
-        $encoder = $this->encoderFactory->getEncoder(User::class);
-        $user->setPassword($encoder->encodePassword($password, null));
+        $hasher = $this->hasherFactory->getPasswordHasher(User::class);
+        $user->setPassword($hasher->hash($password));
 
         if ($infoMails) {
             if ('true' === $infoMails || true === $infoMails) {
@@ -233,12 +233,12 @@ class UserService
             return false;
         }
 
-        $encoder = $this->encoderFactory->getEncoder($user);
+        $hasher = $this->hasherFactory->getPasswordHasher($user);
 
-        $valid = $encoder->isPasswordValid($user->getPassword(), $password, null);
-        if ($valid && $encoder->needsRehash($user->getPassword())) {
+        $valid = $hasher->verify($user->getPassword(), $password);
+        if ($valid && $hasher->needsRehash($user->getPassword())) {
             //Rehash legacy Password if needed
-            $user->setPassword($encoder->encodePassword($password, null));
+            $user->setPassword($hasher->hash($password));
             $this->em->flush();
         }
 

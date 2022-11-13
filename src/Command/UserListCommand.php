@@ -13,6 +13,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class UserListCommand extends Command
 {
     protected static $defaultName = 'app:user:list';
+    protected static $defaultDescription = 'Lists all or one User';
     /**
      * @var UserService
      */
@@ -27,9 +28,7 @@ class UserListCommand extends Command
 
     protected function configure()
     {
-        $this
-            ->setDescription('Lists all or one User')
-            ->addOption('uuid', null, InputOption::VALUE_REQUIRED, 'Gets User based on UUID')
+        $this->addOption('uuid', null, InputOption::VALUE_REQUIRED, 'Gets User based on UUID')
             ->addOption('externId', null, InputOption::VALUE_REQUIRED, 'Gets User based on externID')
             ->addOption('email', null, InputOption::VALUE_REQUIRED, 'Gets User based on EMail')
             ->addOption('all', 'a', InputOption::VALUE_NONE, 'Show all users include disabled.')
@@ -92,6 +91,6 @@ class UserListCommand extends Command
             $io->error('No Users have been found with the supplied Searchparameters');
         }
 
-        return 0;
+        return (int) Command::SUCCESS;
     }
 }

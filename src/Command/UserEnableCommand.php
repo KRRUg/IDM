@@ -12,6 +12,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class UserEnableCommand extends Command
 {
     protected static $defaultName = 'app:user:enable';
+    protected static $defaultDescription = 'Enables a User';
     /**
      * @var UserService
      */
@@ -26,10 +27,7 @@ class UserEnableCommand extends Command
 
     protected function configure()
     {
-        $this
-            ->setDescription('Enables a User')
-            ->addArgument('uuid', InputArgument::REQUIRED, 'UUID from User')
-        ;
+        $this->addArgument('uuid', InputArgument::REQUIRED, 'UUID from User');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -44,6 +42,6 @@ class UserEnableCommand extends Command
             $io->error('Could not enable User!');
         }
 
-        return 0;
+        return (int) Command::SUCCESS;
     }
 }
