@@ -3,4 +3,5 @@ sensio_framework_extra:
         annotations: false
     view:
         annotations: false
-    request: { converters: true }
+    request:
+        converters: true

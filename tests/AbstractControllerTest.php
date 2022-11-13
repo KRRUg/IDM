@@ -22,7 +22,7 @@ abstract class AbstractControllerTest extends WebTestCase
 
     protected AbstractBrowser $client;
 
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
         self::bootKernel();
@@ -57,7 +57,7 @@ abstract class AbstractControllerTest extends WebTestCase
         $this->executor->execute($loader->getFixtures());
     }
 
-    public function tearDown()
+    public function tearDown() : void
     {
         //(new SchemaTool($this->manager))->dropDatabase();
         parent::tearDown();
