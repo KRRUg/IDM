@@ -84,7 +84,7 @@ class UserController extends AbstractFOSRestController
      * @SWG\Tag(name="User")
      *
      * @Rest\Get("/{uuid}", requirements= {"uuid"="([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})"})
-     * @ParamConverter()
+     * @ParamConverter("user", options={"mapping": {"uuid": "uuid"}})
      *
      * @Rest\QueryParam(name="depth", requirements="\d+", allowBlank=false, default="2")
      */

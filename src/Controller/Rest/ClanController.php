@@ -92,7 +92,7 @@ class ClanController extends AbstractFOSRestController
      * @SWG\Tag(name="Clan")
      *
      * @Rest\Get("/{uuid}", requirements= {"uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
-     * @ParamConverter()
+     * @ParamConverter("clan", options={"mapping": {"uuid": "uuid"}})
      *
      * @Rest\QueryParam(name="depth", requirements="\d+", allowBlank=false, default="2")
      */
@@ -224,7 +224,7 @@ class ClanController extends AbstractFOSRestController
      * Delete a Clan.
      *
      * @Rest\Delete("/{uuid}", requirements= {"uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
-     * @ParamConverter()
+     * @ParamConverter("clan", options={"mapping": {"uuid": "uuid"}})
      */
     public function removeClanAction(Clan $clan)
     {
