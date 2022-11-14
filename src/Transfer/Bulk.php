@@ -11,7 +11,6 @@ class Bulk
      *      @Assert\NotBlank,
      *      @Assert\Uuid(strict=false)
      * })
-     * @var array
      */
     public array $uuid = [];
 }

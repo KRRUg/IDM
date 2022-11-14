@@ -3,32 +3,29 @@
 namespace App\Entity;
 
 use DateTime;
-use DateTimeInterface;
-use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Security\Core\Encoder\EncoderAwareInterface;
-use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  * @ORM\Table(name="gamer")
  * @ORM\HasLifecycleCallbacks
- *
  * @UniqueEntity(fields={"email"}, groups={"Default", "Unique"}, repositoryMethod="findByCi", message="There is already an account with this email")
  * @UniqueEntity(fields={"nickname"}, groups={"Default", "Unique"}, message="There is already an account with this nickname")
  */
 class User
 {
+    use EntityIdTrait;
+    use HideableTrait;
+
     public function __construct()
     {
         $this->clans = new ArrayCollection();
     }
-
-    use EntityIdTrait;
-    use HideableTrait;
 
     /**
      * @ORM\Column(type="string", length=320, unique=true)
@@ -52,6 +49,7 @@ class User
 
     /**
      * @var string The hashed password
+     *
      * @ORM\Column(type="string")
      * @Assert\Length(
      *      min = 6,
@@ -408,24 +406,24 @@ class User
         return $this;
     }
 
-    public function getRegisteredAt(): ?DateTimeInterface
+    public function getRegisteredAt(): ?\DateTimeInterface
     {
         return $this->registeredAt;
     }
 
-    public function setRegisteredAt(DateTimeInterface $registeredAt): self
+    public function setRegisteredAt(\DateTimeInterface $registeredAt): self
     {
         $this->registeredAt = $registeredAt;
 
         return $this;
     }
 
-    public function getModifiedAt(): ?DateTimeInterface
+    public function getModifiedAt(): ?\DateTimeInterface
     {
         return $this->modifiedAt;
     }
 
-    public function setModifiedAt(DateTimeInterface $modifiedAt): self
+    public function setModifiedAt(\DateTimeInterface $modifiedAt): self
     {
         $this->modifiedAt = $modifiedAt;
 
@@ -476,12 +474,12 @@ class User
         return $this->clans;
     }
 
-    public function getBirthdate(): ?DateTimeInterface
+    public function getBirthdate(): ?\DateTimeInterface
     {
         return $this->birthdate;
     }
 
-    public function setBirthdate(?DateTimeInterface $birthdate): self
+    public function setBirthdate(?\DateTimeInterface $birthdate): self
     {
         $this->birthdate = $birthdate;
 
@@ -492,11 +490,12 @@ class User
      * @ORM\PrePersist()
      * @ORM\PreUpdate()
      */
-    public function updateModifiedDatetime() {
+    public function updateModifiedDatetime()
+    {
         // update the modified time and creation time
-        $this->setModifiedAt(new DateTime());
+        $this->setModifiedAt(new \DateTime());
         if ($this->getRegisteredAt() === null) {
-            $this->setRegisteredAt(new DateTime());
+            $this->setRegisteredAt(new \DateTime());
         }
     }
 }

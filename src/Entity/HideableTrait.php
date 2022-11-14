@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -8,7 +7,8 @@ use Doctrine\ORM\Mapping as ORM;
 trait HideableTrait
 {
     /**
-     * If status >= 0, the entity is enabled. Otherwise it will be filtered in all operations.
+     * If status >= 0, the entity is enabled. Otherwise, it will be filtered in all operations.
+     *
      * @ORM\Column(type="integer")
      */
     private ?int $status;

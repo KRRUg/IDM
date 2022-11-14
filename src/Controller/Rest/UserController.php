@@ -8,9 +8,9 @@ use App\Entity\UserClan;
 use App\Repository\UserRepository;
 use App\Serializer\UserClanNormalizer;
 use App\Service\UserService;
+use App\Transfer\AuthObject;
 use App\Transfer\Bulk;
 use App\Transfer\Error;
-use App\Transfer\AuthObject;
 use App\Transfer\PaginationCollection;
 use App\Transfer\Search;
 use App\Transfer\ValidationError;
@@ -18,11 +18,11 @@ use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Pagerfanta\Pagerfanta;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Swagger\Annotations as SWG;
-use Nelmio\ApiDocBundle\Annotation\Model;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
@@ -50,11 +50,12 @@ class UserController extends AbstractFOSRestController
 
     private function handleValidiationErrors(ConstraintViolationListInterface $errors)
     {
-        if (count($errors) == 0)
+        if (count($errors) == 0) {
             return null;
+        }
 
         $error = $errors[0];
-        if ($error->getConstraint() instanceof UniqueEntity){
+        if ($error->getConstraint() instanceof UniqueEntity) {
             return $this->view(ValidationError::withProperty($error->getPropertyPath(), 'UniqueEntity'), Response::HTTP_CONFLICT);
         } else {
             return $this->view(ValidationError::withProperty($error->getPropertyPath(), 'Assert'), Response::HTTP_BAD_REQUEST);
@@ -82,10 +83,8 @@ class UserController extends AbstractFOSRestController
      *     format="uuid"
      * )
      * @SWG\Tag(name="User")
-     *
      * @Rest\Get("/{uuid}", requirements= {"uuid"="([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})"})
      * @ParamConverter("user", options={"mapping": {"uuid": "uuid"}})
-     *
      * @Rest\QueryParam(name="depth", requirements="\d+", allowBlank=false, default="2")
      */
     public function getUserAction(User $user, ParamFetcher $fetcher)
@@ -93,6 +92,7 @@ class UserController extends AbstractFOSRestController
         $depth = intval($fetcher->get('depth'));
         $view = $this->view($user);
         $view->getContext()->setAttribute(UserClanNormalizer::DEPTH, $depth);
+
         return $this->handleView($view);
     }
 
@@ -129,7 +129,6 @@ class UserController extends AbstractFOSRestController
      *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Entity\User::class, groups={"write"}))
      * )
      * @SWG\Tag(name="User")
-     *
      * @Rest\Patch("/{uuid}", requirements= {"uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
      * @ParamConverter("user", class="App\Entity\User")
      * @ParamConverter("update", converter="fos_rest.request_body",
@@ -178,7 +177,6 @@ class UserController extends AbstractFOSRestController
      *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Entity\User::class, groups={"write"}))
      * )
      * @SWG\Tag(name="User")
-     *
      * @Rest\Post("")
      * @ParamConverter("new", converter="fos_rest.request_body",
      *     options={
@@ -223,6 +221,7 @@ class UserController extends AbstractFOSRestController
         $user = $this->userRepository->findBySearch($search);
 
         $view = $this->view($user);
+
         return $this->handleView($view);
     }
 
@@ -249,7 +248,6 @@ class UserController extends AbstractFOSRestController
      *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Transfer\AuthObject::class))
      * )
      * @SWG\Tag(name="Authorization")
-     *
      * @Rest\Post("/authorize")
      * @ParamConverter("auth", converter="fos_rest.request_body", options={"deserializationContext": {"allow_extra_attributes": false}})
      */
@@ -259,7 +257,7 @@ class UserController extends AbstractFOSRestController
             return $this->handleView($view);
         }
 
-        //Check if User can login
+        // Check if User can login
         $user = $this->userService->checkCredentials($auth->name, $auth->secret);
 
         if ($user) {
@@ -272,7 +270,7 @@ class UserController extends AbstractFOSRestController
     }
 
     /**
-     * Requests multiple clans by their uuids
+     * Requests multiple clans by their uuids.
      *
      * Post a Bulk Request object to get a response object.
      *
@@ -286,6 +284,7 @@ class UserController extends AbstractFOSRestController
         }
 
         $data = $this->userRepository->findByBulk($bulk);
+
         return $this->handleView($this->view($data));
     }
 
@@ -326,7 +325,7 @@ class UserController extends AbstractFOSRestController
         $pager->setMaxPerPage($limit);
         $pager->setCurrentPage($page);
 
-        $users = array();
+        $users = [];
         foreach ($pager->getCurrentPageResults() as $user) {
             $users[] = $user;
         }
@@ -338,25 +337,26 @@ class UserController extends AbstractFOSRestController
 
         $view = $this->view($collection);
         $view->getContext()->setAttribute(UserClanNormalizer::DEPTH, $depth);
+
         return $this->handleView($view);
     }
 
     /**
-     * Gets Clans of User
+     * Gets Clans of User.
      *
      * @Rest\Get("/{uuid}/clans", requirements= {"uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
      * @ParamConverter("user", options={"mapping": {"uuid": "uuid"}})
-     *
      * @Rest\QueryParam(name="depth", requirements="\d+", allowBlank=false, default="1")
      */
     public function getMemberAction(User $user, ParamFetcher $fetcher)
     {
-        $result = array();
+        $result = [];
         foreach ($user->getClans() as $userClan) {
             $result[] = $userClan->getClan();
         }
         $view = $this->view($result, Response::HTTP_OK);
         $view->getContext()->setAttribute(UserClanNormalizer::DEPTH, intval($fetcher->get('depth')));
+
         return $this->handleView($view);
     }
 
@@ -374,8 +374,9 @@ class UserController extends AbstractFOSRestController
     {
         $clan_ids = $user->getClans()->map(function (UserClan $uc) { return $uc->getClan()->getUuid(); })->toArray();
         if (!in_array($clan->getUuid(), $clan_ids)) {
-            return $this->handleView($this->view(Error::withMessage("User not in clan"), Response::HTTP_NOT_FOUND));
+            return $this->handleView($this->view(Error::withMessage('User not in clan'), Response::HTTP_NOT_FOUND));
         }
-        return $this->redirectToRoute('app_rest_clan_getclan', ["uuid" => $clan->getUuid()]);
+
+        return $this->redirectToRoute('app_rest_clan_getclan', ['uuid' => $clan->getUuid()]);
     }
 }

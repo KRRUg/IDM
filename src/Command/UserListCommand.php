@@ -48,7 +48,7 @@ class UserListCommand extends Command
         } elseif ($input->getOption('email')) {
             $users = $this->userService->listUser('email', $input->getOption('email'), $disabled);
         } else {
-            $users = $this->userService->listUser(null, null , $disabled);
+            $users = $this->userService->listUser(null, null, $disabled);
         }
 
         if ($users) {

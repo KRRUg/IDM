@@ -12,15 +12,12 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 class UserClanNormalizer implements ContextAwareNormalizerInterface, ContextAwareDenormalizerInterface
 {
     /**
-     * Set to true to serialize just the UUID
+     * Set to true to serialize just the UUID.
      */
     public const DEPTH = 'depth';
 
     private ObjectNormalizer $on;
 
-    /**
-     * @param ObjectNormalizer $normalizer
-     */
     public function __construct(ObjectNormalizer $normalizer)
     {
         $this->on = $normalizer;
@@ -57,9 +54,11 @@ class UserClanNormalizer implements ContextAwareNormalizerInterface, ContextAwar
         foreach ($object->getUsers() as $userClan) {
             $user = $this->normalizeUser($userClan->getUser(), $depth - 1, $format, $context);
             $data['users'][] = $user;
-            if ($userClan->getAdmin())
+            if ($userClan->getAdmin()) {
                 $data['admins'][] = $user;
+            }
         }
+
         return $data;
     }
 
@@ -75,6 +74,7 @@ class UserClanNormalizer implements ContextAwareNormalizerInterface, ContextAwar
         foreach ($object->getClans() as $userClan) {
             $data['clans'][] = $this->normalizeClan($userClan->getClan(), $depth - 1, $format, $context);
         }
+
         return $data;
     }
 
@@ -85,6 +85,7 @@ class UserClanNormalizer implements ContextAwareNormalizerInterface, ContextAwar
         if (!array_key_exists(ObjectNormalizer::ALLOW_EXTRA_ATTRIBUTES, $context)) {
             $context[ObjectNormalizer::ALLOW_EXTRA_ATTRIBUTES] = true;
         }
+
         return $this->on->denormalize($data, $type, $format, $context);
     }
 

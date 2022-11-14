@@ -5,29 +5,25 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Ramsey\Uuid\Uuid;
-use Ramsey\Uuid\UuidInterface;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ClanRepository")
  * @ORM\Table(name="clan")
  * @ORM\HasLifecycleCallbacks
- *
  * @UniqueEntity(fields={"name"}, groups={"Default", "Unique"}, message="There is already a clan with this name")
  * @UniqueEntity(fields={"clantag"}, groups={"Default", "Unique"}, message="There is already a tag with this name")
  */
 class Clan
 {
+    use EntityIdTrait;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
     }
-
-    use EntityIdTrait;
 
     /**
      * @ORM\Column(type="string", length=64, unique=true)
@@ -113,7 +109,6 @@ class Clan
      * @Groups({"read", "write"})
      */
     private $description;
-
 
     public function getName(): ?string
     {
@@ -211,7 +206,8 @@ class Clan
      * @ORM\PrePersist()
      * @ORM\PreUpdate()
      */
-    public function updateModifiedDatetime() {
+    public function updateModifiedDatetime()
+    {
         // update the modified time and creation time
         $this->setModifiedAt(new \DateTime());
         if ($this->getCreatedAt() === null) {

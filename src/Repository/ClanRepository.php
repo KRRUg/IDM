@@ -6,8 +6,8 @@ use App\Entity\Clan;
 use App\Helper\QueryHelper;
 use App\Transfer\Bulk;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\Persistence\ManagerRegistry;
 use Ramsey\Uuid\Uuid;
 
 /**
@@ -50,11 +50,11 @@ class ClanRepository extends ServiceEntityRepository
     }
 
     /**
-     * Returns Clan objects. Search case insensitive.
+     * Returns Clan objects. Search case-insensitive.
      *
      * @param array
      *
-     * @return mixed Returns the list of found Clan objects.
+     * @return mixed returns the list of found Clan objects
      */
     public function findByCi(array $criteria)
     {
@@ -76,6 +76,7 @@ class ClanRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('c');
         $qb->andWhere('c.uuid in (:uuids)')->setParameter('uuids', $bulk->uuid);
         $query = $qb->getQuery();
+
         return $query->getResult();
     }
 
@@ -87,11 +88,11 @@ class ClanRepository extends ServiceEntityRepository
         $sort = $this->filterArray($sort, $fields, ['asc', 'desc']);
 
         $parameter = $exact ?
-            $this->makeLikeParam($filter, "%s") :
-            $this->makeLikeParam($filter, "%%%s%%");
+            $this->makeLikeParam($filter, '%s') :
+            $this->makeLikeParam($filter, '%%%s%%');
 
         if (!empty($filter)) {
-            $op = $case ? "" : "LOWER";
+            $op = $case ? '' : 'LOWER';
             $qb->andWhere(
                 $qb->expr()->orX(
                     "{$op}(c.name) LIKE {$op}(:q) ESCAPE '!'",
@@ -120,7 +121,6 @@ class ClanRepository extends ServiceEntityRepository
         $metadata = $this->getEntityManager()->getClassMetadata(Clan::class);
         $fields = $metadata->getFieldNames();
 
-
         $filter = $this->filterArray($filter, $fields);
         $sort = $this->filterArray($sort, $fields, ['asc', 'desc']);
 
@@ -132,7 +132,7 @@ class ClanRepository extends ServiceEntityRepository
                         $criteria[] = "c.{$field} = :{$field}";
                         $parameter[$field] = $value == 'true' || $value == '1';
                     } else {
-                        $criteria[] = "0=1";
+                        $criteria[] = '0=1';
                     }
                     break;
                 case 'uuid':
@@ -140,13 +140,13 @@ class ClanRepository extends ServiceEntityRepository
                         $parameter[$field] = $value;
                         $criteria[] = "c.{$field} = :{$field}";
                     } else {
-                        $criteria[] = "0=1";
+                        $criteria[] = '0=1';
                     }
                     break;
                 case 'string':
                     $parameter[$field] = $exact ?
-                        $this->makeLikeParam($value, "%s") :
-                        $this->makeLikeParam($value, "%%%s%%");
+                        $this->makeLikeParam($value, '%s') :
+                        $this->makeLikeParam($value, '%%%s%%');
                     $criteria[] = $case ?
                         "c.{$field} LIKE :{$field} ESCAPE '!'" :
                         "LOWER(c.{$field}) LIKE LOWER(:{$field}) ESCAPE '!'";

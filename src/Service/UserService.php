@@ -22,8 +22,9 @@ class UserService
 
     public function listUser($searchParameter = null, $searchValue = null, $disabled = false)
     {
-        if ($disabled)
+        if ($disabled) {
             $this->em->getFilters()->disable('userFilter');
+        }
 
         if ('uuid' === $searchParameter) {
             $result = $this->userRepository->findBy(['uuid' => $searchValue]);
@@ -35,8 +36,9 @@ class UserService
             $result = $this->userRepository->findAll();
         }
 
-        if ($disabled)
+        if ($disabled) {
             $this->em->getFilters()->enable('userFilter');
+        }
 
         return $result;
     }
@@ -48,7 +50,7 @@ class UserService
         if (null !== $userdata['email']) {
             $user->setEmail($userdata['email']);
             $user->setEmailConfirmed(false);
-            //TODO: resend Confirmation Mail
+            // TODO: resend Confirmation Mail
         }
         if (null !== $userdata['confirmed']) {
             if ('true' === $userdata['confirmed'] || true === $userdata['confirmed']) {
@@ -237,7 +239,7 @@ class UserService
 
         $valid = $hasher->verify($user->getPassword(), $password);
         if ($valid && $hasher->needsRehash($user->getPassword())) {
-            //Rehash legacy Password if needed
+            // Rehash legacy Password if needed
             $user->setPassword($hasher->hash($password));
             $this->em->flush();
         }

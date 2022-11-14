@@ -19,3 +19,4 @@
 ###< symfony/phpunit-bridge ###
 
 /tools/
+.php-cs-fixer.cache

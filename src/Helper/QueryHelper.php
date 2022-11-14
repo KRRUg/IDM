@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Helper;
 
 trait QueryHelper
@@ -33,8 +32,9 @@ trait QueryHelper
      *
      * ->makeLikeParam('foo_bar') == "%foo!_bar%"
      *
-     * @param string $search Text to search for LIKE
+     * @param string $search  Text to search for LIKE
      * @param string $pattern sprintf-compatible substitution pattern
+     *
      * @return string
      */
     protected function makeLikeParam($search, $pattern = '%%%s%%')
@@ -60,19 +60,20 @@ trait QueryHelper
          *      glo_ves%pink  becomes  glo!_ves!%pink
          *
          * @param string $search
+         *
          * @return string
          */
         $sanitizeLikeValue = function ($search) {
             $escapeChar = '!';
 
             $escape = [
-                '\\' . $escapeChar, // Must escape the escape-character for regex
+                '\\'.$escapeChar, // Must escape the escape-character for regex
                 '\%',
                 '\_',
             ];
             $pattern = sprintf('/([%s])/', implode('', $escape));
 
-            return preg_replace($pattern, $escapeChar . '$0', $search);
+            return preg_replace($pattern, $escapeChar.'$0', $search);
         };
 
         return sprintf($pattern, $sanitizeLikeValue($search));
@@ -81,10 +82,9 @@ trait QueryHelper
     /**
      * Filters an array for allowed keys and values.
      *
-     * @param array $array The array to filter
-     * @param array $fields Allowed keys.
+     * @param array $array  The array to filter
+     * @param array $fields allowed keys
      * @param array $values Allowed values. If empty, all values are allowed.
-     * @return array
      */
     protected function filterArray(array $array, array $fields, array $values = []): array
     {

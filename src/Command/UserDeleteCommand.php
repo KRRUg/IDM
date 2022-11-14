@@ -37,7 +37,6 @@ class UserDeleteCommand extends Command
         $uuid = $input->getArgument('uuid');
         $user = $this->userService->getUser($uuid);
         if ($io->confirm("Would you like to delete the User \"{$user->getEmail()}\" ?", false)) {
-
             $deleted = $this->userService->deleteUser($uuid);
             if ($deleted) {
                 $io->success("Successfully deleted User \"{$user->getEmail()}\"");

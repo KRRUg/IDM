@@ -19,7 +19,7 @@ final class RequestBodyPopulateParamConverter implements ParamConverterInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function apply(Request $request, ParamConverter $configuration)
     {
@@ -34,6 +34,7 @@ final class RequestBodyPopulateParamConverter implements ParamConverterInterface
             $options['deserializationContext']['object_to_populate'] = $obj;
             $configuration->setOptions($options);
         }
+
         return $this->bodyParamConverter->apply($request, $configuration);
     }
 
@@ -46,7 +47,7 @@ final class RequestBodyPopulateParamConverter implements ParamConverterInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function supports(ParamConverter $configuration)
     {

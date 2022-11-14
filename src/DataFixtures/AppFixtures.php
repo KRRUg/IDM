@@ -2,14 +2,14 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\ApiUser;
 use App\Entity\Clan;
 use App\Entity\User;
-use App\Entity\ApiUser;
 use App\Entity\UserClan;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
-use Ramsey\Uuid\Uuid;
 use NumberToWords\NumberToWords;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\PasswordHasher\Hasher\SodiumPasswordHasher;
 
 class AppFixtures extends Fixture
@@ -26,7 +26,7 @@ class AppFixtures extends Fixture
             $user = new User();
             $user->setNickname('User '.$i);
             $user->setEmail('user'.$i.'@localhost.local');
-            $user->setFirstname("User");
+            $user->setFirstname('User');
             $user->setSurname(ucfirst($numberTransformer->toWords($i)));
             $user->setUuid(Uuid::fromInteger(strval($i)));
             $user->setStatus(1);
@@ -45,9 +45,9 @@ class AppFixtures extends Fixture
 
         $ghost = new User();
         $ghost->setUuid(Uuid::fromInteger(42));
-        $ghost->setNickname("DeletedUser");
-        $ghost->setFirstname("Deleted");
-        $ghost->setSurname("User");
+        $ghost->setNickname('DeletedUser');
+        $ghost->setFirstname('Deleted');
+        $ghost->setSurname('User');
         $ghost->setStatus(-1);
         $ghost->setEmail('ghost@localhost.local');
         $ghost->setPassword($hasher->hash('ghost'));
@@ -147,7 +147,6 @@ class AppFixtures extends Fixture
         $admin->setIsSuperadmin(true);
 
         $manager->persist($admin);
-
 
         // create one API-Key
         $apiuser = new ApiUser();

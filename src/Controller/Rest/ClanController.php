@@ -9,9 +9,9 @@ use App\Repository\ClanRepository;
 use App\Repository\UserRepository;
 use App\Serializer\UserClanNormalizer;
 use App\Service\ClanService;
+use App\Transfer\AuthObject;
 use App\Transfer\Bulk;
 use App\Transfer\Error;
-use App\Transfer\AuthObject;
 use App\Transfer\PaginationCollection;
 use App\Transfer\UuidObject;
 use App\Transfer\ValidationError;
@@ -19,11 +19,11 @@ use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Pagerfanta\Pagerfanta;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Swagger\Annotations as SWG;
-use Nelmio\ApiDocBundle\Annotation\Model;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
@@ -48,7 +48,7 @@ class ClanController extends AbstractFOSRestController
         ClanRepository $clanRepository,
         UserRepository $userRepository,
         PasswordHasherFactoryInterface $hasherFactory
-    ){
+    ) {
         $this->em = $entityManager;
         $this->clanService = $clanService;
         $this->clanRepository = $clanRepository;
@@ -58,11 +58,12 @@ class ClanController extends AbstractFOSRestController
 
     private function handleValidiationErrors(ConstraintViolationListInterface $errors)
     {
-        if (count($errors) == 0)
+        if (count($errors) == 0) {
             return null;
+        }
 
         $error = $errors[0];
-        if ($error->getConstraint() instanceof UniqueEntity){
+        if ($error->getConstraint() instanceof UniqueEntity) {
             return $this->view(ValidationError::withProperty($error->getPropertyPath(), 'UniqueEntity'), Response::HTTP_CONFLICT);
         } else {
             return $this->view(ValidationError::withProperty($error->getPropertyPath(), 'Assert'), Response::HTTP_BAD_REQUEST);
@@ -90,10 +91,8 @@ class ClanController extends AbstractFOSRestController
      *     format="uuid"
      * )
      * @SWG\Tag(name="Clan")
-     *
      * @Rest\Get("/{uuid}", requirements= {"uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
      * @ParamConverter("clan", options={"mapping": {"uuid": "uuid"}})
-     *
      * @Rest\QueryParam(name="depth", requirements="\d+", allowBlank=false, default="2")
      */
     public function getClanAction(Clan $clan, ParamFetcher $fetcher)
@@ -101,6 +100,7 @@ class ClanController extends AbstractFOSRestController
         $depth = intval($fetcher->get('depth'));
         $view = $this->view($clan);
         $view->getContext()->setAttribute(UserClanNormalizer::DEPTH, $depth);
+
         return $this->handleView($view);
     }
 
@@ -129,7 +129,6 @@ class ClanController extends AbstractFOSRestController
      *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Entity\Clan::class, groups={"write"}))
      * )
      * @SWG\Tag(name="Clan")
-     *
      * @Rest\Post("")
      * @ParamConverter("new", converter="fos_rest.request_body",
      *     options={
@@ -141,11 +140,12 @@ class ClanController extends AbstractFOSRestController
     {
         if (count($validationErrors) > 0) {
             $error = $validationErrors[0];
-            if ($error->getConstraint() instanceof UniqueEntity){
-                $view = $this->view(Error::withMessageAndDetail("There is already an object with the same unique values", $error), Response::HTTP_CONFLICT);
+            if ($error->getConstraint() instanceof UniqueEntity) {
+                $view = $this->view(Error::withMessageAndDetail('There is already an object with the same unique values', $error), Response::HTTP_CONFLICT);
             } else {
-                $view = $this->view(Error::withMessageAndDetail("Invalid JSON Body supplied, please check the Documentation", $error), Response::HTTP_BAD_REQUEST);
+                $view = $this->view(Error::withMessageAndDetail('Invalid JSON Body supplied, please check the Documentation', $error), Response::HTTP_BAD_REQUEST);
             }
+
             return $this->handleView($view);
         }
 
@@ -156,6 +156,7 @@ class ClanController extends AbstractFOSRestController
         $this->em->flush();
 
         $view = $this->view($new, Response::HTTP_CREATED);
+
         return $this->handleView($view);
     }
 
@@ -192,7 +193,6 @@ class ClanController extends AbstractFOSRestController
      *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Entity\Clan::class, groups={"write"}))
      * )
      * @SWG\Tag(name="Clan")
-     *
      * @Rest\Patch("/{uuid}", requirements= {"uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
      * @ParamConverter("clan", class="App\Entity\Clan")
      * @ParamConverter("update", converter="fos_rest.request_body",
@@ -232,6 +232,7 @@ class ClanController extends AbstractFOSRestController
         $this->em->flush();
 
         $view = $this->view(null, Response::HTTP_NO_CONTENT);
+
         return $this->handleView($view);
     }
 
@@ -267,12 +268,12 @@ class ClanController extends AbstractFOSRestController
             $qb = $this->clanRepository->findAllSimpleQueryBuilder($filter, $sort, $case, $exact);
         }
 
-        //set useOutputWalker to false otherwise we cannot Paginate Entities with INNER/LEFT Joins
+        // set useOutputWalker to false otherwise we cannot Paginate Entities with INNER/LEFT Joins
         $pager = new Pagerfanta(new QueryAdapter($qb, true, false));
         $pager->setMaxPerPage($limit);
         $pager->setCurrentPage($page);
 
-        $clans = array();
+        $clans = [];
         foreach ($pager->getCurrentPageResults() as $clan) {
             $clans[] = $clan;
         }
@@ -284,6 +285,7 @@ class ClanController extends AbstractFOSRestController
 
         $view = $this->view($collection);
         $view->getContext()->setAttribute(UserClanNormalizer::DEPTH, $depth);
+
         return $this->handleView($view);
     }
 
@@ -303,6 +305,7 @@ class ClanController extends AbstractFOSRestController
         $user = $this->userRepository->findOneBy(['uuid' => $user_uuid->uuid]);
         if (empty($user)) {
             $view = $this->view(Error::withMessage('User not found'), Response::HTTP_NOT_FOUND);
+
             return $this->handleView($view);
         }
 
@@ -311,6 +314,7 @@ class ClanController extends AbstractFOSRestController
         } else {
             $view = $this->view(Error::withMessage('User already member'), Response::HTTP_OK);
         }
+
         return $this->handleView($view);
     }
 
@@ -330,6 +334,7 @@ class ClanController extends AbstractFOSRestController
         $user = $this->userRepository->findOneBy(['uuid' => $user_uuid->uuid]);
         if (empty($user)) {
             $view = $this->view(Error::withMessage('User not found'), Response::HTTP_NOT_FOUND);
+
             return $this->handleView($view);
         }
 
@@ -338,47 +343,49 @@ class ClanController extends AbstractFOSRestController
         } else {
             $view = $this->view(Error::withMessage('User already admin'), Response::HTTP_OK);
         }
+
         return $this->handleView($view);
     }
 
     /**
-     * Gets Users of Clan
+     * Gets Users of Clan.
      *
      * @Rest\Get("/{uuid}/users", requirements= {"uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
      * @ParamConverter("clan", options={"mapping": {"uuid": "uuid"}})
-     *
      * @Rest\QueryParam(name="depth", requirements="\d+", allowBlank=false, default="1")
      */
     public function getMemberAction(Clan $clan, ParamFetcher $fetcher)
     {
-        $result = array();
+        $result = [];
         foreach ($clan->getUsers() as $userClan) {
             $result[] = $userClan->getUser();
         }
 
         $view = $this->view($result, Response::HTTP_OK);
         $view->getContext()->setAttribute(UserClanNormalizer::DEPTH, intval($fetcher->get('depth')));
+
         return $this->handleView($view);
     }
 
     /**
-     * Gets Users of Clan
+     * Gets Users of Clan.
      *
      * @Rest\Get("/{uuid}/admins", requirements= {"uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
      * @ParamConverter("clan", options={"mapping": {"uuid": "uuid"}})
-     *
      * @Rest\QueryParam(name="depth", requirements="\d+", allowBlank=false, default="1")
      */
     public function getAdminAction(Clan $clan, ParamFetcher $fetcher)
     {
-        $result = array();
+        $result = [];
         foreach ($clan->getUsers() as $userClan) {
-            if ($userClan->getAdmin())
+            if ($userClan->getAdmin()) {
                 $result[] = $userClan->getUser();
+            }
         }
 
         $view = $this->view($result, Response::HTTP_OK);
         $view->getContext()->setAttribute(UserClanNormalizer::DEPTH, intval($fetcher->get('depth')));
+
         return $this->handleView($view);
     }
 
@@ -399,6 +406,7 @@ class ClanController extends AbstractFOSRestController
         } else {
             $view = $this->view(Error::withMessage('User not member'), Response::HTTP_NOT_FOUND);
         }
+
         return $this->handleView($view);
     }
 
@@ -419,6 +427,7 @@ class ClanController extends AbstractFOSRestController
         } else {
             $view = $this->view(Error::withMessage('User not admin'), Response::HTTP_NOT_FOUND);
         }
+
         return $this->handleView($view);
     }
 
@@ -438,9 +447,10 @@ class ClanController extends AbstractFOSRestController
             ->map(function (UserClan $uc) { return $uc->getUser()->getUuid(); })
             ->toArray();
         if (!in_array($user->getUuid(), $user_ids)) {
-            return $this->handleView($this->view(Error::withMessage("User not in clan"), Response::HTTP_NOT_FOUND));
+            return $this->handleView($this->view(Error::withMessage('User not in clan'), Response::HTTP_NOT_FOUND));
         }
-        return $this->redirectToRoute('app_rest_user_getuser', ["uuid" => $user->getUuid()]);
+
+        return $this->redirectToRoute('app_rest_user_getuser', ['uuid' => $user->getUuid()]);
     }
 
     /**
@@ -460,15 +470,13 @@ class ClanController extends AbstractFOSRestController
             ->map(function (UserClan $uc) { return $uc->getUser()->getUuid(); })
             ->toArray();
         if (!in_array($user->getUuid(), $user_ids)) {
-            return $this->handleView($this->view(Error::withMessage("User not admin of clan"), Response::HTTP_NOT_FOUND));
+            return $this->handleView($this->view(Error::withMessage('User not admin of clan'), Response::HTTP_NOT_FOUND));
         }
-        return $this->redirectToRoute('app_rest_user_getuser', ["uuid" => $user->getUuid()]);
+
+        return $this->redirectToRoute('app_rest_user_getuser', ['uuid' => $user->getUuid()]);
     }
 
     /**
-     * @param Clan $clan
-     * @param User $user
-     * @param bool $admin
      * @return bool True if user was joined, false otherwise
      */
     private function UserJoin(Clan $clan, User $user, bool $admin = false): bool
@@ -490,8 +498,6 @@ class ClanController extends AbstractFOSRestController
     }
 
     /**
-     * @param Clan $clan
-     * @param User $user
      * @return bool True if user was removed, false otherwise
      */
     private function UserLeave(Clan $clan, User $user): bool
@@ -500,35 +506,37 @@ class ClanController extends AbstractFOSRestController
             if ($userClan->getUser() === $user) {
                 $this->em->remove($userClan);
                 $this->em->flush();
+
                 return true;
             }
         }
+
         return false;
     }
 
     /**
-     * @param Clan $clan
-     * @param User $user
-     * @param bool $admin
      * @return bool True if user is member and status was changed, false otherwise
      */
     private function UserSetAdmin(Clan $clan, User $user, bool $admin): bool
     {
         foreach ($clan->getUsers() as $userClan) {
             if ($userClan->getUser() === $user) {
-                if ($admin === $userClan->getAdmin())
+                if ($admin === $userClan->getAdmin()) {
                     return false;
+                }
                 $userClan->setAdmin($admin);
                 $this->em->persist($userClan);
                 $this->em->flush();
+
                 return true;
             }
         }
+
         return false;
     }
 
     /**
-     * Checks if the Clan credentials are correct
+     * Checks if the Clan credentials are correct.
      *
      * Checks Username/Password against the Database and returns the user if credentials are valid
      *
@@ -550,7 +558,6 @@ class ClanController extends AbstractFOSRestController
      *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Transfer\AuthObject::class))
      * )
      * @SWG\Tag(name="Authorization")
-     *
      * @Rest\Post("/authorize")
      * @ParamConverter("auth", converter="fos_rest.request_body", options={"deserializationContext": {"allow_extra_attributes": false}})
      */
@@ -560,7 +567,7 @@ class ClanController extends AbstractFOSRestController
             return $this->handleView($view);
         }
 
-        //Check if User can login
+        // Check if User can login
         $clan = $this->clanService->checkCredentials($auth->name, $auth->secret);
 
         if ($clan) {
@@ -573,7 +580,7 @@ class ClanController extends AbstractFOSRestController
     }
 
     /**
-     * Requests multiple clans by their uuids
+     * Requests multiple clans by their uuids.
      *
      * Post a Bulk Request object to get a response object.
      *
@@ -594,7 +601,6 @@ class ClanController extends AbstractFOSRestController
      *     format="application/json",
      *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Transfer\Bulk::class))
      * )
-     *
      * @Rest\Post("/bulk")
      * @ParamConverter("bulk", converter="fos_rest.request_body", options={"deserializationContext": {"allow_extra_attributes": false}})
      */
@@ -605,6 +611,7 @@ class ClanController extends AbstractFOSRestController
         }
 
         $data = $this->clanRepository->findByBulk($bulk);
+
         return $this->handleView($this->view($data));
     }
 }

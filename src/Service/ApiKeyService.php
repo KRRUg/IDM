@@ -30,7 +30,6 @@ class ApiKeyService
 
     public function createApiKey(string $name, string $apikey)
     {
-
         $apiuser = new ApiUser();
         $apiuser->setApiToken($apikey);
         $apiuser->setName($name);

@@ -49,7 +49,8 @@ trait EntityIdTrait
     /**
      * @ORM\PrePersist()
      */
-    public function generateUuid() {
+    public function generateUuid()
+    {
         if ($this->getUuid() === null) {
             $this->setUuid(Uuid::uuid4());
         }

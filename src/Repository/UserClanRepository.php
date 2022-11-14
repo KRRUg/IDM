@@ -4,8 +4,8 @@ namespace App\Repository;
 
 use App\Entity\UserClan;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method UserClan|null find($id, $lockMode = null, $lockVersion = null)

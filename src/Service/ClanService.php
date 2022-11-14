@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Service;
 
 use App\Entity\Clan;
@@ -37,7 +36,7 @@ class ClanService
 
         $valid = $hasher->verify($clan->getJoinPassword(), $password);
         if ($hasher->needsRehash($clan->getJoinPassword())) {
-            //Rehash legacy Password if needed
+            // Rehash legacy Password if needed
             $clan->setJoinPassword($hasher->hash($password));
             $this->em->flush();
         }

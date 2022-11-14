@@ -65,6 +65,5 @@ class UserEditCommand extends Command
         }
 
         return (int) Command::SUCCESS;
-
-        }
+    }
 }

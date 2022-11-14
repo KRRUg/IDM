@@ -17,7 +17,7 @@ class UserFilter extends SQLFilter
             case UserClan::class:
                 return "(SELECT min(gamer.status) FROM gamer WHERE gamer.id = {$targetTableAlias}.user_id) >= 0";
             default:
-                return "";
+                return '';
         }
     }
 }
