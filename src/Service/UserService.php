@@ -90,7 +90,7 @@ class UserService
             $user->setGender($userdata['gender']);
         }
         if (null !== $userdata['birthdate']) {
-            $user->setGender(new \DateTime($userdata['birthdate']));
+            $user->setBirthdate(new \DateTime($userdata['birthdate']));
         }
         if (null !== $userdata['infoMails']) {
             if ('true' === $userdata['infoMails'] || true === $userdata['infoMails']) {
