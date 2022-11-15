@@ -23,7 +23,7 @@ use Nelmio\ApiDocBundle\Annotation\Model;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Pagerfanta\Pagerfanta;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Swagger\Annotations as SWG;
+use OpenApi\Annotations as OA;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -57,24 +57,23 @@ class UserController extends AbstractFOSRestController
     /**
      * Gets a User object.
      *
-     * @SWG\Response(
+     * @OA\Response(
      *     response=200,
      *     description="Returns the User",
-     *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Entity\User::class, groups={"read"}))
+     *     @OA\Schema(type="object", ref=@Model(type=\App\Entity\User::class, groups={"read"}))
      * )
-     * @SWG\Response(
+     * @OA\Response(
      *     response=404,
      *     description="Returns if the user does not exitst"
      * )
-     * @SWG\Parameter(
+     * @OA\Parameter(
      *     name="uuid",
-     *     type="string",
      *     in="path",
      *     description="the UUID of the user to query",
      *     required=true,
-     *     format="uuid"
+     *     @OA\Schema(type="string", format="uuid")
      * )
-     * @SWG\Tag(name="User")
+     * @OA\Tag(name="User")
      */
     #[Rest\Get('/{uuid}', requirements: ['uuid' => '([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})'])]
     #[Rest\QueryParam(name: 'depth', requirements: '\d+', default: 2, allowBlank: false)]
@@ -91,36 +90,31 @@ class UserController extends AbstractFOSRestController
     /**
      * Edits a User.
      *
-     * @SWG\Response(
+     * @OA\Response(
      *     response=200,
      *     description="The edited user",
-     *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Entity\User::class, groups={"read"}))
+     *     @OA\Schema(type="object", ref=@Model(type=\App\Entity\User::class, groups={"read"}))
      * )
-     * @SWG\Response(
+     * @OA\Response(
      *     response=404,
      *     description="Returns if the user does not exitst"
      * )
-     * @SWG\Response(
+     * @OA\Response(
      *     response=400,
      *     description="Returns if the body was invalid"
      * )
-     * @SWG\Parameter(
+     * @OA\Parameter(
      *     name="uuid",
-     *     type="string",
      *     in="path",
      *     description="the UUID of the user to modify",
      *     required=true,
-     *     format="uuid"
-     * )
-     * @SWG\Parameter(
-     *     name="body",
-     *     in="body",
+     *     @OA\Schema(type="string", format="uuid")     * )
+     * @OA\RequestBody(
      *     description="the updated user field as JSON",
      *     required=true,
-     *     format="application/json",
-     *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Entity\User::class, groups={"write"}))
+     *     @OA\Schema(type="object", format="application/json", ref=@Model(type=\App\Entity\User::class, groups={"write"}))
      * )
-     * @SWG\Tag(name="User")
+     * @OA\Tag(name="User")
      */
     #[Rest\Patch('/{uuid}', requirements: ['uuid' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'])]
     #[ParamConverter('user', class: 'App\Entity\User')]
@@ -146,24 +140,21 @@ class UserController extends AbstractFOSRestController
     /**
      * Creates a User.
      *
-     * @SWG\Response(
+     * @OA\Response(
      *     response=201,
      *     description="The created user",
-     *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Entity\User::class, groups={"read"}))
+     *     @OA\Schema(type="object", ref=@Model(type=\App\Entity\User::class, groups={"read"}))
      * )
-     * @SWG\Response(
+     * @OA\Response(
      *     response=400,
      *     description="Returns if the body was invalid"
      * )
-     * @SWG\Parameter(
-     *     name="body",
-     *     in="body",
+     * @OA\RequestBody(
      *     description="the updated user field as JSON",
      *     required=true,
-     *     format="application/json",
-     *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Entity\User::class, groups={"write"}))
+     *     @OA\Schema(type="object", format="application/json", ref=@Model(type=\App\Entity\User::class, groups={"write"}))
      * )
-     * @SWG\Tag(name="User")
+     * @OA\Tag(name="User")
      */
     #[Rest\Post('')]
     #[ParamConverter('new', options: ['deserializationContext' => ['allow_extra_attributes' => false], 'validator' => ['groups' => ['Transfer', 'Create', 'Unique']]], converter: 'fos_rest.request_body')]
@@ -212,24 +203,21 @@ class UserController extends AbstractFOSRestController
      *
      * Checks Username/Password against the Database and returns the user if credentials are valid
      *
-     * @SWG\Response(
+     * @OA\Response(
      *     response=200,
      *     description="Returns the User",
-     *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Entity\User::class, groups={"read"}))
+     *     @OA\Schema(type="object", ref=@Model(type=\App\Entity\User::class, groups={"read"}))
      * )
-     * @SWG\Response(
+     * @OA\Response(
      *     response=404,
      *     description="Returns if no EMail and/or Password could be found"
      * )
-     * @SWG\Parameter(
-     *     name="body",
-     *     in="body",
+     * @OA\RequestBody(
      *     description="credentials as JSON",
      *     required=true,
-     *     format="application/json",
-     *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Transfer\AuthObject::class))
+     *     @OA\Schema(type="object", format="application/json", ref=@Model(type=\App\Transfer\AuthObject::class))
      * )
-     * @SWG\Tag(name="Authorization")
+     * @OA\Tag(name="Authorization")
      */
     #[Rest\Post('/authorize')]
     #[ParamConverter('auth', options: ['deserializationContext' => ['allow_extra_attributes' => false]], converter: 'fos_rest.request_body')]

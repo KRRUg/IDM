@@ -4,12 +4,13 @@ nelmio_api_doc:
             title: KRRU IDM API
             description: KRRU Lan Management System IDM API
             version: 0.9.1
-        securityDefinitions:
-            apiKey:
-                type: apiKey
-                description: 'Value: {apiKey}'
-                name: X-API-KEY
-                in: header
+        components:
+            securitySchemes:
+                apiKey:
+                    type: apiKey
+                    description: 'Value: {apiKey}'
+                    name: X-API-KEY
+                    in: header
         security:
             - apiKey: []
     areas: # to filter documented areas

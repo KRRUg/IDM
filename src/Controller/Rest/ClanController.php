@@ -24,7 +24,7 @@ use Nelmio\ApiDocBundle\Annotation\Model;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Pagerfanta\Pagerfanta;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Swagger\Annotations as SWG;
+use OpenApi\Annotations as OA;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -58,24 +58,23 @@ class ClanController extends AbstractFOSRestController
     /**
      * Returns a single Clan object.
      *
-     * @SWG\Response(
+     * @OA\Response(
      *     response=200,
      *     description="Returns the Clan",
-     *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Entity\Clan::class, groups={"read"}))
+     *     @OA\Schema(type="object", ref=@Model(type=\App\Entity\Clan::class, groups={"read"}))
      * )
-     * @SWG\Response(
+     * @OA\Response(
      *     response=404,
      *     description="Returns if the clan does not exitst"
      * )
-     * @SWG\Parameter(
+     * @OA\Parameter(
      *     name="uuid",
-     *     type="string",
      *     in="path",
      *     description="the UUID of the clan to query",
      *     required=true,
-     *     format="uuid"
+     *     @OA\Schema(type="string", format="uuid")
      * )
-     * @SWG\Tag(name="Clan")
+     * @OA\Tag(name="Clan")
      */
     #[Rest\Get('/{uuid}', requirements: ['uuid' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'])]
     #[Rest\QueryParam(name: 'depth', requirements: '\d+', default: 2, allowBlank: false)]
@@ -92,28 +91,24 @@ class ClanController extends AbstractFOSRestController
     /**
      * Creates a Clan.
      *
-     * @SWG\Response(
+     * @OA\Response(
      *     response=201,
      *     description="The edited clan",
-     *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Entity\Clan::class, groups={"read"}))
      * )
-     * @SWG\Response(
+     * @OA\Response(
      *     response=400,
      *     description="Returns if the body was invalid"
      * )
-     * @SWG\Response(
+     * @OA\Response(
      *     response=409,
      *     description="Returns if the body was invalid"
      * )
-     * @SWG\Parameter(
-     *     name="body",
-     *     in="body",
+     * @OA\RequestBody(
      *     description="the updated clan field as JSON",
      *     required=true,
-     *     format="application/json",
-     *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Entity\Clan::class, groups={"write"}))
+     *     @OA\Schema(type="object", format="application/json", ref=@Model(type=\App\Entity\Clan::class, groups={"write"}))
      * )
-     * @SWG\Tag(name="Clan")
+     * @OA\Tag(name="Clan")
      */
     #[Rest\Post('')]
     #[ParamConverter('new', options: ['deserializationContext' => ['allow_extra_attributes' => false], 'validator' => ['groups' => ['Transfer', 'Create', 'Unique']]], converter: 'fos_rest.request_body')]
@@ -144,36 +139,32 @@ class ClanController extends AbstractFOSRestController
     /**
      * Edits a clan.
      *
-     * @SWG\Response(
+     * @OA\Response(
      *     response=200,
      *     description="The edited clan",
-     *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Entity\Clan::class, groups={"read"}))
+     *     @OA\Schema(type="object", ref=@Model(type=\App\Entity\Clan::class, groups={"read"}))
      * )
-     * @SWG\Response(
+     * @OA\Response(
      *     response=404,
      *     description="Returns if the clan does not exitst"
      * )
-     * @SWG\Response(
+     * @OA\Response(
      *     response=400,
      *     description="Returns if the body was invalid"
      * )
-     * @SWG\Parameter(
+     * @OA\Parameter(
      *     name="uuid",
-     *     type="string",
      *     in="path",
      *     description="the UUID of the clan to modify",
      *     required=true,
-     *     format="uuid"
+     *     @OA\Schema(type="string", format="uuid")
      * )
-     * @SWG\Parameter(
-     *     name="body",
-     *     in="body",
+     * @OA\RequestBody(
      *     description="the updated clan field as JSON",
      *     required=true,
-     *     format="application/json",
-     *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Entity\Clan::class, groups={"write"}))
+     *     @OA\Schema(type="object", format="application/json", ref=@Model(type=\App\Entity\Clan::class, groups={"write"}))
      * )
-     * @SWG\Tag(name="Clan")
+     * @OA\Tag(name="Clan")
      */
     #[Rest\Patch('/{uuid}', requirements: ['uuid' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'])]
     #[ParamConverter('clan', class: 'App\Entity\Clan')]
@@ -494,24 +485,21 @@ class ClanController extends AbstractFOSRestController
      *
      * Checks Username/Password against the Database and returns the user if credentials are valid
      *
-     * @SWG\Response(
+     * @OA\Response(
      *     response=200,
      *     description="Returns the Clan",
-     *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Entity\Clan::class, groups={"read"}))
+     *     @OA\Schema(type="object", ref=@Model(type=\App\Entity\Clan::class, groups={"read"}))
      * )
-     * @SWG\Response(
+     * @OA\Response(
      *     response=404,
      *     description="Returns if no Name and/or Password could be found"
      * )
-     * @SWG\Parameter(
-     *     name="body",
-     *     in="body",
+     * @OA\RequestBody(
      *     description="credentials as JSON",
      *     required=true,
-     *     format="application/json",
-     *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Transfer\AuthObject::class))
+     *     @OA\Schema(type="object", format="application/json", ref=@Model(type=\App\Transfer\AuthObject::class))
      * )
-     * @SWG\Tag(name="Authorization")
+     * @OA\Tag(name="Authorization")
      */
     #[Rest\Post('/authorize')]
     #[ParamConverter('auth', options: ['deserializationContext' => ['allow_extra_attributes' => false]], converter: 'fos_rest.request_body')]
@@ -538,22 +526,19 @@ class ClanController extends AbstractFOSRestController
      *
      * Post a Bulk Request object to get a response object.
      *
-     * @SWG\Response(
+     * @OA\Response(
      *     response=200,
      *     description="Returns the requested Clans",
-     *     schema=@SWG\Schema(type="array", ref=@Model(type=\App\Entity\Clan::class, groups={"read"}))
+     *     @OA\Schema(type="array", ref=@Model(type=\App\Entity\Clan::class, groups={"read"}))
      * )
-     * @SWG\Response(
+     * @OA\Response(
      *     response=400,
      *     description="Returns the request was malformated"
      * )
-     * @SWG\Parameter(
-     *     name="body",
-     *     in="body",
+     * @OA\RequestBody(
      *     description="JSON array of clan UUIDs",
      *     required=true,
-     *     format="application/json",
-     *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Transfer\Bulk::class))
+     *     @OA\Schema(type="object", format="application/json", ref=@Model(type=\App\Transfer\Bulk::class))
      * )
      */
     #[Rest\Post('/bulk')]
