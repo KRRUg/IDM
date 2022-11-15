@@ -363,7 +363,7 @@ class UserController extends AbstractFOSRestController
      */
     public function getClanOfMemberAction(User $user, Clan $clan)
     {
-        $clan_ids = $user->getClans()->map(fn(UserClan $uc) => $uc->getClan()->getUuid())->toArray();
+        $clan_ids = $user->getClans()->map(fn (UserClan $uc) => $uc->getClan()->getUuid())->toArray();
         if (!in_array($clan->getUuid(), $clan_ids)) {
             return $this->handleView($this->view(Error::withMessage('User not in clan'), Response::HTTP_NOT_FOUND));
         }

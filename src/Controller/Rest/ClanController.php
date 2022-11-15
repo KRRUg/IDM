@@ -428,7 +428,7 @@ class ClanController extends AbstractFOSRestController
     public function getMemberOfClanAction(Clan $clan, User $user)
     {
         $user_ids = $clan->getUsers()
-            ->map(fn(UserClan $uc) => $uc->getUser()->getUuid())
+            ->map(fn (UserClan $uc) => $uc->getUser()->getUuid())
             ->toArray();
         if (!in_array($user->getUuid(), $user_ids)) {
             return $this->handleView($this->view(Error::withMessage('User not in clan'), Response::HTTP_NOT_FOUND));
@@ -450,8 +450,8 @@ class ClanController extends AbstractFOSRestController
     public function getAdminOfClanAction(Clan $clan, User $user)
     {
         $user_ids = $clan->getUsers()
-            ->filter(fn(UserClan $uc) => $uc->getAdmin())
-            ->map(fn(UserClan $uc) => $uc->getUser()->getUuid())
+            ->filter(fn (UserClan $uc) => $uc->getAdmin())
+            ->map(fn (UserClan $uc) => $uc->getUser()->getUuid())
             ->toArray();
         if (!in_array($user->getUuid(), $user_ids)) {
             return $this->handleView($this->view(Error::withMessage('User not admin of clan'), Response::HTTP_NOT_FOUND));

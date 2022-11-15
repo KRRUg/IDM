@@ -90,7 +90,7 @@ trait QueryHelper
     {
         return array_filter(
             $array,
-            fn($value, $key) => array_search($key, $fields) !== false
+            fn ($value, $key) => array_search($key, $fields) !== false
             && (empty($values) || array_search($value, $values) !== false),
             ARRAY_FILTER_USE_BOTH
         );
