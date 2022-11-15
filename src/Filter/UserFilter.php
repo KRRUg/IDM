@@ -9,7 +9,7 @@ use Doctrine\ORM\Query\Filter\SQLFilter;
 
 class UserFilter extends SQLFilter
 {
-    public function addFilterConstraint(ClassMetadata $targetEntity, $targetTableAlias)
+    public function addFilterConstraint(ClassMetadata $targetEntity, $targetTableAlias): string
     {
         switch ($targetEntity->getReflectionClass()->getName()) {
             case User::class:

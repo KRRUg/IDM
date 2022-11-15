@@ -89,13 +89,13 @@ class UserClanNormalizer implements ContextAwareNormalizerInterface, ContextAwar
         return $this->on->denormalize($data, $type, $format, $context);
     }
 
-    public function supportsNormalization($data, $format = null, array $context = [])
+    public function supportsNormalization($data, $format = null, array $context = []): bool
     {
         return $data instanceof User
             || $data instanceof Clan;
     }
 
-    public function supportsDenormalization($data, $type, $format = null, array $context = [])
+    public function supportsDenormalization($data, $type, $format = null, array $context = []): bool
     {
         return is_a($type, User::class, true)
             || is_a($type, Clan::class, true);

@@ -39,7 +39,7 @@ final class UuidNormalizer implements NormalizerInterface, DenormalizerInterface
     /**
      * {@inheritdoc}
      */
-    public function supportsNormalization($data, $format = null)
+    public function supportsNormalization($data, $format = null): bool
     {
         return $data instanceof UuidInterface;
     }
@@ -47,12 +47,12 @@ final class UuidNormalizer implements NormalizerInterface, DenormalizerInterface
     /**
      * {@inheritdoc}
      */
-    public function supportsDenormalization($data, $type, $format = null)
+    public function supportsDenormalization($data, $type, $format = null): bool
     {
         return Uuid::class === $type || UuidInterface::class === $type;
     }
 
-    private function isValid($data)
+    private function isValid($data): bool
     {
         return $data === null || (is_string($data) && Uuid::isValid($data));
     }

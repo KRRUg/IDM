@@ -21,7 +21,7 @@ final class RequestBodyPopulateParamConverter implements ParamConverterInterface
     /**
      * {@inheritDoc}
      */
-    public function apply(Request $request, ParamConverter $configuration)
+    public function apply(Request $request, ParamConverter $configuration): bool
     {
         $options = (array) $configuration->getOptions();
 
@@ -38,10 +38,10 @@ final class RequestBodyPopulateParamConverter implements ParamConverterInterface
         return $this->bodyParamConverter->apply($request, $configuration);
     }
 
-    private function throwException(\Exception $exception, ParamConverter $configuration): bool
+    private function throwException(\Exception $exception, ParamConverter $configuration): void
     {
         if ($configuration->isOptional()) {
-            return false;
+            return;
         }
         throw $exception;
     }
@@ -49,7 +49,7 @@ final class RequestBodyPopulateParamConverter implements ParamConverterInterface
     /**
      * {@inheritDoc}
      */
-    public function supports(ParamConverter $configuration)
+    public function supports(ParamConverter $configuration): bool
     {
         return $this->bodyParamConverter->supports($configuration);
     }
