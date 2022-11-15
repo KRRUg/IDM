@@ -2,7 +2,9 @@
 
 namespace App\Helper;
 
+use Exception;
 use FOS\RestBundle\Request\RequestBodyParamConverter;
+use InvalidArgumentException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Request\ParamConverter\ParamConverterInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,7 +28,7 @@ final class RequestBodyPopulateParamConverter implements ParamConverterInterface
             $attribute = $options['attribute_to_populate'];
             $obj = $request->attributes->get($attribute);
             if (!is_object($obj)) {
-                $this->throwException(new \InvalidArgumentException("Argument {$attribute} was not found. Forgot to call other ParamConverter first?"), $configuration);
+                $this->throwException(new InvalidArgumentException("Argument {$attribute} was not found. Forgot to call other ParamConverter first?"), $configuration);
             }
             $options['deserializationContext']['object_to_populate'] = $obj;
             $configuration->setOptions($options);
@@ -35,7 +37,7 @@ final class RequestBodyPopulateParamConverter implements ParamConverterInterface
         return $this->bodyParamConverter->apply($request, $configuration);
     }
 
-    private function throwException(\Exception $exception, ParamConverter $configuration): void
+    private function throwException(Exception $exception, ParamConverter $configuration): void
     {
         if ($configuration->isOptional()) {
             return;

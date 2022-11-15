@@ -4,9 +4,9 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
+#[ORM\Entity]
 #[ORM\Table(name: 'gamer_clan')]
 #[ORM\UniqueConstraint(name: 'user_clan_unique', columns: ['user_id', 'clan_id'])]
-#[ORM\Entity]
 class UserClan
 {
     public function __construct()
@@ -17,17 +17,17 @@ class UserClan
     }
 
     #[ORM\Id]
-    #[ORM\ManyToOne(targetEntity: 'App\Entity\User', inversedBy: 'clans')]
-    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE', name: 'user_id')]
-    private $user;
+    #[ORM\ManyToOne(inversedBy: 'clans')]
+    #[ORM\JoinColumn(name: 'user_id', nullable: false, onDelete: 'CASCADE')]
+    private ?User $user = null;
 
     #[ORM\Id]
-    #[ORM\ManyToOne(targetEntity: 'App\Entity\Clan', inversedBy: 'users')]
-    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE', name: 'clan_id')]
-    private $clan;
+    #[ORM\ManyToOne(inversedBy: 'users')]
+    #[ORM\JoinColumn(name: 'clan_id', nullable: false, onDelete: 'CASCADE')]
+    private ?Clan $clan = null;
 
     #[ORM\Column(type: 'boolean')]
-    private $admin;
+    private ?bool $admin = false;
 
     /**
      * @return mixed

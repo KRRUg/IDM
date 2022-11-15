@@ -4,6 +4,7 @@ namespace App\Serializer;
 
 use App\Entity\Clan;
 use App\Entity\User;
+use ArrayObject;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Normalizer\ContextAwareDenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\ContextAwareNormalizerInterface;
@@ -20,7 +21,7 @@ class UserClanNormalizer implements ContextAwareNormalizerInterface, ContextAwar
     {
     }
 
-    public function normalize($object, $format = null, array $context = []): array|string|int|float|bool|\ArrayObject|null
+    public function normalize($object, $format = null, array $context = []): array|string|int|float|bool|ArrayObject|null
     {
         $depth = array_key_exists(self::DEPTH, $context) && is_int($context[self::DEPTH]) ? intval($context[self::DEPTH]) : 1;
         $depth = $depth < 0 ? 0 : $depth;

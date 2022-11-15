@@ -8,4 +8,5 @@ $config = new PhpCsFixer\Config();
 return $config->setRules([
     '@Symfony' => true,
     'yoda_style' => false,
+    'global_namespace_import' => true,
 ])->setFinder($finder);

@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use DateTime;
+use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -9,11 +11,11 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
-#[ORM\Table(name: 'gamer')]
 #[ORM\Entity(repositoryClass: 'App\Repository\UserRepository')]
+#[ORM\Table(name: 'gamer')]
 #[ORM\HasLifecycleCallbacks]
-#[UniqueEntity(fields: ['email'], groups: ['Default', 'Unique'], repositoryMethod: 'findByCi', message: 'There is already an account with this email')]
-#[UniqueEntity(fields: ['nickname'], groups: ['Default', 'Unique'], message: 'There is already an account with this nickname')]
+#[UniqueEntity(fields: ['email'], message: 'There is already an account with this email', repositoryMethod: 'findByCi', groups: ['Default', 'Unique'])]
+#[UniqueEntity(fields: ['nickname'], message: 'There is already an account with this nickname', groups: ['Default', 'Unique'])]
 class User
 {
     use EntityIdTrait;
@@ -28,7 +30,7 @@ class User
     #[Assert\NotBlank(groups: ['Default', 'Create'])]
     #[Assert\Email(groups: ['Default', 'Transfer', 'Create'])]
     #[Groups(['read', 'write'])]
-    private $email;
+    private ?string $email = null;
 
     #[ORM\Column(type: 'boolean')]
     #[Groups(['read', 'write'])]
@@ -39,7 +41,7 @@ class User
     private ?bool $infoMails = false;
 
     /**
-     * @var string The hashed password
+     * @var ?string The hashed password
      */
     #[ORM\Column(type: 'string')]
     #[Assert\Length(min: 6, max: 128, minMessage: 'The password must be at least {{ limit }} characters long', maxMessage: 'The password cannot be longer than {{ limit }} characters', groups: ['Transfer', 'Create'])]
@@ -51,25 +53,25 @@ class User
     #[Assert\NotBlank(groups: ['Default', 'Create'])]
     #[Assert\Length(min: 1, max: 64, minMessage: 'The nickname must be at least {{ limit }} characters long', maxMessage: 'The nickname cannot be longer than {{ limit }} characters', groups: ['Default', 'Transfer', 'Create'])]
     #[Groups(['read', 'write'])]
-    private $nickname;
+    private ?string $nickname = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     #[Groups(['read', 'write'])]
-    private $firstname;
+    private ?string $firstname = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     #[Groups(['read', 'write'])]
-    private $surname;
+    private ?string $surname = null;
 
     #[ORM\Column(type: 'date', nullable: true)]
     #[Assert\Date(groups: ['Default', 'Transfer'])]
     #[Groups(['read', 'write'])]
-    private $birthdate;
+    private ?DateTimeInterface $birthdate = null;
 
     #[ORM\Column(type: 'string', length: 1, nullable: true)]
     #[Assert\Choice(['m', 'f', 'x'], groups: ['Default', 'Transfer'])]
     #[Groups(['read', 'write'])]
-    private $gender;
+    private ?string $gender = null;
 
     #[ORM\Column(type: 'boolean')]
     #[Groups(['read', 'write'])]
@@ -85,54 +87,54 @@ class User
 
     #[ORM\Column(type: 'string', length: 10, nullable: true)]
     #[Groups(['read', 'write'])]
-    private $postcode;
+    private ?string $postcode = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     #[Groups(['read', 'write'])]
-    private $city;
+    private ?string $city = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     #[Groups(['read', 'write'])]
-    private $street;
+    private ?string $street = null;
 
     #[ORM\Column(type: 'string', length: 2, nullable: true)]
     #[Assert\Country(groups: ['Default', 'Transfer'])]
     #[Groups(['read', 'write'])]
-    private $country;
+    private ?string $country = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     #[Groups(['read', 'write'])]
     #[Assert\Regex('/^[+]?\d([ \/()]?\d)*$/', message: 'Invalid phone number format.', groups: ['Default', 'Transfer'])]
-    private $phone;
+    private ?string $phone = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     #[Assert\Url(groups: ['Default', 'Transfer'])]
     #[Groups(['read', 'write'])]
-    private $website;
+    private ?string $website = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     #[Groups(['read', 'write'])]
-    private $steamAccount;
+    private ?string $steamAccount = null;
 
     #[ORM\Column(type: 'string', length: 4096, nullable: true)]
     #[Groups(['read', 'write'])]
-    private $hardware;
+    private ?string $hardware = null;
 
     #[ORM\Column(type: 'string', length: 4096, nullable: true)]
     #[Groups(['read', 'write'])]
-    private $statements;
+    private ?string $statements = null;
 
     #[ORM\Column(type: 'datetime')]
     #[Groups(['read'])]
-    private $registeredAt;
+    private ?DateTimeInterface $registeredAt = null;
 
     #[ORM\Column(type: 'datetime')]
     #[Groups(['read'])]
-    private $modifiedAt;
+    private ?DateTimeInterface $modifiedAt = null;
 
-    #[ORM\OneToMany(targetEntity: 'App\Entity\UserClan', mappedBy: 'user', cascade: ['all'])]
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: 'App\Entity\UserClan', cascade: ['all'])]
     #[Groups(['read'])]
-    private $clans;
+    private Collection $clans;
 
     public function getEmail(): ?string
     {
@@ -338,24 +340,24 @@ class User
         return $this;
     }
 
-    public function getRegisteredAt(): ?\DateTimeInterface
+    public function getRegisteredAt(): ?DateTimeInterface
     {
         return $this->registeredAt;
     }
 
-    public function setRegisteredAt(\DateTimeInterface $registeredAt): self
+    public function setRegisteredAt(DateTimeInterface $registeredAt): self
     {
         $this->registeredAt = $registeredAt;
 
         return $this;
     }
 
-    public function getModifiedAt(): ?\DateTimeInterface
+    public function getModifiedAt(): ?DateTimeInterface
     {
         return $this->modifiedAt;
     }
 
-    public function setModifiedAt(\DateTimeInterface $modifiedAt): self
+    public function setModifiedAt(DateTimeInterface $modifiedAt): self
     {
         $this->modifiedAt = $modifiedAt;
 
@@ -398,20 +400,17 @@ class User
         return $this;
     }
 
-    /**
-     * @return Collection|UserClan[]|null
-     */
     public function getClans(): Collection
     {
         return $this->clans;
     }
 
-    public function getBirthdate(): ?\DateTimeInterface
+    public function getBirthdate(): ?DateTimeInterface
     {
         return $this->birthdate;
     }
 
-    public function setBirthdate(?\DateTimeInterface $birthdate): self
+    public function setBirthdate(?DateTimeInterface $birthdate): self
     {
         $this->birthdate = $birthdate;
 
@@ -420,12 +419,12 @@ class User
 
     #[ORM\PrePersist]
     #[ORM\PreUpdate]
-    public function updateModifiedDatetime()
+    public function updateModifiedDatetime(): void
     {
         // update the modified time and creation time
-        $this->setModifiedAt(new \DateTime());
+        $this->setModifiedAt(new DateTime());
         if ($this->getRegisteredAt() === null) {
-            $this->setRegisteredAt(new \DateTime());
+            $this->setRegisteredAt(new DateTime());
         }
     }
 }
