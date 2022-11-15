@@ -51,13 +51,19 @@ class ApiUser implements UserInterface
     }
 
     /**
-     * A visual identifier that represents this user.
-     *
      * @see UserInterface
      */
-    public function getUsername(): string
+    public function getUserIdentifier(): string
     {
         return (string) $this->name;
+    }
+
+    /**
+     * @see UserInterface
+     */
+    public function eraseCredentials()
+    {
+        // If you store any temporary, sensitive data on the user, clear it here
     }
 
     /**
@@ -79,31 +85,6 @@ class ApiUser implements UserInterface
         return $this;
     }
 
-    /**
-     * @see UserInterface
-     */
-    public function getPassword()
-    {
-        // not needed for apps that do not check user passwords
-    }
-
-    /**
-     * @see UserInterface
-     */
-    public function getSalt()
-    {
-        // not needed for apps that do not check user passwords
-    }
-
-    /**
-     * @see UserInterface
-     */
-    public function eraseCredentials()
-    {
-        // If you store any temporary, sensitive data on the user, clear it here
-        // $this->plainPassword = null;
-    }
-
     public function getApiToken(): ?string
     {
         return $this->apiToken;
@@ -114,5 +95,34 @@ class ApiUser implements UserInterface
         $this->apiToken = $apiToken;
 
         return $this;
+    }
+
+    // TODO remove functions below after update to Symfony 6
+    /**
+     * @see UserInterface
+     */
+    public function getPassword(): ?string
+    {
+        // not needed for apps that do not check user passwords
+        return null;
+    }
+
+    /**
+     * @see UserInterface
+     */
+    public function getSalt(): ?string
+    {
+        // not needed for apps that do not check user passwords
+        return null;
+    }
+
+    /**
+     * A visual identifier that represents this user.
+     *
+     * @see UserInterface
+     */
+    public function getUsername(): string
+    {
+        return (string) $this->name;
     }
 }
