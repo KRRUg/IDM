@@ -36,24 +36,8 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
  */
 class ClanController extends AbstractFOSRestController
 {
-    private EntityManagerInterface $em;
-    private ClanService $clanService;
-    private ClanRepository $clanRepository;
-    private UserRepository $userRepository;
-    private PasswordHasherFactoryInterface $hasherFactory;
-
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        ClanService $clanService,
-        ClanRepository $clanRepository,
-        UserRepository $userRepository,
-        PasswordHasherFactoryInterface $hasherFactory
-    ) {
-        $this->em = $entityManager;
-        $this->clanService = $clanService;
-        $this->clanRepository = $clanRepository;
-        $this->userRepository = $userRepository;
-        $this->hasherFactory = $hasherFactory;
+    public function __construct(private readonly EntityManagerInterface $em, private readonly ClanService $clanService, private readonly ClanRepository $clanRepository, private readonly UserRepository $userRepository, private readonly PasswordHasherFactoryInterface $hasherFactory)
+    {
     }
 
     private function handleValidiationErrors(ConstraintViolationListInterface $errors)
@@ -444,7 +428,7 @@ class ClanController extends AbstractFOSRestController
     public function getMemberOfClanAction(Clan $clan, User $user)
     {
         $user_ids = $clan->getUsers()
-            ->map(function (UserClan $uc) { return $uc->getUser()->getUuid(); })
+            ->map(fn(UserClan $uc) => $uc->getUser()->getUuid())
             ->toArray();
         if (!in_array($user->getUuid(), $user_ids)) {
             return $this->handleView($this->view(Error::withMessage('User not in clan'), Response::HTTP_NOT_FOUND));
@@ -466,8 +450,8 @@ class ClanController extends AbstractFOSRestController
     public function getAdminOfClanAction(Clan $clan, User $user)
     {
         $user_ids = $clan->getUsers()
-            ->filter(function (UserClan $uc) { return $uc->getAdmin(); })
-            ->map(function (UserClan $uc) { return $uc->getUser()->getUuid(); })
+            ->filter(fn(UserClan $uc) => $uc->getAdmin())
+            ->map(fn(UserClan $uc) => $uc->getUser()->getUuid())
             ->toArray();
         if (!in_array($user->getUuid(), $user_ids)) {
             return $this->handleView($this->view(Error::withMessage('User not admin of clan'), Response::HTTP_NOT_FOUND));

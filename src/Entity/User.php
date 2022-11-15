@@ -39,13 +39,13 @@ class User
      * @ORM\Column(type="boolean")
      * @Groups({"read", "write"})
      */
-    private $emailConfirmed = false;
+    private bool $emailConfirmed = false;
 
     /**
      * @ORM\Column(type="boolean", nullable=true)
      * @Groups({"read", "write"})
      */
-    private $infoMails = false;
+    private ?bool $infoMails = false;
 
     /**
      * @var string The hashed password
@@ -62,7 +62,7 @@ class User
      * @Assert\NotBlank(groups={"Default", "Create"})
      * @Groups({"write"})
      */
-    private $password;
+    private ?string $password = null;
 
     /**
      * @ORM\Column(type="string", length=64, unique=true)
@@ -109,19 +109,19 @@ class User
      * @ORM\Column(type="boolean")
      * @Groups({"read", "write"})
      */
-    private $personalDataConfirmed = false;
+    private ?bool $personalDataConfirmed = false;
 
     /**
      * @ORM\Column(type="boolean")
      * @Groups({"read", "write"})
      */
-    private $personalDataLocked = false;
+    private ?bool $personalDataLocked = false;
 
     /**
      * @ORM\Column(type="boolean")
      * @Groups({"read"})
      */
-    private $isSuperadmin = false;
+    private ?bool $isSuperadmin = false;
 
     /**
      * @ORM\Column(type="string", length=10, nullable=true)

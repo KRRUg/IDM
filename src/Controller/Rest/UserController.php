@@ -35,17 +35,8 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
  */
 class UserController extends AbstractFOSRestController
 {
-    private EntityManagerInterface $em;
-    private UserRepository $userRepository;
-    private UserService $userService;
-    private PasswordHasherFactoryInterface $hasherFactory;
-
-    public function __construct(EntityManagerInterface $entityManager, UserRepository $userRepository, UserService $userService, PasswordHasherFactoryInterface $hasherFactory)
+    public function __construct(private readonly EntityManagerInterface $em, private readonly UserRepository $userRepository, private readonly UserService $userService, private readonly PasswordHasherFactoryInterface $hasherFactory)
     {
-        $this->em = $entityManager;
-        $this->userRepository = $userRepository;
-        $this->userService = $userService;
-        $this->hasherFactory = $hasherFactory;
     }
 
     private function handleValidiationErrors(ConstraintViolationListInterface $errors)
@@ -372,7 +363,7 @@ class UserController extends AbstractFOSRestController
      */
     public function getClanOfMemberAction(User $user, Clan $clan)
     {
-        $clan_ids = $user->getClans()->map(function (UserClan $uc) { return $uc->getClan()->getUuid(); })->toArray();
+        $clan_ids = $user->getClans()->map(fn(UserClan $uc) => $uc->getClan()->getUuid())->toArray();
         if (!in_array($clan->getUuid(), $clan_ids)) {
             return $this->handleView($this->view(Error::withMessage('User not in clan'), Response::HTTP_NOT_FOUND));
         }

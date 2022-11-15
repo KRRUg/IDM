@@ -9,15 +9,8 @@ use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 
 class ClanService
 {
-    private EntityManagerInterface $em;
-    private ClanRepository $clanRepository;
-    private PasswordHasherFactoryInterface $hasherFactory;
-
-    public function __construct(EntityManagerInterface $entityManager, ClanRepository $clanRepository, PasswordHasherFactoryInterface $hasherFactory)
+    public function __construct(private readonly EntityManagerInterface $em, private readonly ClanRepository $clanRepository, private readonly PasswordHasherFactoryInterface $hasherFactory)
     {
-        $this->clanRepository = $clanRepository;
-        $this->hasherFactory = $hasherFactory;
-        $this->em = $entityManager;
     }
 
     public function checkCredentials(string $name, string $password)

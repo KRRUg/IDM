@@ -4,16 +4,10 @@ namespace App\Transfer;
 
 final class PaginationCollection
 {
-    public int $total;
-
     public int $count;
 
-    public array $items;
-
-    public function __construct($items, $total)
+    public function __construct(public $items, public $total)
     {
-        $this->items = $items;
-        $this->total = $total;
-        $this->count = count($items);
+        $this->count = is_countable($items) ? count($items) : 0;
     }
 }

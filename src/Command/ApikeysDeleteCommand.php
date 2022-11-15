@@ -13,15 +13,9 @@ class ApikeysDeleteCommand extends Command
 {
     protected static $defaultName = 'app:apikeys:delete';
     protected static $defaultDescription = 'Deletes the specified API Key';
-    /**
-     * @var ApiKeyService
-     */
-    private $apiKeyService;
 
-    public function __construct(ApiKeyService $apiKeyService)
+    public function __construct(private readonly ApiKeyService $apiKeyService)
     {
-        $this->apiKeyService = $apiKeyService;
-
         parent::__construct();
     }
 

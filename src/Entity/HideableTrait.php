@@ -11,7 +11,7 @@ trait HideableTrait
      *
      * @ORM\Column(type="integer")
      */
-    private ?int $status;
+    private ?int $status = null;
 
     public function isHidden(): bool
     {

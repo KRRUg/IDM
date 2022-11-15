@@ -13,15 +13,9 @@ class ApikeysListCommand extends Command
 {
     protected static $defaultName = 'app:apikeys:list';
     protected static $defaultDescription = 'Lists all API Keys';
-    /**
-     * @var ApiKeyService
-     */
-    private $apiKeyService;
 
-    public function __construct(ApiKeyService $apiKeyService)
+    public function __construct(private readonly ApiKeyService $apiKeyService)
     {
-        $this->apiKeyService = $apiKeyService;
-
         parent::__construct();
     }
 

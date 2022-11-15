@@ -9,15 +9,8 @@ use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 
 class UserService
 {
-    private EntityManagerInterface $em;
-    private UserRepository $userRepository;
-    private PasswordHasherFactoryInterface $hasherFactory;
-
-    public function __construct(EntityManagerInterface $entityManager, PasswordHasherFactoryInterface $hasherFactory, UserRepository $userRepository)
+    public function __construct(private readonly EntityManagerInterface $em, private readonly PasswordHasherFactoryInterface $hasherFactory, private readonly UserRepository $userRepository)
     {
-        $this->em = $entityManager;
-        $this->userRepository = $userRepository;
-        $this->hasherFactory = $hasherFactory;
     }
 
     public function listUser($searchParameter = null, $searchValue = null, $disabled = false)
@@ -122,7 +115,7 @@ class UserService
             $this->em->flush();
 
             return $user;
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
             return false;
         }
     }
@@ -139,7 +132,7 @@ class UserService
             $this->em->flush();
 
             return $user;
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
             // TODO: return actual Exception
             return null;
         } finally {
@@ -158,7 +151,7 @@ class UserService
             $this->em->flush();
 
             return $user;
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
             // TODO: return actual Exception
             return null;
         } finally {
@@ -197,7 +190,7 @@ class UserService
             $this->em->flush();
 
             return $user;
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
             // TODO: return actual Exception
             return false;
         }
@@ -212,7 +205,7 @@ class UserService
             $this->em->flush();
 
             return true;
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
             // TODO: return actual Exception
             return false;
         }

@@ -13,15 +13,9 @@ class ApikeysCreateCommand extends Command
 {
     protected static $defaultName = 'app:apikeys:create';
     protected static $defaultDescription = 'Adds the specified APIKey to the allowed Keys';
-    /**
-     * @var ApiKeyService
-     */
-    private $apiKeyService;
 
-    public function __construct(ApiKeyService $apiKeyService)
+    public function __construct(private readonly ApiKeyService $apiKeyService)
     {
-        $this->apiKeyService = $apiKeyService;
-
         parent::__construct();
     }
 

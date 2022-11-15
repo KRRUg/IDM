@@ -127,7 +127,7 @@ class ClanRepository extends ServiceEntityRepository
         foreach ($filter as $field => $value) {
             switch ($metadata->getTypeOfField($field)) {
                 case 'boolean':
-                    $value = strtolower($value);
+                    $value = strtolower((string) $value);
                     if (in_array($value, ['true', 'false', '1', '0'], true)) {
                         $criteria[] = "c.{$field} = :{$field}";
                         $parameter[$field] = $value == 'true' || $value == '1';

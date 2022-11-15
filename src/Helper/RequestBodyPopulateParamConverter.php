@@ -11,11 +11,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 final class RequestBodyPopulateParamConverter implements ParamConverterInterface
 {
-    private RequestBodyParamConverter $bodyParamConverter;
-
-    public function __construct(RequestBodyParamConverter $bodyParamConverter)
+    public function __construct(private readonly RequestBodyParamConverter $bodyParamConverter)
     {
-        $this->bodyParamConverter = $bodyParamConverter;
     }
 
     /**

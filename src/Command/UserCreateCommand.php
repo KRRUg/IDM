@@ -14,15 +14,9 @@ class UserCreateCommand extends Command
 {
     protected static $defaultName = 'app:user:create';
     protected static $defaultDescription = 'Creates a User';
-    /**
-     * @var UserService
-     */
-    private $userService;
 
-    public function __construct(UserService $userService)
+    public function __construct(private readonly UserService $userService)
     {
-        $this->userService = $userService;
-
         parent::__construct();
     }
 

@@ -13,15 +13,9 @@ class UserEnableCommand extends Command
 {
     protected static $defaultName = 'app:user:enable';
     protected static $defaultDescription = 'Enables a User';
-    /**
-     * @var UserService
-     */
-    private $userService;
 
-    public function __construct(USerService $userService)
+    public function __construct(private readonly USerService $userService)
     {
-        $this->userService = $userService;
-
         parent::__construct();
     }
 

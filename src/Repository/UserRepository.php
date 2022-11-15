@@ -35,7 +35,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     public function upgradePassword(UserInterface $user, string $newEncodedPassword): void
     {
         if (!$user instanceof User) {
-            throw new UnsupportedUserException(sprintf('Instances of "%s" are not supported.', \get_class($user)));
+            throw new UnsupportedUserException(sprintf('Instances of "%s" are not supported.', $user::class));
         }
 
         $user->setPassword($newEncodedPassword);
@@ -173,7 +173,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         foreach ($filter as $field => $value) {
             switch ($metadata->getTypeOfField($field)) {
                 case 'boolean':
-                    $value = strtolower($value);
+                    $value = strtolower((string) $value);
                     if (in_array($value, ['true', 'false', '1', '0'], true)) {
                         $criteria[] = "u.{$field} = :{$field}";
                         $parameter[$field] = $value == 'true' || $value == '1';

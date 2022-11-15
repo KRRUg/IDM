@@ -73,7 +73,7 @@ trait QueryHelper
             ];
             $pattern = sprintf('/([%s])/', implode('', $escape));
 
-            return preg_replace($pattern, $escapeChar.'$0', $search);
+            return preg_replace($pattern, $escapeChar.'$0', (string) $search);
         };
 
         return sprintf($pattern, $sanitizeLikeValue($search));
@@ -90,11 +90,8 @@ trait QueryHelper
     {
         return array_filter(
             $array,
-            function ($value, $key) use ($fields, $values) {
-                return
-                    array_search($key, $fields) !== false
-                    && (empty($values) || array_search($value, $values) !== false);
-            },
+            fn($value, $key) => array_search($key, $fields) !== false
+            && (empty($values) || array_search($value, $values) !== false),
             ARRAY_FILTER_USE_BOTH
         );
     }

@@ -57,10 +57,7 @@ class UserClan
         return $this->user;
     }
 
-    /**
-     * @param mixed $user
-     */
-    public function setUser($user): void
+    public function setUser(mixed $user): void
     {
         $this->user = $user;
     }
@@ -73,10 +70,7 @@ class UserClan
         return $this->clan;
     }
 
-    /**
-     * @param mixed $clan
-     */
-    public function setClan($clan): void
+    public function setClan(mixed $clan): void
     {
         $this->clan = $clan;
     }
@@ -89,10 +83,7 @@ class UserClan
         return $this->admin;
     }
 
-    /**
-     * @param mixed $admin
-     */
-    public function setAdmin($admin): void
+    public function setAdmin(mixed $admin): void
     {
         $this->admin = $admin;
     }

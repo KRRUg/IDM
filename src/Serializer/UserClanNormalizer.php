@@ -14,13 +14,10 @@ class UserClanNormalizer implements ContextAwareNormalizerInterface, ContextAwar
     /**
      * Set to true to serialize just the UUID.
      */
-    public const DEPTH = 'depth';
+    final public const DEPTH = 'depth';
 
-    private ObjectNormalizer $on;
-
-    public function __construct(ObjectNormalizer $normalizer)
+    public function __construct(private readonly ObjectNormalizer $on)
     {
-        $this->on = $normalizer;
     }
 
     public function normalize($object, $format = null, array $context = [])
@@ -32,14 +29,11 @@ class UserClanNormalizer implements ContextAwareNormalizerInterface, ContextAwar
         $context[ObjectNormalizer::GROUPS] = ['read'];
         $context[ObjectNormalizer::IGNORED_ATTRIBUTES] = ['users', 'clans'];
 
-        switch (true) {
-            case $object instanceof User:
-                return $this->normalizeUser($object, $depth, $format, $context);
-            case $object instanceof Clan:
-                return $this->normalizeClan($object, $depth, $format, $context);
-            default:
-                throw new InvalidArgumentException('Class not supported');
-        }
+        return match (true) {
+            $object instanceof User => $this->normalizeUser($object, $depth, $format, $context),
+            $object instanceof Clan => $this->normalizeClan($object, $depth, $format, $context),
+            default => throw new InvalidArgumentException('Class not supported'),
+        };
     }
 
     private function normalizeClan($object, int $depth, $format = null, array $context = [])

@@ -26,7 +26,7 @@ class ApiUser implements UserInterface
     /**
      * @ORM\Column(type="json")
      */
-    private $roles = [];
+    private array $roles = [];
 
     /**
      * @ORM\Column(type="string", length=255, unique=true, nullable=true)
