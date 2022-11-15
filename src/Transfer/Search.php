@@ -17,24 +17,21 @@ final class Search
     public $uuid = [];
 
     /**
-     * @Assert\Type(type="string")
-     * @Assert\NotBlank(allowNull=true)
-     *
      * @var string
      */
+    #[Assert\Type(type: 'string')]
+    #[Assert\NotBlank(allowNull: true)]
     public $nickname;
 
     /**
-     * @Assert\Type(type="boolean")
-     *
      * @var bool|null
      */
+    #[Assert\Type(type: 'boolean')]
     public $superadmin;
 
     /**
-     * @Assert\Type(type="boolean")
-     *
      * @var bool|null
      */
+    #[Assert\Type(type: 'boolean')]
     public $newsletter;
 }

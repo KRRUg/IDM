@@ -6,13 +6,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final class AuthObject
 {
-    /**
-     * @Assert\NotBlank()
-     */
+    #[Assert\NotBlank]
     public string $name;
 
-    /**
-     * @Assert\NotBlank()
-     */
+    #[Assert\NotBlank]
     public string $secret;
 }

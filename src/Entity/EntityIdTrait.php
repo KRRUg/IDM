@@ -13,22 +13,21 @@ trait EntityIdTrait
 {
     /**
      * The unique auto incremented primary key.
-     *
-     * @ORM\Id
-     * @ORM\Column(type="integer", options={"unsigned": true})
-     * @ORM\GeneratedValue
-     * @Groups({"read"})
      */
+    #[ORM\Id]
+    #[ORM\Column(type: 'integer', options: ['unsigned' => true])]
+    #[ORM\GeneratedValue]
+    #[Groups(['read'])]
     protected $id;
 
     /**
      * The internal primary identity key.
      *
      * @SWG\Property(type="string")
-     * @ORM\Column(type="uuid", unique=true)
-     * @Assert\Uuid(strict=false)
-     * @Groups({"read"})
      */
+    #[ORM\Column(type: 'uuid', unique: true)]
+    #[Assert\Uuid(strict: false)]
+    #[Groups(['read'])]
     protected $uuid;
 
     public function getId(): ?int
@@ -46,9 +45,7 @@ trait EntityIdTrait
         $this->uuid = $uuid;
     }
 
-    /**
-     * @ORM\PrePersist()
-     */
+    #[ORM\PrePersist]
     public function generateUuid()
     {
         if ($this->getUuid() === null) {

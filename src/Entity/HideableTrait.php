@@ -8,9 +8,8 @@ trait HideableTrait
 {
     /**
      * If status >= 0, the entity is enabled. Otherwise, it will be filtered in all operations.
-     *
-     * @ORM\Column(type="integer")
      */
+    #[ORM\Column(type: 'integer')]
     private ?int $status = null;
 
     public function isHidden(): bool

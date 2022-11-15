@@ -18,28 +18,29 @@ use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
+use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Pagerfanta\Pagerfanta;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Swagger\Annotations as SWG;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 /**
  * Class UserController.
- *
- * @Rest\Route("/users")
  */
+#[Rest\Route('/users')]
 class UserController extends AbstractFOSRestController
 {
     public function __construct(private readonly EntityManagerInterface $em, private readonly UserRepository $userRepository, private readonly UserService $userService, private readonly PasswordHasherFactoryInterface $hasherFactory)
     {
     }
 
-    private function handleValidiationErrors(ConstraintViolationListInterface $errors)
+    private function handleValidiationErrors(ConstraintViolationListInterface $errors): ?View
     {
         if (count($errors) == 0) {
             return null;
@@ -74,11 +75,11 @@ class UserController extends AbstractFOSRestController
      *     format="uuid"
      * )
      * @SWG\Tag(name="User")
-     * @Rest\Get("/{uuid}", requirements= {"uuid"="([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})"})
-     * @ParamConverter("user", options={"mapping": {"uuid": "uuid"}})
-     * @Rest\QueryParam(name="depth", requirements="\d+", allowBlank=false, default="2")
      */
-    public function getUserAction(User $user, ParamFetcher $fetcher)
+    #[Rest\Get('/{uuid}', requirements: ['uuid' => '([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})'])]
+    #[Rest\QueryParam(name: 'depth', requirements: '\d+', default: 2, allowBlank: false)]
+    #[ParamConverter('user', options: ['mapping' => ['uuid' => 'uuid']])]
+    public function getUserAction(User $user, ParamFetcher $fetcher): Response
     {
         $depth = intval($fetcher->get('depth'));
         $view = $this->view($user);
@@ -120,16 +121,11 @@ class UserController extends AbstractFOSRestController
      *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Entity\User::class, groups={"write"}))
      * )
      * @SWG\Tag(name="User")
-     * @Rest\Patch("/{uuid}", requirements= {"uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
-     * @ParamConverter("user", class="App\Entity\User")
-     * @ParamConverter("update", converter="fos_rest.request_body",
-     *     options={
-     *      "deserializationContext": {"allow_extra_attributes": false},
-     *      "validator": {"groups": {"Transfer", "Unique"} },
-     *      "attribute_to_populate": "user",
-     *     })
      */
-    public function editUserAction(User $update, ConstraintViolationListInterface $validationErrors)
+    #[Rest\Patch('/{uuid}', requirements: ['uuid' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'])]
+    #[ParamConverter('user', class: 'App\Entity\User')]
+    #[ParamConverter('update', options: ['deserializationContext' => ['allow_extra_attributes' => false], 'validator' => ['groups' => ['Transfer', 'Unique']], 'attribute_to_populate' => 'user'], converter: 'fos_rest.request_body')]
+    public function editUserAction(User $update, ConstraintViolationListInterface $validationErrors): Response
     {
         if ($view = $this->handleValidiationErrors($validationErrors)) {
             return $this->handleView($view);
@@ -168,14 +164,10 @@ class UserController extends AbstractFOSRestController
      *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Entity\User::class, groups={"write"}))
      * )
      * @SWG\Tag(name="User")
-     * @Rest\Post("")
-     * @ParamConverter("new", converter="fos_rest.request_body",
-     *     options={
-     *      "deserializationContext": {"allow_extra_attributes": false},
-     *      "validator": {"groups": {"Transfer", "Create", "Unique"} }
-     *     })
      */
-    public function createUserAction(User $new, ConstraintViolationListInterface $validationErrors)
+    #[Rest\Post('')]
+    #[ParamConverter('new', options: ['deserializationContext' => ['allow_extra_attributes' => false], 'validator' => ['groups' => ['Transfer', 'Create', 'Unique']]], converter: 'fos_rest.request_body')]
+    public function createUserAction(User $new, ConstraintViolationListInterface $validationErrors): Response
     {
         if ($view = $this->handleValidiationErrors($validationErrors)) {
             return $this->handleView($view);
@@ -199,11 +191,10 @@ class UserController extends AbstractFOSRestController
      * Returns multiple Userobjects.
      *
      * Supports searching via UUID
-     *
-     * @Rest\Post("/search")
-     * @ParamConverter("search", converter="fos_rest.request_body", options={"deserializationContext": {"allow_extra_attributes": false}})
      */
-    public function postUsersearchAction(Search $search, ConstraintViolationListInterface $validationErrors)
+    #[Rest\Post('/search')]
+    #[ParamConverter('search', options: ['deserializationContext' => ['allow_extra_attributes' => false]], converter: 'fos_rest.request_body')]
+    public function postUsersearchAction(Search $search, ConstraintViolationListInterface $validationErrors): Response
     {
         if ($view = $this->handleValidiationErrors($validationErrors)) {
             return $this->handleView($view);
@@ -239,10 +230,10 @@ class UserController extends AbstractFOSRestController
      *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Transfer\AuthObject::class))
      * )
      * @SWG\Tag(name="Authorization")
-     * @Rest\Post("/authorize")
-     * @ParamConverter("auth", converter="fos_rest.request_body", options={"deserializationContext": {"allow_extra_attributes": false}})
      */
-    public function postAuthorizeAction(AuthObject $auth, ConstraintViolationListInterface $validationErrors)
+    #[Rest\Post('/authorize')]
+    #[ParamConverter('auth', options: ['deserializationContext' => ['allow_extra_attributes' => false]], converter: 'fos_rest.request_body')]
+    public function postAuthorizeAction(AuthObject $auth, ConstraintViolationListInterface $validationErrors): Response
     {
         if ($view = $this->handleValidiationErrors($validationErrors)) {
             return $this->handleView($view);
@@ -264,11 +255,10 @@ class UserController extends AbstractFOSRestController
      * Requests multiple clans by their uuids.
      *
      * Post a Bulk Request object to get a response object.
-     *
-     * @Rest\Post("/bulk")
-     * @ParamConverter("bulk", converter="fos_rest.request_body", options={"deserializationContext": {"allow_extra_attributes": false}})
      */
-    public function postBulkRequestAction(Bulk $bulk, ConstraintViolationListInterface $validationErrors)
+    #[Rest\Post('/bulk')]
+    #[ParamConverter('bulk', options: ['deserializationContext' => ['allow_extra_attributes' => false]], converter: 'fos_rest.request_body')]
+    public function postBulkRequestAction(Bulk $bulk, ConstraintViolationListInterface $validationErrors): Response
     {
         if ($view = $this->handleValidiationErrors($validationErrors)) {
             return $this->handleView($view);
@@ -281,17 +271,16 @@ class UserController extends AbstractFOSRestController
 
     /**
      * Returns all User objects with filter.
-     *
-     * @Rest\Get("")
-     * @Rest\QueryParam(name="page", requirements="\d+", default="1")
-     * @Rest\QueryParam(name="limit", requirements="\d+", default="10")
-     * @Rest\QueryParam(name="filter")
-     * @Rest\QueryParam(name="sort", requirements="(asc|desc)", map=true)
-     * @Rest\QueryParam(name="exact", requirements="(true|false)", allowBlank=false, default="false")
-     * @Rest\QueryParam(name="case", requirements="(true|false)", allowBlank=false, default="false")
-     * @Rest\QueryParam(name="depth", requirements="\d+", allowBlank=false, default="2")
      */
-    public function getUsersAction(ParamFetcher $fetcher)
+    #[Rest\Get('')]
+    #[Rest\QueryParam(name: 'page', requirements: '\d+', default: 1)]
+    #[Rest\QueryParam(name: 'limit', requirements: '\d+', default: 10)]
+    #[Rest\QueryParam(name: 'filter')]
+    #[Rest\QueryParam(name: 'sort', requirements: '(asc|desc)', map: true)]
+    #[Rest\QueryParam(name: 'exact', requirements: '(true|false)', default: false, allowBlank: false)]
+    #[Rest\QueryParam(name: 'case', requirements: '(true|false)', default: false, allowBlank: false)]
+    #[Rest\QueryParam(name: 'depth', requirements: '\d+', default: 2, allowBlank: false)]
+    public function getUsersAction(ParamFetcher $fetcher): Response
     {
         $page = intval($fetcher->get('page'));
         $limit = intval($fetcher->get('limit'));
@@ -334,12 +323,11 @@ class UserController extends AbstractFOSRestController
 
     /**
      * Gets Clans of User.
-     *
-     * @Rest\Get("/{uuid}/clans", requirements= {"uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
-     * @ParamConverter("user", options={"mapping": {"uuid": "uuid"}})
-     * @Rest\QueryParam(name="depth", requirements="\d+", allowBlank=false, default="1")
      */
-    public function getMemberAction(User $user, ParamFetcher $fetcher)
+    #[Rest\Get('/{uuid}/clans', requirements: ['uuid' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'])]
+    #[Rest\QueryParam(name: 'depth', requirements: '\d+', default: 1, allowBlank: false)]
+    #[ParamConverter('user', options: ['mapping' => ['uuid' => 'uuid']])]
+    public function getMemberAction(User $user, ParamFetcher $fetcher): Response
     {
         $result = [];
         foreach ($user->getClans() as $userClan) {
@@ -353,15 +341,11 @@ class UserController extends AbstractFOSRestController
 
     /**
      * Gets a Clan from a User.
-     *
-     * @Rest\Get("/{uuid}/clans/{clan}", requirements= {
-     *     "uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
-     *     "clan"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"}
-     * )
-     * @ParamConverter("user", options={"mapping": {"uuid": "uuid"}})
-     * @ParamConverter("clan", options={"mapping": {"clan": "uuid"}})
      */
-    public function getClanOfMemberAction(User $user, Clan $clan)
+    #[Rest\Get('/{uuid}/clans/{clan}', requirements: ['uuid' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}', 'clan' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'])]
+    #[ParamConverter('user', options: ['mapping' => ['uuid' => 'uuid']])]
+    #[ParamConverter('clan', options: ['mapping' => ['clan' => 'uuid']])]
+    public function getClanOfMemberAction(User $user, Clan $clan): RedirectResponse|Response
     {
         $clan_ids = $user->getClans()->map(fn (UserClan $uc) => $uc->getClan()->getUuid())->toArray();
         if (!in_array($clan->getUuid(), $clan_ids)) {

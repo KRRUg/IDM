@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -10,13 +9,11 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
- * @ORM\Table(name="gamer")
- * @ORM\HasLifecycleCallbacks
- * @UniqueEntity(fields={"email"}, groups={"Default", "Unique"}, repositoryMethod="findByCi", message="There is already an account with this email")
- * @UniqueEntity(fields={"nickname"}, groups={"Default", "Unique"}, message="There is already an account with this nickname")
- */
+#[ORM\Table(name: 'gamer')]
+#[ORM\Entity(repositoryClass: 'App\Repository\UserRepository')]
+#[ORM\HasLifecycleCallbacks]
+#[UniqueEntity(fields: ['email'], groups: ['Default', 'Unique'], repositoryMethod: 'findByCi', message: 'There is already an account with this email')]
+#[UniqueEntity(fields: ['nickname'], groups: ['Default', 'Unique'], message: 'There is already an account with this nickname')]
 class User
 {
     use EntityIdTrait;
@@ -27,179 +24,114 @@ class User
         $this->clans = new ArrayCollection();
     }
 
-    /**
-     * @ORM\Column(type="string", length=320, unique=true)
-     * @Assert\NotBlank(groups={"Default", "Create"})
-     * @Assert\Email(groups={"Default", "Transfer", "Create"})
-     * @Groups({"read", "write"})
-     */
+    #[ORM\Column(type: 'string', length: 320, unique: true)]
+    #[Assert\NotBlank(groups: ['Default', 'Create'])]
+    #[Assert\Email(groups: ['Default', 'Transfer', 'Create'])]
+    #[Groups(['read', 'write'])]
     private $email;
 
-    /**
-     * @ORM\Column(type="boolean")
-     * @Groups({"read", "write"})
-     */
+    #[ORM\Column(type: 'boolean')]
+    #[Groups(['read', 'write'])]
     private bool $emailConfirmed = false;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=true)
-     * @Groups({"read", "write"})
-     */
+    #[ORM\Column(type: 'boolean', nullable: true)]
+    #[Groups(['read', 'write'])]
     private ?bool $infoMails = false;
 
     /**
      * @var string The hashed password
-     *
-     * @ORM\Column(type="string")
-     * @Assert\Length(
-     *      min = 6,
-     *      max = 128,
-     *      minMessage = "The password must be at least {{ limit }} characters long",
-     *      maxMessage = "The password cannot be longer than {{ limit }} characters",
-     *      allowEmptyString="false",
-     *      groups = {"Transfer", "Create"}
-     * )
-     * @Assert\NotBlank(groups={"Default", "Create"})
-     * @Groups({"write"})
      */
+    #[ORM\Column(type: 'string')]
+    #[Assert\Length(min: 6, max: 128, minMessage: 'The password must be at least {{ limit }} characters long', maxMessage: 'The password cannot be longer than {{ limit }} characters', groups: ['Transfer', 'Create'])]
+    #[Assert\NotBlank(groups: ['Default', 'Create'])]
+    #[Groups(['write'])]
     private ?string $password = null;
 
-    /**
-     * @ORM\Column(type="string", length=64, unique=true)
-     * @Assert\NotBlank(groups={"Default", "Create"})
-     * @Assert\Length(
-     *      min = 1,
-     *      max = 64,
-     *      minMessage = "The nickname must be at least {{ limit }} characters long",
-     *      maxMessage = "The nickname cannot be longer than {{ limit }} characters",
-     *      allowEmptyString="false",
-     *      groups = {"Default", "Transfer", "Create"}
-     * )
-     * @Groups({"read", "write"})
-     */
+    #[ORM\Column(type: 'string', length: 64, unique: true)]
+    #[Assert\NotBlank(groups: ['Default', 'Create'])]
+    #[Assert\Length(min: 1, max: 64, minMessage: 'The nickname must be at least {{ limit }} characters long', maxMessage: 'The nickname cannot be longer than {{ limit }} characters', groups: ['Default', 'Transfer', 'Create'])]
+    #[Groups(['read', 'write'])]
     private $nickname;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"read", "write"})
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['read', 'write'])]
     private $firstname;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"read", "write"})
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['read', 'write'])]
     private $surname;
 
-    /**
-     * @ORM\Column(type="date", nullable=true)
-     * @Assert\Date(groups={"Default", "Transfer"})
-     * @Groups({"read", "write"})
-     */
+    #[ORM\Column(type: 'date', nullable: true)]
+    #[Assert\Date(groups: ['Default', 'Transfer'])]
+    #[Groups(['read', 'write'])]
     private $birthdate;
 
-    /**
-     * @ORM\Column(type="string", length=1, nullable=true)
-     * @Assert\Choice({"m","f","x"}, groups={"Default", "Transfer"})
-     * @Groups({"read", "write"})
-     */
+    #[ORM\Column(type: 'string', length: 1, nullable: true)]
+    #[Assert\Choice(['m', 'f', 'x'], groups: ['Default', 'Transfer'])]
+    #[Groups(['read', 'write'])]
     private $gender;
 
-    /**
-     * @ORM\Column(type="boolean")
-     * @Groups({"read", "write"})
-     */
+    #[ORM\Column(type: 'boolean')]
+    #[Groups(['read', 'write'])]
     private ?bool $personalDataConfirmed = false;
 
-    /**
-     * @ORM\Column(type="boolean")
-     * @Groups({"read", "write"})
-     */
+    #[ORM\Column(type: 'boolean')]
+    #[Groups(['read', 'write'])]
     private ?bool $personalDataLocked = false;
 
-    /**
-     * @ORM\Column(type="boolean")
-     * @Groups({"read"})
-     */
+    #[ORM\Column(type: 'boolean')]
+    #[Groups(['read'])]
     private ?bool $isSuperadmin = false;
 
-    /**
-     * @ORM\Column(type="string", length=10, nullable=true)
-     * @Groups({"read", "write"})
-     */
+    #[ORM\Column(type: 'string', length: 10, nullable: true)]
+    #[Groups(['read', 'write'])]
     private $postcode;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"read", "write"})
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['read', 'write'])]
     private $city;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"read", "write"})
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['read', 'write'])]
     private $street;
 
-    /**
-     * @ORM\Column(type="string", length=2, nullable=true)
-     * @Assert\Country(groups={"Default", "Transfer"})
-     * @Groups({"read", "write"})
-     */
+    #[ORM\Column(type: 'string', length: 2, nullable: true)]
+    #[Assert\Country(groups: ['Default', 'Transfer'])]
+    #[Groups(['read', 'write'])]
     private $country;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"read", "write"})
-     * @Assert\Regex("/^[+]?\d([ \/()]?\d)*$/", message="Invalid phone number format.", groups={"Default", "Transfer"})
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['read', 'write'])]
+    #[Assert\Regex('/^[+]?\d([ \/()]?\d)*$/', message: 'Invalid phone number format.', groups: ['Default', 'Transfer'])]
     private $phone;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     * @Assert\Url(groups={"Default", "Transfer"})
-     * @Groups({"read", "write"})
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Assert\Url(groups: ['Default', 'Transfer'])]
+    #[Groups(['read', 'write'])]
     private $website;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"read", "write"})
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['read', 'write'])]
     private $steamAccount;
 
-    /**
-     * @ORM\Column(type="string", length=4096, nullable=true)
-     * @Groups({"read", "write"})
-     */
+    #[ORM\Column(type: 'string', length: 4096, nullable: true)]
+    #[Groups(['read', 'write'])]
     private $hardware;
 
-    /**
-     * @ORM\Column(type="string", length=4096, nullable=true)
-     * @Groups({"read", "write"})
-     */
+    #[ORM\Column(type: 'string', length: 4096, nullable: true)]
+    #[Groups(['read', 'write'])]
     private $statements;
 
-    /**
-     * @ORM\Column(type="datetime")
-     * @Groups({"read"})
-     */
+    #[ORM\Column(type: 'datetime')]
+    #[Groups(['read'])]
     private $registeredAt;
 
-    /**
-     * @ORM\Column(type="datetime")
-     * @Groups({"read"})
-     */
+    #[ORM\Column(type: 'datetime')]
+    #[Groups(['read'])]
     private $modifiedAt;
 
-    /**
-     * @ORM\OneToMany(
-     *     targetEntity="App\Entity\UserClan",
-     *     mappedBy="user",
-     *     cascade={"all"},
-     * )
-     * @Groups({"read"})
-     */
+    #[ORM\OneToMany(targetEntity: 'App\Entity\UserClan', mappedBy: 'user', cascade: ['all'])]
+    #[Groups(['read'])]
     private $clans;
 
     public function getEmail(): ?string
@@ -486,10 +418,8 @@ class User
         return $this;
     }
 
-    /**
-     * @ORM\PrePersist()
-     * @ORM\PreUpdate()
-     */
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
     public function updateModifiedDatetime()
     {
         // update the modified time and creation time

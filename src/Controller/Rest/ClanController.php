@@ -19,28 +19,29 @@ use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcher;
+use FOS\RestBundle\View\View;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Pagerfanta\Pagerfanta;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Swagger\Annotations as SWG;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 /**
  * Class ClanController.
- *
- * @Rest\Route("/clans")
  */
+#[Rest\Route('/clans')]
 class ClanController extends AbstractFOSRestController
 {
     public function __construct(private readonly EntityManagerInterface $em, private readonly ClanService $clanService, private readonly ClanRepository $clanRepository, private readonly UserRepository $userRepository, private readonly PasswordHasherFactoryInterface $hasherFactory)
     {
     }
 
-    private function handleValidiationErrors(ConstraintViolationListInterface $errors)
+    private function handleValidiationErrors(ConstraintViolationListInterface $errors): ?View
     {
         if (count($errors) == 0) {
             return null;
@@ -75,11 +76,11 @@ class ClanController extends AbstractFOSRestController
      *     format="uuid"
      * )
      * @SWG\Tag(name="Clan")
-     * @Rest\Get("/{uuid}", requirements= {"uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
-     * @ParamConverter("clan", options={"mapping": {"uuid": "uuid"}})
-     * @Rest\QueryParam(name="depth", requirements="\d+", allowBlank=false, default="2")
      */
-    public function getClanAction(Clan $clan, ParamFetcher $fetcher)
+    #[Rest\Get('/{uuid}', requirements: ['uuid' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'])]
+    #[Rest\QueryParam(name: 'depth', requirements: '\d+', default: 2, allowBlank: false)]
+    #[ParamConverter('clan', options: ['mapping' => ['uuid' => 'uuid']])]
+    public function getClanAction(Clan $clan, ParamFetcher $fetcher): Response
     {
         $depth = intval($fetcher->get('depth'));
         $view = $this->view($clan);
@@ -113,14 +114,10 @@ class ClanController extends AbstractFOSRestController
      *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Entity\Clan::class, groups={"write"}))
      * )
      * @SWG\Tag(name="Clan")
-     * @Rest\Post("")
-     * @ParamConverter("new", converter="fos_rest.request_body",
-     *     options={
-     *      "deserializationContext": {"allow_extra_attributes": false},
-     *      "validator": {"groups": {"Transfer", "Create", "Unique"} }
-     *     })
      */
-    public function createClanAction(Clan $new, ConstraintViolationListInterface $validationErrors)
+    #[Rest\Post('')]
+    #[ParamConverter('new', options: ['deserializationContext' => ['allow_extra_attributes' => false], 'validator' => ['groups' => ['Transfer', 'Create', 'Unique']]], converter: 'fos_rest.request_body')]
+    public function createClanAction(Clan $new, ConstraintViolationListInterface $validationErrors): Response
     {
         if (count($validationErrors) > 0) {
             $error = $validationErrors[0];
@@ -177,16 +174,11 @@ class ClanController extends AbstractFOSRestController
      *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Entity\Clan::class, groups={"write"}))
      * )
      * @SWG\Tag(name="Clan")
-     * @Rest\Patch("/{uuid}", requirements= {"uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
-     * @ParamConverter("clan", class="App\Entity\Clan")
-     * @ParamConverter("update", converter="fos_rest.request_body",
-     *     options={
-     *      "deserializationContext": {"allow_extra_attributes": false},
-     *      "validator": {"groups": {"Transfer", "Unique"} },
-     *      "attribute_to_populate": "clan",
-     *     })
      */
-    public function editClanAction(Clan $update, ConstraintViolationListInterface $validationErrors)
+    #[Rest\Patch('/{uuid}', requirements: ['uuid' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'])]
+    #[ParamConverter('clan', class: 'App\Entity\Clan')]
+    #[ParamConverter('update', options: ['deserializationContext' => ['allow_extra_attributes' => false], 'validator' => ['groups' => ['Transfer', 'Unique']], 'attribute_to_populate' => 'clan'], converter: 'fos_rest.request_body')]
+    public function editClanAction(Clan $update, ConstraintViolationListInterface $validationErrors): Response
     {
         if ($view = $this->handleValidiationErrors($validationErrors)) {
             return $this->handleView($view);
@@ -206,11 +198,10 @@ class ClanController extends AbstractFOSRestController
 
     /**
      * Delete a Clan.
-     *
-     * @Rest\Delete("/{uuid}", requirements= {"uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
-     * @ParamConverter("clan", options={"mapping": {"uuid": "uuid"}})
      */
-    public function removeClanAction(Clan $clan)
+    #[ParamConverter('clan', options: ['mapping' => ['uuid' => 'uuid']])]
+    #[Rest\Delete('/{uuid}', requirements: ['uuid' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'])]
+    public function removeClanAction(Clan $clan): Response
     {
         $this->em->remove($clan);
         $this->em->flush();
@@ -222,17 +213,16 @@ class ClanController extends AbstractFOSRestController
 
     /**
      * Returns all Clan objects with filter.
-     *
-     * @Rest\Get("")
-     * @Rest\QueryParam(name="page", requirements="\d+", default="1")
-     * @Rest\QueryParam(name="limit", requirements="\d+", default="10")
-     * @Rest\QueryParam(name="filter")
-     * @Rest\QueryParam(name="sort", requirements="(asc|desc)", map=true)
-     * @Rest\QueryParam(name="exact", requirements="(true|false)", allowBlank=false, default="false")
-     * @Rest\QueryParam(name="case", requirements="(true|false)", allowBlank=false, default="false")
-     * @Rest\QueryParam(name="depth", requirements="\d+", allowBlank=false, default="2")
      */
-    public function getClansAction(ParamFetcher $fetcher)
+    #[Rest\Get('')]
+    #[Rest\QueryParam(name: 'page', requirements: '\d+', default: 1)]
+    #[Rest\QueryParam(name: 'limit', requirements: '\d+', default: 10)]
+    #[Rest\QueryParam(name: 'filter')]
+    #[Rest\QueryParam(name: 'sort', requirements: '(asc|desc)', map: true)]
+    #[Rest\QueryParam(name: 'exact', requirements: '(true|false)', default: false, allowBlank: false)]
+    #[Rest\QueryParam(name: 'case', requirements: '(true|false)', default: false, allowBlank: false)]
+    #[Rest\QueryParam(name: 'depth', requirements: '\d+', default: 2, allowBlank: false)]
+    public function getClansAction(ParamFetcher $fetcher): Response
     {
         $page = intval($fetcher->get('page'));
         $limit = intval($fetcher->get('limit'));
@@ -275,12 +265,11 @@ class ClanController extends AbstractFOSRestController
 
     /**
      * Adds a User to a Clan.
-     *
-     * @Rest\Post("/{uuid}/users", requirements= {"uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
-     * @ParamConverter("clan", options={"mapping": {"uuid": "uuid"}})
-     * @ParamConverter("user_uuid", converter="fos_rest.request_body")
      */
-    public function addMemberAction(Clan $clan, UuidObject $user_uuid, ConstraintViolationListInterface $validationErrors)
+    #[Rest\Post('/{uuid}/users', requirements: ['uuid' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'])]
+    #[ParamConverter('clan', options: ['mapping' => ['uuid' => 'uuid']])]
+    #[ParamConverter('user_uuid', converter: 'fos_rest.request_body')]
+    public function addMemberAction(Clan $clan, UuidObject $user_uuid, ConstraintViolationListInterface $validationErrors): Response
     {
         if ($view = $this->handleValidiationErrors($validationErrors)) {
             return $this->handleView($view);
@@ -304,12 +293,11 @@ class ClanController extends AbstractFOSRestController
 
     /**
      * Adds a User to a Clan.
-     *
-     * @Rest\Post("/{uuid}/admins", requirements= {"uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
-     * @ParamConverter("clan", options={"mapping": {"uuid": "uuid"}})
-     * @ParamConverter("user_uuid", converter="fos_rest.request_body")
      */
-    public function addAdminAction(Clan $clan, UuidObject $user_uuid, ConstraintViolationListInterface $validationErrors)
+    #[Rest\Post('/{uuid}/admins', requirements: ['uuid' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'])]
+    #[ParamConverter('clan', options: ['mapping' => ['uuid' => 'uuid']])]
+    #[ParamConverter('user_uuid', converter: 'fos_rest.request_body')]
+    public function addAdminAction(Clan $clan, UuidObject $user_uuid, ConstraintViolationListInterface $validationErrors): Response
     {
         if ($view = $this->handleValidiationErrors($validationErrors)) {
             return $this->handleView($view);
@@ -333,12 +321,11 @@ class ClanController extends AbstractFOSRestController
 
     /**
      * Gets Users of Clan.
-     *
-     * @Rest\Get("/{uuid}/users", requirements= {"uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
-     * @ParamConverter("clan", options={"mapping": {"uuid": "uuid"}})
-     * @Rest\QueryParam(name="depth", requirements="\d+", allowBlank=false, default="1")
      */
-    public function getMemberAction(Clan $clan, ParamFetcher $fetcher)
+    #[Rest\Get('/{uuid}/users', requirements: ['uuid' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'])]
+    #[Rest\QueryParam(name: 'depth', requirements: '\d+', default: 1, allowBlank: false)]
+    #[ParamConverter('clan', options: ['mapping' => ['uuid' => 'uuid']])]
+    public function getMemberAction(Clan $clan, ParamFetcher $fetcher): Response
     {
         $result = [];
         foreach ($clan->getUsers() as $userClan) {
@@ -353,12 +340,11 @@ class ClanController extends AbstractFOSRestController
 
     /**
      * Gets Users of Clan.
-     *
-     * @Rest\Get("/{uuid}/admins", requirements= {"uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
-     * @ParamConverter("clan", options={"mapping": {"uuid": "uuid"}})
-     * @Rest\QueryParam(name="depth", requirements="\d+", allowBlank=false, default="1")
      */
-    public function getAdminAction(Clan $clan, ParamFetcher $fetcher)
+    #[Rest\Get('/{uuid}/admins', requirements: ['uuid' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'])]
+    #[Rest\QueryParam(name: 'depth', requirements: '\d+', default: 1, allowBlank: false)]
+    #[ParamConverter('clan', options: ['mapping' => ['uuid' => 'uuid']])]
+    public function getAdminAction(Clan $clan, ParamFetcher $fetcher): Response
     {
         $result = [];
         foreach ($clan->getUsers() as $userClan) {
@@ -375,15 +361,11 @@ class ClanController extends AbstractFOSRestController
 
     /**
      * Removes a User from a Clan.
-     *
-     * @Rest\Delete("/{uuid}/users/{user}", requirements= {
-     *     "uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
-     *     "user"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"}
-     * )
-     * @ParamConverter("clan", options={"mapping": {"uuid": "uuid"}})
-     * @ParamConverter("user", options={"mapping": {"user": "uuid"}})
      */
-    public function removeMemberAction(Clan $clan, User $user)
+    #[Rest\Delete('/{uuid}/users/{user}', requirements: ['uuid' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}', 'user' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'])]
+    #[ParamConverter('clan', options: ['mapping' => ['uuid' => 'uuid']])]
+    #[ParamConverter('user', options: ['mapping' => ['user' => 'uuid']])]
+    public function removeMemberAction(Clan $clan, User $user): Response
     {
         if ($this->UserLeave($clan, $user)) {
             $view = $this->view(null, Response::HTTP_NO_CONTENT);
@@ -395,16 +377,12 @@ class ClanController extends AbstractFOSRestController
     }
 
     /**
-     * Removes a Admin from a Clan.
-     *
-     * @Rest\Delete("/{uuid}/admins/{user}", requirements= {
-     *     "uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
-     *     "user"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"}
-     * )
-     * @ParamConverter("clan", options={"mapping": {"uuid": "uuid"}})
-     * @ParamConverter("user", options={"mapping": {"user": "uuid"}})
+     * Removes an Admin from a Clan.
      */
-    public function removeAdminAction(Clan $clan, User $user)
+    #[Rest\Delete('/{uuid}/admins/{user}', requirements: ['uuid' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}', 'user' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'])]
+    #[ParamConverter('clan', options: ['mapping' => ['uuid' => 'uuid']])]
+    #[ParamConverter('user', options: ['mapping' => ['user' => 'uuid']])]
+    public function removeAdminAction(Clan $clan, User $user): Response
     {
         if ($this->UserSetAdmin($clan, $user, false)) {
             $view = $this->view(null, Response::HTTP_NO_CONTENT);
@@ -417,15 +395,11 @@ class ClanController extends AbstractFOSRestController
 
     /**
      * Gets a User from a Clan.
-     *
-     * @Rest\Get("/{uuid}/users/{user}", requirements= {
-     *     "uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
-     *     "user"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"}
-     * )
-     * @ParamConverter("clan", options={"mapping": {"uuid": "uuid"}})
-     * @ParamConverter("user", options={"mapping": {"user": "uuid"}})
      */
-    public function getMemberOfClanAction(Clan $clan, User $user)
+    #[Rest\Get('/{uuid}/users/{user}', requirements: ['uuid' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}', 'user' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'])]
+    #[ParamConverter('clan', options: ['mapping' => ['uuid' => 'uuid']])]
+    #[ParamConverter('user', options: ['mapping' => ['user' => 'uuid']])]
+    public function getMemberOfClanAction(Clan $clan, User $user): RedirectResponse|Response
     {
         $user_ids = $clan->getUsers()
             ->map(fn (UserClan $uc) => $uc->getUser()->getUuid())
@@ -439,15 +413,11 @@ class ClanController extends AbstractFOSRestController
 
     /**
      * Gets a User from a Clan.
-     *
-     * @Rest\Get("/{uuid}/admins/{user}", requirements= {
-     *     "uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
-     *     "user"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"}
-     * )
-     * @ParamConverter("clan", options={"mapping": {"uuid": "uuid"}})
-     * @ParamConverter("user", options={"mapping": {"user": "uuid"}})
      */
-    public function getAdminOfClanAction(Clan $clan, User $user)
+    #[Rest\Get('/{uuid}/admins/{user}', requirements: ['uuid' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}', 'user' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'])]
+    #[ParamConverter('clan', options: ['mapping' => ['uuid' => 'uuid']])]
+    #[ParamConverter('user', options: ['mapping' => ['user' => 'uuid']])]
+    public function getAdminOfClanAction(Clan $clan, User $user): RedirectResponse|Response
     {
         $user_ids = $clan->getUsers()
             ->filter(fn (UserClan $uc) => $uc->getAdmin())
@@ -542,16 +512,16 @@ class ClanController extends AbstractFOSRestController
      *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Transfer\AuthObject::class))
      * )
      * @SWG\Tag(name="Authorization")
-     * @Rest\Post("/authorize")
-     * @ParamConverter("auth", converter="fos_rest.request_body", options={"deserializationContext": {"allow_extra_attributes": false}})
      */
-    public function postAuthorizeAction(AuthObject $auth, ConstraintViolationListInterface $validationErrors)
+    #[Rest\Post('/authorize')]
+    #[ParamConverter('auth', options: ['deserializationContext' => ['allow_extra_attributes' => false]], converter: 'fos_rest.request_body')]
+    public function postAuthorizeAction(AuthObject $auth, ConstraintViolationListInterface $validationErrors): Response
     {
         if ($view = $this->handleValidiationErrors($validationErrors)) {
             return $this->handleView($view);
         }
 
-        // Check if User can login
+        // Check if User can log in
         $clan = $this->clanService->checkCredentials($auth->name, $auth->secret);
 
         if ($clan) {
@@ -585,10 +555,10 @@ class ClanController extends AbstractFOSRestController
      *     format="application/json",
      *     schema=@SWG\Schema(type="object", ref=@Model(type=\App\Transfer\Bulk::class))
      * )
-     * @Rest\Post("/bulk")
-     * @ParamConverter("bulk", converter="fos_rest.request_body", options={"deserializationContext": {"allow_extra_attributes": false}})
      */
-    public function postBulkRequestAction(Bulk $bulk, ConstraintViolationListInterface $validationErrors)
+    #[Rest\Post('/bulk')]
+    #[ParamConverter('bulk', options: ['deserializationContext' => ['allow_extra_attributes' => false]], converter: 'fos_rest.request_body')]
+    public function postBulkRequestAction(Bulk $bulk, ConstraintViolationListInterface $validationErrors): Response
     {
         if ($view = $this->handleValidiationErrors($validationErrors)) {
             return $this->handleView($view);
