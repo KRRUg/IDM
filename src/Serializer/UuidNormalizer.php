@@ -15,7 +15,7 @@ final class UuidNormalizer implements NormalizerInterface, DenormalizerInterface
     /**
      * {@inheritdoc}
      */
-    public function normalize($object, $format = null, array $context = [])
+    public function normalize($object, $format = null, array $context = []): string
     {
         return $object->toString();
     }
@@ -23,7 +23,7 @@ final class UuidNormalizer implements NormalizerInterface, DenormalizerInterface
     /**
      * {@inheritdoc}
      */
-    public function denormalize($data, $type, $format = null, array $context = [])
+    public function denormalize($data, $type, $format = null, array $context = []): mixed
     {
         if (!$this->isValid($data)) {
             throw new UnexpectedValueException('Expected a valid Uuid.');
