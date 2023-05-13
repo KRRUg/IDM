@@ -17,6 +17,9 @@ JSON;
         $this->client->request('POST', '/api/users/authorize', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
         $response = $this->client->getResponse();
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertJson($response->getContent());
+        $result = json_decode($response->getContent(), true);
+        $this->assertNotEmpty($result['lastLoginAt']);
     }
 
     public function testAuthorizeSuccessfulCaseInsensitive()
@@ -30,6 +33,9 @@ JSON;
         $this->client->request('POST', '/api/users/authorize', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
         $response = $this->client->getResponse();
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertJson($response->getContent());
+        $result = json_decode($response->getContent(), true);
+        $this->assertNotEmpty($result['lastLoginAt']);
     }
 
     public function testAuthorizeFailPasswordIncorrect()

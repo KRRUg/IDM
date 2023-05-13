@@ -6,6 +6,7 @@ use DateTime;
 use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -130,6 +131,10 @@ class User
     #[ORM\Column(type: 'datetime')]
     #[Groups(['read'])]
     private ?DateTimeInterface $modifiedAt = null;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[Groups(['read'])]
+    private ?\DateTimeInterface $lastLoginAt = null;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: 'App\Entity\UserClan', cascade: ['all'])]
     #[Groups(['read'])]
@@ -412,6 +417,17 @@ class User
     public function setBirthdate(?DateTimeInterface $birthdate): self
     {
         $this->birthdate = $birthdate;
+
+        return $this;
+    }
+    public function getLastLoginAt(): ?\DateTimeInterface
+    {
+        return $this->lastLoginAt;
+    }
+
+    public function setLastLoginAt(?\DateTimeInterface $lastLoginAt): self
+    {
+        $this->lastLoginAt = $lastLoginAt;
 
         return $this;
     }

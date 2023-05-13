@@ -10,9 +10,11 @@ use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 
 class UserService
 {
-    public function __construct(private readonly EntityManagerInterface $em, private readonly PasswordHasherFactoryInterface $hasherFactory, private readonly UserRepository $userRepository)
-    {
-    }
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+        private readonly PasswordHasherFactoryInterface $hasherFactory,
+        private readonly UserRepository $userRepository
+    ){}
 
     public function listUser($searchParameter = null, $searchValue = null, $disabled = false)
     {
@@ -176,7 +178,7 @@ class UserService
         $hasher = $this->hasherFactory->getPasswordHasher(User::class);
         $user->setPassword($hasher->hash($password));
 
-        if ($infoMails) {
+        if (!is_null($infoMails)) {
             if ('true' === $infoMails || true === $infoMails) {
                 $user->setInfoMails(true);
             } elseif ('false' === $infoMails || false === $infoMails) {
@@ -217,7 +219,7 @@ class UserService
         return $this->userRepository->findOneBy(['uuid' => $uuid]);
     }
 
-    public function checkCredentials(string $email, string $password)
+    public function checkCredentials(string $email, string $password, bool $updateLastLogin = true)
     {
         if (empty($email) || empty($password)) {
             return false;
@@ -238,11 +240,13 @@ class UserService
             $this->em->flush();
         }
 
-        if ($valid) {
-            return $user;
-        } else {
-            // User or Password false
+        if (!$valid)
             return false;
+
+        if ($updateLastLogin) {
+            $user->setLastLoginAt(new DateTime());
+            $this->em->flush();
         }
+        return $user;
     }
 }
