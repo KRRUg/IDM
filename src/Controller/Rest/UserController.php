@@ -40,7 +40,7 @@ class UserController extends AbstractFOSRestController
     {
     }
 
-    private function handleValidiationErrors(ConstraintViolationListInterface $errors): ?View
+    private function handleValidationErrors(ConstraintViolationListInterface $errors): ?View
     {
         if (count($errors) == 0) {
             return null;
@@ -121,7 +121,7 @@ class UserController extends AbstractFOSRestController
     #[ParamConverter('update', options: ['deserializationContext' => ['allow_extra_attributes' => false], 'validator' => ['groups' => ['Transfer', 'Unique']], 'attribute_to_populate' => 'user'], converter: 'fos_rest.request_body')]
     public function editUserAction(User $update, ConstraintViolationListInterface $validationErrors): Response
     {
-        if ($view = $this->handleValidiationErrors($validationErrors)) {
+        if ($view = $this->handleValidationErrors($validationErrors)) {
             return $this->handleView($view);
         }
 
@@ -160,7 +160,7 @@ class UserController extends AbstractFOSRestController
     #[ParamConverter('new', options: ['deserializationContext' => ['allow_extra_attributes' => false], 'validator' => ['groups' => ['Transfer', 'Create', 'Unique']]], converter: 'fos_rest.request_body')]
     public function createUserAction(User $new, ConstraintViolationListInterface $validationErrors): Response
     {
-        if ($view = $this->handleValidiationErrors($validationErrors)) {
+        if ($view = $this->handleValidationErrors($validationErrors)) {
             return $this->handleView($view);
         }
 
@@ -187,7 +187,7 @@ class UserController extends AbstractFOSRestController
     #[ParamConverter('search', options: ['deserializationContext' => ['allow_extra_attributes' => false]], converter: 'fos_rest.request_body')]
     public function postUsersearchAction(Search $search, ConstraintViolationListInterface $validationErrors): Response
     {
-        if ($view = $this->handleValidiationErrors($validationErrors)) {
+        if ($view = $this->handleValidationErrors($validationErrors)) {
             return $this->handleView($view);
         }
 
@@ -223,11 +223,11 @@ class UserController extends AbstractFOSRestController
     #[ParamConverter('auth', options: ['deserializationContext' => ['allow_extra_attributes' => false]], converter: 'fos_rest.request_body')]
     public function postAuthorizeAction(AuthObject $auth, ConstraintViolationListInterface $validationErrors): Response
     {
-        if ($view = $this->handleValidiationErrors($validationErrors)) {
+        if ($view = $this->handleValidationErrors($validationErrors)) {
             return $this->handleView($view);
         }
 
-        // Check if User can login
+        // Check if User can log in
         $user = $this->userService->checkCredentials($auth->name, $auth->secret);
 
         if ($user) {
@@ -248,7 +248,7 @@ class UserController extends AbstractFOSRestController
     #[ParamConverter('bulk', options: ['deserializationContext' => ['allow_extra_attributes' => false]], converter: 'fos_rest.request_body')]
     public function postBulkRequestAction(Bulk $bulk, ConstraintViolationListInterface $validationErrors): Response
     {
-        if ($view = $this->handleValidiationErrors($validationErrors)) {
+        if ($view = $this->handleValidationErrors($validationErrors)) {
             return $this->handleView($view);
         }
 
