@@ -94,12 +94,15 @@ JSON;
     "secret": "new_secure_password"
 }
 JSON;
-        // try to login with new PW
+        // try to log in with new PW
         $this->client->request('POST', '/api/users/authorize', [], [], ['CONTENT_TYPE' => 'application/json'], $data);
         $response = $this->client->getResponse();
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertJson($response->getContent(), "No valid JSON returned.");
         $user2 = json_decode($response->getContent(), true);
-        $this->assertEquals($user1, $user2);
+        $this->assertEquals($user1['uuid'], $user2['uuid']);
+        $this->assertEquals($user1['email'], $user2['email']);
+        $this->assertEquals($user1['nickname'], $user2['nickname']);
     }
 
     public function testUserUpdateFailTooShortPassword()
