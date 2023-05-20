@@ -131,6 +131,17 @@ class UserController extends AbstractFOSRestController
             $update->setPassword($hasher->hash($update->getPassword()));
         }
 
+        // Workaround for not persisting empty Strings into the DB
+        if ($update->getPostcode() === '') {$update->setPostcode(null);}
+        if ($update->getCity() === '') {$update->setCity(null);}
+        if ($update->getStreet() === '') {$update->setStreet(null);}
+        if ($update->getCountry() === '') {$update->setCountry(null);}
+        if ($update->getPhone() === '') {$update->setPhone(null);}
+        if ($update->getWebsite() === '') {$update->setWebsite(null);}
+        if ($update->getSteamAccount() === '') {$update->setSteamAccount(null);}
+        if ($update->getHardware() === '') {$update->setHardware(null);}
+        if ($update->getStatements() === '') {$update->setStatements(null);}
+
         $this->em->persist($update);
         $this->em->flush();
 
