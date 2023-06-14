@@ -113,6 +113,9 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         if (!is_null($search->newsletter)) {
             $qb->andWhere('u.infoMails = :mail')->setParameter('mail', $search->newsletter);
         }
+        if (!is_null($search->insecureDesPasswordHash)) {
+            $qb->andWhere('LENGTH(u.password) < :hashlength')->setParameter('hashlength', '14');
+        }
         $query = $qb->getQuery();
 
         return $query->getResult();
@@ -171,6 +174,11 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $sort = $this->filterArray($sort, $fields, ['asc', 'desc']);
 
         foreach ($filter as $field => $value) {
+            if ($field === 'insecurePasswordHashes') {
+                $criteria[] = 'LENGTH(u.password) < :hashlength';
+                $parameter['hashlength'] = '14';
+                continue;
+            }
             switch ($metadata->getTypeOfField($field)) {
                 case 'boolean':
                     $value = strtolower((string) $value);

@@ -34,4 +34,10 @@ final class Search
      */
     #[Assert\Type(type: 'boolean')]
     public $newsletter;
+
+    /**
+     * @var bool|null
+     */
+    #[Assert\Type(type: 'boolean')]
+    public $insecureDesPasswordHash;
 }
