@@ -170,7 +170,10 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $metadata = $this->getEntityManager()->getClassMetadata(User::class);
         $fields = $metadata->getFieldNames();
 
-        $filter = $this->filterArray($filter, $fields);
+        if (!array_key_exists('insecurePasswordHashes', $filter)) {
+            $filter = $this->filterArray($filter, $fields);
+        }
+
         $sort = $this->filterArray($sort, $fields, ['asc', 'desc']);
 
         foreach ($filter as $field => $value) {
