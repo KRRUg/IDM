@@ -1,9 +1,15 @@
+# Identity Management System for KLMS 
+
+Identity management and authorization provider which is used by KLMS.
+
 ## Installation
 
 ```
 composer install
 php bin/console doctrine:database:create
-php bin/console doctrine:migrations:migrate
+php bin/console doctrine:schema:create
+# Required once migrations exist in src/Migrations
+# php bin/console doctrine:migrations:migrate
 #Load Fixtures
 php bin/console doctrine:fixtures:load
 ```
