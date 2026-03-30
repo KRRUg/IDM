@@ -5,6 +5,14 @@ when@prod:
 #        If you are using Monolog, you also need these additional configuration and services to log the errors correctly:
 #        https://docs.sentry.io/platforms/php/guides/symfony/#monolog-integration
         register_error_listener: false
+        options:
+            ignore_exceptions:
+                - Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+                - Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
+                - Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException
+                - Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException
+                - Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException
+                - Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException
 
     monolog:
         handlers:
