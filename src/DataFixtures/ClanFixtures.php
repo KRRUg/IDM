@@ -3,6 +3,7 @@
 namespace App\DataFixtures;
 
 use App\Entity\Clan;
+use App\Entity\User;
 use App\Entity\UserClan;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
@@ -33,19 +34,19 @@ class ClanFixtures extends Fixture implements DependentFixtureInterface
 
         $user_clan = new UserClan();
         $user_clan->setAdmin(true);
-        $user_clan->setUser($this->getReference('user-1'));
+        $user_clan->setUser($this->getReference('user-1', User::class));
         $user_clan->setClan($clan);
         $manager->persist($user_clan);
 
         $user_clan = new UserClan();
-        $user_clan->setUser($this->getReference('user-2'));
+        $user_clan->setUser($this->getReference('user-2', User::class));
         $user_clan->setClan($clan);
         $manager->persist($user_clan);
 
 
         $user_clan = new UserClan();
         $user_clan->setAdmin(false);
-        $user_clan->setUser($this->getReference('user-ghost'));
+        $user_clan->setUser($this->getReference('user-ghost', User::class));
         $user_clan->setClan($clan);
 
         $manager->persist($user_clan);
@@ -60,17 +61,17 @@ class ClanFixtures extends Fixture implements DependentFixtureInterface
 
         $user_clan = new UserClan();
         $user_clan->setAdmin(true);
-        $user_clan->setUser($this->getReference('user-3'));
+        $user_clan->setUser($this->getReference('user-3', User::class));
         $user_clan->setClan($clan);
         $manager->persist($user_clan);
 
         $user_clan = new UserClan();
-        $user_clan->setUser($this->getReference('user-2'));
+        $user_clan->setUser($this->getReference('user-2', User::class));
         $user_clan->setClan($clan);
         $manager->persist($user_clan);
 
         $user_clan = new UserClan();
-        $user_clan->setUser($this->getReference('user-4'));
+        $user_clan->setUser($this->getReference('user-4', User::class));
         $user_clan->setClan($clan);
 
         $manager->persist($user_clan);
