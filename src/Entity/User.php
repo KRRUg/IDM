@@ -124,6 +124,11 @@ class User
     #[Assert\Length(max: 255, maxMessage: 'The {{ field }} cannot be longer than {{ limit }} characters', groups: ['Default', 'Transfer', 'Create'])]
     private ?string $steamAccount = null;
 
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['read', 'write'])]
+    #[Assert\Length(max: 255, maxMessage: 'The {{ field }} cannot be longer than {{ limit }} characters', groups: ['Default', 'Transfer', 'Create'])]
+    private ?string $battlenetAccount = null;
+
     #[ORM\Column(type: 'string', length: 4096, nullable: true)]
     #[Assert\Length(max: 4096, maxMessage: 'The {{ field }} cannot be longer than {{ limit }} characters', groups: ['Default', 'Transfer', 'Create'])]
     #[Groups(['read', 'write'])]
@@ -350,6 +355,18 @@ class User
     public function setSteamAccount(?string $steamAccount): self
     {
         $this->steamAccount = $steamAccount;
+
+        return $this;
+    }
+
+    public function getBattlenetAccount(): ?string
+    {
+        return $this->battlenetAccount;
+    }
+
+    public function setBattlenetAccount(?string $battlenetAccount): self
+    {
+        $this->battlenetAccount = $battlenetAccount;
 
         return $this;
     }

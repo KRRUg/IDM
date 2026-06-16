@@ -107,6 +107,9 @@ class UserService
         if (null !== $userdata['steamAccount']) {
             $user->setSteamAccount($userdata['steamAccount']);
         }
+        if (null !== $userdata['battlenetAccount']) {
+            $user->setBattlenetAccount($userdata['battlenetAccount']);
+        }
         if (null !== $userdata['hardware']) {
             $user->setHardware($userdata['hardware']);
         }
